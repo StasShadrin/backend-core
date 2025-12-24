@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="module\-info\.java$"/>
+    </module>
+
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|//|/\*|\*/|@"/>
+    </module>
+
+    <module name="RegexpSingleline">
+        <property name="format" value="\)\s{2,}\{"/>
+        <property name="message" value="Между ')' и '{' должно быть ровно один пробел"/>
+        <property name="fileExtensions" value="java"/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <module name="AvoidStarImport"/>
+        <module name="UnusedImports"/>
+
+        <module name="ImportOrder">
+            <property name="groups" value="java,javax,org,com"/>
+            <property name="ordered" value="true"/>
+            <property name="separated" value="true"/>
+        </module>
+
+        <module name="TypeName">
+            <message key="name.invalidPattern" value="Имя типа ''{0}'' должно начинаться с заглавной буквы"/>
+        </module>
+
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern" value="Имя поля ''{0}'' должно быть в camelCase"/>
+        </module>
+
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern" value="Имя метода ''{0}'' должно быть в camelCase"/>
+        </module>
+
+        <module name="ParameterName">
+            <property name="format" value="^[a-z][a-zA-Z0-9]*$"/>
+        </module>
+
+        <module name="NeedBraces">
+            <property name="tokens" value="LITERAL_IF, LITERAL_ELSE, LITERAL_FOR, LITERAL_WHILE, LITERAL_DO"/>
+        </module>
+
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="8"/>
+            <property name="lineWrappingIndentation" value="8"/>
+            <property name="arrayInitIndent" value="4"/>
+        </module>
+
+        <module name="LeftCurly">
+            <property name="option" value="eol"/>
+        </module>
+
+        <module name="RightCurly">
+            <property name="option" value="same"/>
+        </module>
+
+        <module name="WhitespaceAfter">
+            <property name="tokens" value="COMMA, SEMI, LITERAL_IF, LITERAL_ELSE, LITERAL_RETURN"/>
+        </module>
+
+        <module name="WhitespaceAround">
+            <property name="allowEmptyConstructors" value="true"/>
+            <property name="allowEmptyMethods" value="true"/>
+            <property name="tokens" value="ASSIGN, BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND,
+                                          LE, LOR, LT, MINUS, MOD, NOT_EQUAL, PLUS, SL, SR, STAR"/>
+        </module>
+
+
+        <module name="JavadocMethod">
+            <property name="accessModifiers" value="public"/>
+            <property name="allowMissingParamTags" value="true"/>
+            <property name="allowMissingReturnTag" value="true"/>
+        </module>
+
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="allowMissingPropertyJavadoc" value="true"/>
+        </module>
+
+        <module name="MissingJavadocType">
+            <property name="scope" value="public"/>
+        </module>
+
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+
+        <module name="EmptyStatement"/>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="FallThrough"/>
+        <module name="UpperEll"/>
+        <module name="ModifierOrder"/>
+        <module name="ArrayTypeStyle"/>
+    </module>
+</module>
