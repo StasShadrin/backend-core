@@ -1,0 +1,43 @@
+name: Java CI with Checkstyle and JaCoCo
+
+on:
+  push:
+    branches:
+      - master
+      - 'feature/**'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Set up JDK 25 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+          cache: 'gradle'
+
+      - name: Run Checkstyle
+        run: ./gradlew --no-daemon checkstyleMain checkstyleTest
+
+      - name: Run tests
+        run: ./gradlew --no-daemon test
+
+      - name: Generate JaCoCo report
+        run: ./gradlew --no-daemon jacocoTestReport
+
+      - name: Verify code coverage
+        run: ./gradlew --no-daemon jacocoTestCoverageVerification
+
+      - name: Build project
+        run: ./gradlew --no-daemon build
