@@ -1,5 +1,7 @@
 package ru.mentee.power.crm.domain;
 
+import java.util.Objects;
+
 /**
  * Represents a potential customer (lead) in the CRM system.
  * <p>
@@ -58,5 +60,22 @@ public class Lead {
                ", company='" + company + '\'' +
                ", status='" + status + '\'' +
                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Lead lead = (Lead) o;
+        return Objects.equals(id, lead.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
