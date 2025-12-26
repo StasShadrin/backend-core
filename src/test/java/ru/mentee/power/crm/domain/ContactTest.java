@@ -8,9 +8,9 @@ class ContactTest {
     @Test
     void shouldCreateContactWhenValidData() {
         Contact contact = new Contact("John", "Doe", "john@example.com");
-        assertThat(contact.getFirstName()).isEqualTo("John");
-        assertThat(contact.getLastName()).isEqualTo("Doe");
-        assertThat(contact.getEmail()).isEqualTo("john@example.com");
+        assertThat(contact.firstName()).isEqualTo("John");
+        assertThat(contact.lastName()).isEqualTo("Doe");
+        assertThat(contact.email()).isEqualTo("john@example.com");
     }
 
     @Test
