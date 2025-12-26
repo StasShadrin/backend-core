@@ -1,6 +1,7 @@
 package ru.mentee.power.crm.storage;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import ru.mentee.power.crm.domain.Lead;
 
@@ -100,5 +101,33 @@ public class LeadStorage {
             }
         }
         return count;
+    }
+
+    /**
+     * Finds and returns a lead by its unique identifier.
+     * <p>
+     * This method performs a linear search through the storage and returns
+     * the first lead whose {@code id} matches the given {@code id}.
+     * <p>
+     * If no lead with the specified {@code id} exists, {@code null} is returned.
+     * <p>
+     * Using {@link UUID} as the identifier type ensures compile-time safety,
+     * preventing accidental confusion with other string-based fields (e.g., email).
+     *
+     * @param id the unique identifier of the lead to find; must not be {@code null}
+     * @return the {@link Lead} with the matching {@code id}, or {@code null} if not found
+     * @throws NullPointerException if the provided {@code id} is {@code null}
+     */
+    public Lead findById(UUID id) {
+        if (id == null) {
+            throw new NullPointerException("Lead ID must not be null");
+        }
+
+        for (Lead lead : leads) {
+            if (lead != null && Objects.equals(lead.getId(), id)) {
+                return lead;
+            }
+        }
+        return null;
     }
 }
