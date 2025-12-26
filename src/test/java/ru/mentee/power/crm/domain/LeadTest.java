@@ -1,10 +1,13 @@
 package ru.mentee.power.crm.domain;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LeadTest {
-    private final Lead lead = new Lead("L1",
+    private final UUID expectedId = UUID.randomUUID();
+    private final Lead lead = new Lead(expectedId,
             "test@example.com",
             "+71234567890",
             "TestCorp",
@@ -12,8 +15,8 @@ class LeadTest {
 
     @Test
     void shouldReturnIdWhenGetIdCalled() {
-        String id = lead.getId();
-        assertThat(id).isEqualTo("L1");
+        UUID id = lead.getId();
+        assertThat(id).isEqualTo(expectedId);
     }
 
     @Test

@@ -1,6 +1,7 @@
 package ru.mentee.power.crm.domain;
 
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Represents a potential customer (lead) in the CRM system.
@@ -8,7 +9,7 @@ import java.util.Objects;
  * A lead contains contact information and current status in the sales pipeline.
  */
 public class Lead {
-    private String id;
+    private UUID id;
     private String email;
     private String phone;
     private String company;
@@ -23,7 +24,7 @@ public class Lead {
      * @param company  the company name associated with the lead
      * @param status   the current status of the lead (e.g., "NEW", "CONTACTED", "QUALIFIED")
      */
-    public Lead(String id, String email, String phone, String company, String status) {
+    public Lead(UUID id, String email, String phone, String company, String status) {
         this.id = id;
         this.email = email;
         this.phone = phone;
@@ -31,7 +32,7 @@ public class Lead {
         this.status = status;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
