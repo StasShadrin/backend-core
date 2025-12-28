@@ -11,9 +11,18 @@ import ru.mentee.power.crm.storage.LeadStorage;
 
 class LeadEqualsHashCodeTest {
     private final UUID randomUUID = UUID.randomUUID();
+    private final Address address1 = new Address("San Francisco", "123 Main St", "94105");
+    private final Contact contact1 = new Contact(
+            "test@example.com",
+            "+71234567890",
+            address1);
+    private final Address address2 = new Address("San Francisco", "123 Main St", "91234");
+    private final Contact contact2 = new Contact(
+            "test2@example.com",
+            "+71234567999",
+            address2);
     private final Lead base = new Lead(randomUUID,
-            "ivan@mail.ru",
-            "+7123",
+            contact1,
             "TechCorp",
             "NEW");
 
@@ -97,15 +106,13 @@ class LeadEqualsHashCodeTest {
     void shouldNotBeEqualWhenIdsAreDifferent() {
         // Given
         Lead differentLead = new Lead(UUID.randomUUID(),
-                "ivan@mail.ru",
-                "+7123",
+                contact2,
                 "TechCorp",
                 "NEW");
 
         // Then: Разные id = разные объекты (isNotEqualTo использует equals() внутри)
         assertThat(base).isNotEqualTo(differentLead);
     }
-
 
     @Test
     void shouldPreventStringConfusionWhenUsingUUID() {
@@ -114,10 +121,10 @@ class LeadEqualsHashCodeTest {
         storage.add(base);
 
         // When — вызов с правильным типом UUID
-        Lead found = storage.findById(base.getId());
+        Lead found = storage.findById(base.id());
 
         // Then
         assertThat(found).isNotNull();
-        assertThat(found.getId()).isEqualTo(base.getId());
+        assertThat(found.id()).isEqualTo(base.id());
     }
 }

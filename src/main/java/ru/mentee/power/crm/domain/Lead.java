@@ -1,82 +1,51 @@
 package ru.mentee.power.crm.domain;
 
-import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Represents a potential customer (lead) in the CRM system.
  * <p>
- * A lead contains contact information and current status in the sales pipeline.
+ * A lead contains contact information, company name, and current status
+ * in the sales pipeline. The status must be one of the predefined values.
+ *
+ * @param id       unique identifier; must not be {@code null}
+ * @param contact  contact information; must not be {@code null}
+ * @param company  company name (maybe {@code null} or empty)
+ * @param status   current sales status; must be one of:
+ *                 {@code "NEW"}, {@code "QUALIFIED"}, {@code "CONVERTED"} (case-sensitive)
  */
-public class Lead {
-    private UUID id;
-    private String email;
-    private String phone;
-    private String company;
-    private String status;
+public record Lead(UUID id, Contact contact, String company, String status) {
+
+    private static final Set<String> ALLOWED_STATUSES = Set.of("NEW", "QUALIFIED", "CONVERTED");
 
     /**
-     * Constructs a new Lead with the specified attributes.
+     * Compact constructor that validates the components of the {@code Lead} record.
+     * <p>
+     * Performs the following validations:
+     * <ul>
+     *   <li>{@code id} must not be {@code null}</li>
+     *   <li>{@code contact} must not be {@code null}</li>
+     *   <li>{@code status} must not be {@code null}</li>
+     *   <li>{@code status} must be one of: {@code "NEW"}, {@code "QUALIFIED"}, {@code "CONVERTED"}</li>
+     * </ul>
+     * <p>
+     * The {@code company} field is not validated and may be {@code null} or empty.
      *
-     * @param id       the unique identifier of the lead
-     * @param email    the email address of the lead
-     * @param phone    the phone number of the lead
-     * @param company  the company name associated with the lead
-     * @param status   the current status of the lead (e.g., "NEW", "CONTACTED", "QUALIFIED")
+     * @throws IllegalArgumentException if any validation rule is violated
      */
-    public Lead(UUID id, String email, String phone, String company, String status) {
-        this.id = id;
-        this.email = email;
-        this.phone = phone;
-        this.company = company;
-        this.status = status;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    @Override
-    public String toString() {
-        return "Lead{" +
-               "id='" + id + '\'' +
-               ", email='" + email + '\'' +
-               ", phone='" + phone + '\'' +
-               ", company='" + company + '\'' +
-               ", status='" + status + '\'' +
-               '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    public Lead {
+        if (id == null) {
+            throw new IllegalArgumentException("ID must not be null");
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
+        if (contact == null) {
+            throw new IllegalArgumentException("Contact must not be null");
         }
-        Lead lead = (Lead) o;
-        return Objects.equals(id, lead.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+        if (status == null) {
+            throw new IllegalArgumentException("Status must not be null");
+        }
+        if (!ALLOWED_STATUSES.contains(status)) {
+            throw new IllegalArgumentException("Status must be one of: NEW, QUALIFIED, CONVERTED");
+        }
     }
 }

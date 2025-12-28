@@ -2,29 +2,51 @@ package ru.mentee.power.crm.domain;
 
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ContactTest {
+    private final Address address1 = new Address("San Francisco", "123 Main St", "94105");
+    private final Contact contact1 = new Contact(
+            "test@example.com",
+            "+71234567890",
+            address1);
+    private final Address address2 = new Address("San Francisco", "123 Main St", "91234");
+    private final Contact contact2 = new Contact(
+            "test2@example.com",
+            "+71234567999",
+            address2);
 
     @Test
     void shouldCreateContactWhenValidData() {
-        Contact contact = new Contact("John", "Doe", "john@example.com");
-        assertThat(contact.firstName()).isEqualTo("John");
-        assertThat(contact.lastName()).isEqualTo("Doe");
-        assertThat(contact.email()).isEqualTo("john@example.com");
+        assertThat(contact1.email()).isEqualTo("test@example.com");
+        assertThat(contact1.phone()).isEqualTo("+71234567890");
+        assertThat(contact1.address()).isEqualTo(address1);
+        assertThat(contact1.address().city()).isEqualTo("San Francisco");
     }
 
     @Test
     void shouldBeEqualWhenSameData() {
-        Contact contact1 = new Contact("John", "Doe", "john@example.com");
-        Contact contact2 = new Contact("John", "Doe", "john@example.com");
-        assertThat(contact1).isEqualTo(contact2);
-        assertThat(contact1).hasSameHashCodeAs(contact2);
+        assertThat(contact1).isEqualTo(contact1);
+        assertThat(contact1).hasSameHashCodeAs(contact1);
     }
 
     @Test
     void shouldNotBeEqualWhenDifferentData() {
-        Contact contact1 = new Contact("John", "Doe", "john@example.com");
-        Contact contact2 = new Contact("John", "Smith", "john@example.com");
         assertThat(contact1).isNotEqualTo(contact2);
+    }
+
+    @Test
+    void shouldDelegateToAddressWhenAccessingCity() {
+        assertThat(contact1.address().city()).isEqualTo("San Francisco");
+        assertThat(contact1.address().street()).isEqualTo("123 Main St");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAddressIsNull() {
+        assertThatThrownBy(() -> new Contact(
+                "test2@example.com",
+                "+71234567890",
+                null))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
