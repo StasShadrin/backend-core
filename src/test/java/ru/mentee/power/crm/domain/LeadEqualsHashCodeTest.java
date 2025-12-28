@@ -121,10 +121,10 @@ class LeadEqualsHashCodeTest {
         storage.add(base);
 
         // When — вызов с правильным типом UUID
-        Lead found = storage.findById(base.id());
+        Lead found = storage.findById(base.getId());
 
         // Then
         assertThat(found).isNotNull();
-        assertThat(found.id()).isEqualTo(base.id());
+        assertThat(found.getId()).isEqualTo(base.getId());
     }
 }

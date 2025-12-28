@@ -25,9 +25,9 @@ class LeadTest {
         Contact contact = new Contact("test@example.com", "+71234567890", address);
         Lead lead = new Lead(UUID.randomUUID(), contact, "TechCorp", "NEW");
 
-        assertThat(lead.contact()).isEqualTo(contact);
-        assertThat(lead.company()).isEqualTo("TechCorp");
-        assertThat(lead.status()).isEqualTo("NEW");
+        assertThat(lead.getContact()).isEqualTo(contact);
+        assertThat(lead.getCompany()).isEqualTo("TechCorp");
+        assertThat(lead.getStatus()).isEqualTo("NEW");
     }
 
     @Test
@@ -39,8 +39,8 @@ class LeadTest {
                 "TechCorp",
                 "NEW");
 
-        assertThat(lead.contact().email()).isEqualTo("test@example.com");
-        assertThat(lead.contact().address().city()).isEqualTo("San Francisco");
+        assertThat(lead.getContact().email()).isEqualTo("test@example.com");
+        assertThat(lead.getContact().address().city()).isEqualTo("San Francisco");
     }
 
     @Test
@@ -105,7 +105,7 @@ class LeadTest {
                 "TechCorp",
                 "NEW");
 
-        Contact contact = lead.contact();
+        Contact contact = lead.getContact();
         Address address = contact.address();
         String cityStep = address.city();
         assertThat(cityStep).isEqualTo("San Francisco");
