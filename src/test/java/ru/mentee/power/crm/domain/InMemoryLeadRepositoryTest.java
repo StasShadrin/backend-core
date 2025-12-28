@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ru.mentee.power.crm.infrastructure.InMemoryLeadRepository;
+
 class InMemoryLeadRepositoryTest {
 
     private static Address createAddress() {
