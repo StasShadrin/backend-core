@@ -1,4 +1,4 @@
-package ru.mentee.power.crm.domain;
+package ru.mentee.power.crm.infrastructure;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +7,9 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import ru.mentee.power.crm.infrastructure.InMemoryLeadRepository;
+import ru.mentee.power.crm.domain.Address;
+import ru.mentee.power.crm.domain.Contact;
+import ru.mentee.power.crm.domain.Lead;
 
 class InMemoryLeadRepositoryTest {
 
