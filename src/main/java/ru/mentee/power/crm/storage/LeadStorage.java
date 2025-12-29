@@ -56,7 +56,7 @@ public class LeadStorage {
                     firstNullIndex = i;
                 }
             } else {
-                if (Objects.equals(leads[i].contact().email(), lead.contact().email())) {
+                if (Objects.equals(leads[i].getContact().email(), lead.getContact().email())) {
                     return false;
                 }
             }
@@ -124,7 +124,7 @@ public class LeadStorage {
         }
 
         for (Lead lead : leads) {
-            if (lead != null && Objects.equals(lead.id(), id)) {
+            if (lead != null && Objects.equals(lead.getId(), id)) {
                 return lead;
             }
         }

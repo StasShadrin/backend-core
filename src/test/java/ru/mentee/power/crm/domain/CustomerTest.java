@@ -54,8 +54,8 @@ class CustomerTest {
         );
 
         // Then: оба объекта используют один и тот же Contact (по ссылке или по содержимому)
-        assertThat(lead.contact()).isEqualTo(customer.contact());
-        assertThat(lead.contact().email()).isEqualTo("shared@example.com");
+        assertThat(lead.getContact()).isEqualTo(customer.contact());
+        assertThat(lead.getContact().email()).isEqualTo("shared@example.com");
 
     }
 }
