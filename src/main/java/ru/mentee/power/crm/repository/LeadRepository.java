@@ -1,41 +1,28 @@
 package ru.mentee.power.crm.repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import ru.mentee.power.crm.model.Lead;
 
-/** Lead repository using HashMap for O(1) ID-based lookup.*/
-public class LeadRepository {
-    private final Map<String, Lead> storage = new HashMap<>();
+/** Contract for lead persistence operations with CRUD and email-based lookup. */
+public interface LeadRepository {
+    /** Saves a lead and returns the persisted instance. */
+    Lead save(Lead lead);
 
-    /** Saves a lead (rejects null). */
-    public void save(Lead lead) {
-        if (lead == null) {
-            throw new IllegalArgumentException("Lead must not be null");
-        }
-        storage.put(lead.id(), lead);
-    }
+    /** Finds a lead by its unique ID. */
+    Optional<Lead> findById(UUID id);
 
-    /** Returns lead by ID, or null if not found. */
-    public Lead findById(String id) {
-        return storage.get(id);
-    }
+    /** Finds a lead by email address. */
+    Optional<Lead> findByEmail(String email);
 
-    /** Returns a new list of all leads (defensive copy). */
-    public List<Lead> findAll() {
-        return new ArrayList<>(storage.values());
-    }
+    /** Returns all persisted leads. */
+    List<Lead> findAll();
 
-    /** Removes lead by ID. */
-    public void delete(String id) {
-        storage.remove(id);
-    }
+    /** Deletes a lead by its ID. */
+    void delete(UUID id);
 
-    /** Returns number of stored leads. */
-    public int size() {
-        return storage.size();
-    }
+    /** Returns the total number of stored leads. */
+    int size();
 }
