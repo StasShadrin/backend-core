@@ -56,6 +56,17 @@ jacoco {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+
+    jvmArgs = [
+            '-XX:+EnableDynamicAgentLoading',
+    ]
+
+    def mockitoAgent = configurations.testRuntimeClasspath
+            .resolve()
+            .find { it.name.startsWith('mockito-core') }
+    if (mockitoAgent) {
+        jvmArgs += "-javaagent:${mockitoAgent}"
+    }
 }
 
 jacocoTestReport {
@@ -70,6 +81,15 @@ jacocoTestReport {
 
 jacocoTestCoverageVerification {
     dependsOn jacocoTestReport
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'ru/mentee/power/crm/Main.class',
+                    'ru/mentee/power/crm/web/**/HelloCrmServer*.class'
+            ])
+        }))
+    }
 
     violationRules {
         rule {
