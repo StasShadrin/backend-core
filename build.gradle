@@ -12,6 +12,7 @@ ext {
     junitVersion = '5.11.0'
     assertjVersion = '3.26.3'
     lombokVersion = '1.18.38'
+    mockitoVersion = '5.21.0'
 }
 
 java {
@@ -21,7 +22,7 @@ java {
 }
 
 application {
-    mainClass = 'ru.mentee.crm.Main'
+    mainClass = 'ru.mentee.power.crm.Main'
 }
 
 repositories {
@@ -29,12 +30,17 @@ repositories {
 }
 
 dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
     testImplementation platform("org.junit:junit-bom:${junitVersion}")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testImplementation 'net.bytebuddy:byte-buddy:1.17.7'
+    testImplementation 'net.bytebuddy:byte-buddy-agent:1.17.7'
 }
 
 checkstyle {
