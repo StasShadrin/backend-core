@@ -7,10 +7,11 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class InMemoryLeadRepositoryTest {
     private InMemoryLeadRepository repository;

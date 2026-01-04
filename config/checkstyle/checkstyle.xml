@@ -26,15 +26,21 @@
         <property name="fileExtensions" value="java"/>
     </module>
 
+    <module name="SuppressionSingleFilter">
+        <property name="checks" value="MethodName"/>
+        <property name="files" value=".*Test\.java$"/>
+    </module>
+
     <module name="TreeWalker">
 
         <module name="AvoidStarImport"/>
         <module name="UnusedImports"/>
 
         <module name="ImportOrder">
-            <property name="groups" value="java,javax,org,com"/>
+            <property name="groups" value="java,javax,com,org"/>
             <property name="ordered" value="true"/>
             <property name="separated" value="true"/>
+            <property name="option" value="bottom"/>
         </module>
 
         <module name="TypeName">
