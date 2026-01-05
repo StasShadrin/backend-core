@@ -13,6 +13,8 @@ ext {
     assertjVersion = '3.26.3'
     lombokVersion = '1.18.38'
     mockitoVersion = '5.21.0'
+    servletVersion = '6.1.0'
+    tomcatVersion = '11.0.12'
 }
 
 java {
@@ -32,6 +34,9 @@ repositories {
 dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    implementation "jakarta.servlet:jakarta.servlet-api:${servletVersion}"
+    implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
 
     testImplementation platform("org.junit:junit-bom:${junitVersion}")
     testImplementation "org.junit.jupiter:junit-jupiter"
