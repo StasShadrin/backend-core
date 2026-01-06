@@ -18,6 +18,13 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+# JTE generated
+**/Jte*.java
+**/*Generated.java
+jte-classes/
+jte-resources/
+gg/
+
 ### Eclipse ###
 .apt_generated
 .classpath
