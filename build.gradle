@@ -3,6 +3,7 @@ plugins {
     id 'application'
     id 'checkstyle'
     id 'jacoco'
+    id 'gg.jte.gradle' version '3.2.1'
 }
 
 group = 'ru.mentee.power'
@@ -15,6 +16,7 @@ ext {
     mockitoVersion = '5.21.0'
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.12'
+    jteVersion = '3.2.1'
 }
 
 java {
@@ -37,6 +39,9 @@ dependencies {
 
     implementation "jakarta.servlet:jakarta.servlet-api:${servletVersion}"
     implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
+
+    implementation "gg.jte:jte:${jteVersion}"
+    implementation "gg.jte:jte-runtime:${jteVersion}"
 
     testImplementation platform("org.junit:junit-bom:${junitVersion}")
     testImplementation "org.junit.jupiter:junit-jupiter"
@@ -113,4 +118,10 @@ check {
 run {
     standardInput = System.in
     systemProperty "file.encoding", "UTF-8"
+}
+
+jte {
+    sourceDirectory = file("src/main/jte").toPath()
+    contentType = "Html"
+    binaryStaticContent = false
 }

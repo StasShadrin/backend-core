@@ -25,6 +25,10 @@ public class Main {
         leadService.addLead("john@example.com", "+111", "Microsoft", LeadStatus.NEW);
         leadService.addLead("sara@example.com", "+222", "Amazon", LeadStatus.CONTACTED);
 
+        leadService.addLead("<script>alert('XSS Attack!')</script>", "+999", "Hacker Corp", LeadStatus.NEW);
+        leadService.addLead("\"><img src=x onerror=alert('XSS2')>", "+888", "Evil Corp", LeadStatus.CONTACTED);
+        leadService.addLead("'; DROP TABLE users; --", "+777", "SQL Injection", LeadStatus.QUALIFIED);
+
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);
         tomcat.getConnector();
