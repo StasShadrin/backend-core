@@ -23,6 +23,7 @@ class LeadControllerIntegrationTest {
         mockMvc.perform(get("/leads"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("leads/list"))
-                .andExpect(content().contentType("text/html;charset=UTF-8"));
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("@")));
     }
 }
