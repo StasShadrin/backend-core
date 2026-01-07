@@ -5,11 +5,11 @@ import java.io.File;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 
-import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.InMemoryLeadRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.service.LeadService;
 import ru.mentee.power.crm.servlet.LeadListServlet;
+import ru.mentee.power.crm.util.TestDataUtils;
 
 /** Точка входа в программу */
 public class Main {
@@ -19,15 +19,7 @@ public class Main {
         LeadRepository leadRepository = new InMemoryLeadRepository();
         LeadService leadService = new LeadService(leadRepository);
 
-        leadService.addLead("bob1@example.com", "+123", "Google", LeadStatus.NEW);
-        leadService.addLead("bob2@example.com", "+456", "Meta", LeadStatus.CONTACTED);
-        leadService.addLead("alice@example.com", "+789", "Apple", LeadStatus.QUALIFIED);
-        leadService.addLead("john@example.com", "+111", "Microsoft", LeadStatus.NEW);
-        leadService.addLead("sara@example.com", "+222", "Amazon", LeadStatus.CONTACTED);
-
-        leadService.addLead("<script>alert('XSS Attack!')</script>", "+999", "Hacker Corp", LeadStatus.NEW);
-        leadService.addLead("\"><img src=x onerror=alert('XSS2')>", "+888", "Evil Corp", LeadStatus.CONTACTED);
-        leadService.addLead("'; DROP TABLE users; --", "+777", "SQL Injection", LeadStatus.QUALIFIED);
+        TestDataUtils.initializeTestData(leadService);
 
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);

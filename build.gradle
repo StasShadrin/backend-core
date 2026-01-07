@@ -4,7 +4,7 @@ plugins {
     id 'checkstyle'
     id 'jacoco'
     id 'gg.jte.gradle' version '3.2.1'
-    id 'org.springframework.boot' version '4.0.0'
+    id 'org.springframework.boot' version '3.5.9'
     id 'io.spring.dependency-management' version '1.1.4'
 }
 
@@ -12,7 +12,7 @@ group = 'ru.mentee.power'
 version = '1.0-SNAPSHOT'
 
 ext {
-    springBootVersion = '4.0.0'
+    springBootVersion = '3.5.9'
     junitVersion = '5.11.0'
     assertjVersion = '3.26.3'
     lombokVersion = '1.18.38'
@@ -20,6 +20,7 @@ ext {
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.12'
     jteVersion = '3.2.1'
+    jteSpringBootVersion= '3.2.1'
 }
 
 java {
@@ -49,6 +50,12 @@ dependencies {
     // Sprint 5: Spring Boot Stack (BCORE-14)
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
 
+    // JTE интеграция для Spring Boot
+    implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
+    implementation "gg.jte:jte:${jteVersion}"
+
+    // Для тестирования
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
     testImplementation platform("org.junit:junit-bom:${junitVersion}")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
@@ -60,7 +67,7 @@ dependencies {
 }
 
 bootRun {
-    mainClass = 'ru.mentee.power.crm.spring.Application'
+    mainClass = 'ru.mentee.power.crm.Application'
     args = ['--server.port=8081']
 }
 
@@ -74,7 +81,7 @@ jar {
     manifest {
         attributes 'Main-Class': 'ru.mentee.power.crm.Main'
     }
-    exclude 'ru/mentee/power/crm/spring/Application.class'
+    exclude 'ru/mentee/power/crm/Application.class'
 }
 
 checkstyle {
@@ -119,7 +126,9 @@ jacocoTestCoverageVerification {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                     'ru/mentee/power/crm/Main.class',
-                    'ru/mentee/power/crm/web/**/HelloCrmServer*.class'
+                    'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
+                    'ru/mentee/power/crm/web/**/TestDataUtils*.class',
+                    'ru/mentee/power/crm/web/**/TestDataInitializer*.class'
             ])
         }))
     }
