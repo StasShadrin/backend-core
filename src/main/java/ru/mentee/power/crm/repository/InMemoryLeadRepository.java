@@ -7,9 +7,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.stereotype.Repository;
+
 import ru.mentee.power.crm.model.Lead;
 
 /** Lead repository using HashMap for O(1) ID-based lookup.*/
+@Repository
 public class InMemoryLeadRepository implements LeadRepository {
 
     private final Map<UUID, Lead> storage = new HashMap<>();

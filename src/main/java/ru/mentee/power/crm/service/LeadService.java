@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
@@ -11,14 +14,11 @@ import ru.mentee.power.crm.repository.LeadRepository;
 /**
  * Service layer for lead-related business logic, including deduplication by email.
  */
+@Service
+@RequiredArgsConstructor
 public class LeadService {
 
     private final LeadRepository repository;
-
-    /** Constructs the service with a given repository (Dependency Injection). */
-    public LeadService(LeadRepository repository) {
-        this.repository = repository;
-    }
 
     /**
      * Creates a new lead after ensuring the email is unique.
