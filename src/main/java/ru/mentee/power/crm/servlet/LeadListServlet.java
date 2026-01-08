@@ -29,7 +29,7 @@ public class LeadListServlet extends HttpServlet {
     private TemplateEngine templateEngine;
 
     // Для тестов - package-private метод
-    void setTemplateEngine(TemplateEngine templateEngine) {
+    public void setTemplateEngine(TemplateEngine templateEngine) {
         this.templateEngine = templateEngine;
     }
 
