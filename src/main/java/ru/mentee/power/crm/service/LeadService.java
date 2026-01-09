@@ -57,4 +57,11 @@ public class LeadService {
     public Optional<Lead> findByEmail(String email) {
         return repository.findByEmail(email);
     }
+
+    /** Возвращает список лидов с указанным статусом. */
+    public List<Lead> findByStatus(LeadStatus status) {
+        return repository.findAll().stream()
+                .filter(lead -> lead.status().equals(status))
+                .toList();
+    }
 }
