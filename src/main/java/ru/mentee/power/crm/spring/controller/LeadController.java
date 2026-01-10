@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
@@ -30,5 +32,19 @@ public class LeadController {
         model.addAttribute("leads", list);
         model.addAttribute("currentFilter", status);
         return "leads/list";
+    }
+
+    /** Показывает форму для создания нового лида */
+    @GetMapping("/leads/new")
+    public String showCreateForm(Model model) {
+        model.addAttribute("lead", new Lead(null, "", "", "", LeadStatus.NEW));
+        return "leads/create";
+    }
+
+    /** Обрабатывает отправку формы и создаёт нового лида */
+    @PostMapping("/leads")
+    public String createLead(@ModelAttribute Lead lead) {
+        leadService.addLead(lead.email(), lead.phone(), lead.company(), lead.status());
+        return "redirect:/leads";
     }
 }
