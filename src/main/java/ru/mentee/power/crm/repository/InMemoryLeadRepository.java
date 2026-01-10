@@ -2,6 +2,7 @@ package ru.mentee.power.crm.repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import ru.mentee.power.crm.model.Lead;
 @Repository
 public class InMemoryLeadRepository implements LeadRepository {
 
-    private final Map<UUID, Lead> storage = new HashMap<>();
+    private final Map<UUID, Lead> storage = new LinkedHashMap<>();
     private final Map<String, UUID> emailIndex = new HashMap<>();
 
     /** Saves a lead (rejects null). */
