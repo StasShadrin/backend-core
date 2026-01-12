@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -17,8 +20,13 @@ import ru.mentee.power.crm.repository.LeadRepository;
 @Service
 @RequiredArgsConstructor
 public class LeadService {
-
+    private static final Logger log = LoggerFactory.getLogger(LeadService.class);
     private final LeadRepository repository;
+
+    @PostConstruct
+    void init() {
+        log.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
+    }
 
     /**
      * Creates a new lead after ensuring the email is unique.
