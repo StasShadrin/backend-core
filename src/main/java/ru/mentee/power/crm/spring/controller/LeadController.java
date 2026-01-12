@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.model.Lead;
@@ -46,5 +47,11 @@ public class LeadController {
     public String createLead(@ModelAttribute Lead lead) {
         leadService.addLead(lead.email(), lead.phone(), lead.company(), lead.status());
         return "redirect:/leads";
+    }
+    /** Тестовый эндпоинт */
+    @GetMapping("/")
+    @ResponseBody
+    public String home() {
+        return "Spring Boot CRM is running! Beans created: " + leadService.findAll().size() + " leads.";
     }
 }
