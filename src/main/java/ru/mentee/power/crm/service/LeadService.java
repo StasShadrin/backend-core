@@ -72,4 +72,19 @@ public class LeadService {
                 .filter(lead -> lead.status().equals(status))
                 .toList();
     }
+
+    /** Обновление существующего лида */
+    public void update(UUID id, Lead updatedLead) {
+        Lead existing = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + id));
+        Lead updated = new Lead(
+                existing.id(),
+                updatedLead.email(),
+                updatedLead.phone(),
+                updatedLead.company(),
+                updatedLead.status()
+        );
+
+        repository.save(updated);
+    }
 }
