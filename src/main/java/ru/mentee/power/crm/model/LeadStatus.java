@@ -1,10 +1,11 @@
 package ru.mentee.power.crm.model;
 
 /**
- * Represents the current stage of a lead in the sales pipeline.
+ * Представляет текущий этап лида в конвейере продаж.
  */
 public enum LeadStatus {
-    NEW,          // Lead just registered
-    CONTACTED,    // First contact established
-    QUALIFIED     // Lead meets criteria for sales follow-up
+    NEW,          // Лид только что зарегистрировался
+    CONTACTED,    // Установлен первый контакт
+    QUALIFIED,    // Лид соответствует критериям последующих продаж
+    LOST          //
 }

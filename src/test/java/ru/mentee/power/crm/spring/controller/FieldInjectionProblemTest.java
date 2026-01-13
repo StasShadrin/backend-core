@@ -15,7 +15,7 @@ class FieldInjectionProblemTest {
 
         // Этот тест показывает что Field Injection untestable без @SpringBootTest
         // Uncomment следующую строку чтобы увидеть NPE:
-        // controller.demo(); // NullPointerException при обращении к fieldRepository
+        controller.demo(); // NullPointerException при обращении к fieldRepository
 
         // Constructor Injection позволил бы передать mock через конструктор
         // Field Injection требует Spring контейнер или Reflection hacks
