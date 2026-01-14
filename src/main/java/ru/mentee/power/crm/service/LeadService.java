@@ -6,7 +6,9 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +75,7 @@ public class LeadService {
                 .toList();
     }
 
-    /** Обновление существующего лида */
+    /** Обновление существующего лида. */
     public void update(UUID id, Lead updatedLead) {
         Lead existing = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + id));
@@ -86,5 +88,12 @@ public class LeadService {
         );
 
         repository.save(updated);
+    }
+
+    /** Удаление существующего лида. */
+    public void delete(UUID id) {
+        repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        repository.delete(id);
     }
 }
