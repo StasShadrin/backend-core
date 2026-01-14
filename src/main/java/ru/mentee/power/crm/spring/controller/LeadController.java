@@ -31,16 +31,23 @@ public class LeadController {
 
     private final LeadService leadService;
 
-    /** Обрабатывает GET-запрос /leads и отображает список лидов */
+    /** Обрабатывает GET-запрос /leads и отображает список лидов с фильтрацией */
     @GetMapping("/leads")
     public String showLeads(
-            @RequestParam(required = false) LeadStatus status,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
             Model model) {
-        List<Lead> list = (status == null)
-                ? leadService.findAll()
-                : leadService.findByStatus(status);
-        model.addAttribute("leads", list);
-        model.addAttribute("currentFilter", status);
+
+        LeadStatus statusEnum = null;
+        if (status != null && !status.isEmpty()) {
+            statusEnum = LeadStatus.valueOf(status);
+        }
+
+        List<Lead> leads = leadService.findLeads(search, statusEnum);
+        model.addAttribute("leads", leads);
+        model.addAttribute("search", search != null ? search : "");
+        model.addAttribute("status", status != null ? status : "");
+        model.addAttribute("currentFilter", statusEnum);
         return LEADS_LIST;
     }
 
