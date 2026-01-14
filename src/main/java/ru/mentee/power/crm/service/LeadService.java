@@ -3,6 +3,7 @@ package ru.mentee.power.crm.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,5 +96,25 @@ public class LeadService {
         repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         repository.delete(id);
+    }
+
+    /** Выполняет поиск и фильтрацию лидов по текстовому запросу и статусу. */
+    public List<Lead> findLeads(String search, LeadStatus status) {
+        List<Lead> leads = repository.findAll();
+        Stream<Lead> stream = leads.stream();
+
+        if (search != null && !search.trim().isEmpty()) {
+            String lowerSearch = search.toLowerCase().trim();
+            stream = stream.filter(lead ->
+                    lead.email().toLowerCase().contains(lowerSearch) ||
+                    lead.company().toLowerCase().contains(lowerSearch)
+            );
+        }
+
+        if (status != null) {
+            stream = stream.filter(lead -> lead.status().equals(status));
+        }
+
+        return stream.toList();
     }
 }

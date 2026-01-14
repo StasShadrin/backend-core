@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.spring.controller;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -159,5 +160,97 @@ class LeadControllerTest {
                 .andExpect(redirectedUrl("/leads"));
 
         verify(leadService).delete(id);
+    }
+
+    // GET /leads?search=ivan — поиск по email/company
+    @Test
+    void shouldFilterBySearchTerm() throws Exception {
+        // Given
+        String searchTerm = "test";
+        Lead expectedLead = new Lead(
+                UUID.randomUUID(),
+                "test@example.com",
+                "+79991234567",
+                "Test Company",
+                LeadStatus.NEW
+        );
+        when(leadService.findLeads((searchTerm), (null)))
+                .thenReturn(List.of(expectedLead));
+
+        // When & Then
+        mockMvc.perform(get("/leads")
+                        .param("search", searchTerm))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/list"))
+                .andExpect(model().attribute("leads", List.of(expectedLead)))
+                .andExpect(model().attribute("search", searchTerm))
+                .andExpect(model().attribute("status", ""));
+    }
+
+    // GET /leads?status=NEW — фильтрация по статусу
+    @Test
+    void shouldFilterByStatus() throws Exception {
+        // Given
+        LeadStatus status = LeadStatus.NEW;
+        Lead lead1 = new Lead(UUID.randomUUID(), "a@example.com", "123", "A", status);
+        Lead lead2 = new Lead(UUID.randomUUID(), "b@example.com", "456", "B", status);
+        List<Lead> expectedLeads = List.of(lead1, lead2);
+        when(leadService.findLeads((null), (status)))
+                .thenReturn(expectedLeads);
+
+        // When & Then
+        mockMvc.perform(get("/leads")
+                        .param("status", status.name()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/list"))
+                .andExpect(model().attribute("leads", expectedLeads))
+                .andExpect(model().attribute("search", ""))
+                .andExpect(model().attribute("status", status.name()));
+    }
+
+    // GET /leads — без параметров, возвращаются все лиды
+    @Test
+    void shouldReturnAllLeadsWhenNoParameters() throws Exception {
+        // Given
+        Lead lead1 = new Lead(UUID.randomUUID(), "a@example.com", "123", "A", LeadStatus.NEW);
+        Lead lead2 = new Lead(UUID.randomUUID(), "b@example.com", "456", "B", LeadStatus.CONTACTED);
+        List<Lead> allLeads = List.of(lead1, lead2);
+        when(leadService.findLeads((null), null))
+                .thenReturn(allLeads);
+
+        // When & Then
+        mockMvc.perform(get("/leads"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/list"))
+                .andExpect(model().attribute("leads", allLeads))
+                .andExpect(model().attribute("search", ""))
+                .andExpect(model().attribute("status", ""));
+    }
+
+    // GET /leads?search=test&status=NEW — комбинированный фильтр
+    @Test
+    void shouldCombineSearchAndStatusFilters() throws Exception {
+        // Given
+        String searchTerm = "acme";
+        LeadStatus status = LeadStatus.NEW;
+        Lead expectedLead = new Lead(
+                UUID.randomUUID(),
+                "contact@acme.com",
+                "+79990000000",
+                "Acme Inc",
+                status
+        );
+        when(leadService.findLeads((searchTerm), (status)))
+                .thenReturn(List.of(expectedLead));
+
+        // When & Then
+        mockMvc.perform(get("/leads")
+                        .param("search", searchTerm)
+                        .param("status", status.name()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/list"))
+                .andExpect(model().attribute("leads", List.of(expectedLead)))
+                .andExpect(model().attribute("search", searchTerm))
+                .andExpect(model().attribute("status", status.name()));
     }
 }
