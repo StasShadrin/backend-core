@@ -24,6 +24,11 @@ import ru.mentee.power.crm.service.LeadService;
 @RequiredArgsConstructor
 public class LeadController {
 
+    private static final String REDIRECT_LEADS = "redirect:/leads";
+    private static final String LEADS_LIST = "leads/list";
+    private static final String LEADS_CREATE = "leads/create";
+    private static final String LEADS_EDIT = "leads/edit";
+
     private final LeadService leadService;
 
     /** Обрабатывает GET-запрос /leads и отображает список лидов */
@@ -36,21 +41,21 @@ public class LeadController {
                 : leadService.findByStatus(status);
         model.addAttribute("leads", list);
         model.addAttribute("currentFilter", status);
-        return "leads/list";
+        return LEADS_LIST;
     }
 
     /** Показывает форму для создания нового лида */
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
         model.addAttribute("lead", new Lead(null, "", "", "", LeadStatus.NEW));
-        return "leads/create";
+        return LEADS_CREATE;
     }
 
     /** Обрабатывает отправку формы и создаёт нового лида */
     @PostMapping("/leads")
     public String createLead(@ModelAttribute Lead lead) {
         leadService.addLead(lead.email(), lead.phone(), lead.company(), lead.status());
-        return "redirect:/leads";
+        return REDIRECT_LEADS;
     }
 
     /** Тестовый эндпоинт */
@@ -66,13 +71,20 @@ public class LeadController {
         Lead lead = leadService.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Lead not found"));
         model.addAttribute("lead", lead);
-        return "leads/edit";
+        return LEADS_EDIT;
     }
 
     /** Обрабатывает отправку формы и обновляет данные лида */
     @PostMapping("/leads/{id}")
     public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
         leadService.update(id, lead);
-        return "redirect:/leads";
+        return REDIRECT_LEADS;
+    }
+
+    /** Удаление лида */
+    @PostMapping("/leads/{id}/delete")
+    public String deleteLead(@PathVariable UUID id) {
+        leadService.delete(id);
+        return REDIRECT_LEADS;
     }
 }
