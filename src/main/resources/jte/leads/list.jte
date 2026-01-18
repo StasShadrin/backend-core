@@ -12,7 +12,7 @@
             <input
                     type="text"
                     name="search"
-                    placeholder="Поиск по email или компании..."
+                    placeholder="Поиск по имени, email или компании..."
                     value="${search}"
                     class="px-3 py-2 border rounded w-full"
             />
@@ -67,6 +67,7 @@
         <table class="min-w-full bg-white border border-gray-200">
             <thead class="bg-gray-100">
             <tr>
+                <th class="px-4 py-2 text-left">Name</th>
                 <th class="px-4 py-2 text-left">Email</th>
                 <th class="px-4 py-2 text-left">Phone</th>
                 <th class="px-4 py-2 text-left">Company</th>
@@ -78,6 +79,7 @@
             <tbody>
             @for(var lead : leads)
                 <tr class="border-t hover:bg-gray-50">
+                    <td class="px-4 py-2">${lead.name()}</td>
                     <td class="px-4 py-2">${lead.email()}</td>
                     <td class="px-4 py-2">${lead.phone()}</td>
                     <td class="px-4 py-2">${lead.company()}</td>

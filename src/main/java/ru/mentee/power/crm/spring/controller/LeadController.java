@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
 
@@ -54,14 +57,29 @@ public class LeadController {
     /** Показывает форму для создания нового лида */
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("lead", new Lead(null, "", "", "", LeadStatus.NEW));
+        model.addAttribute("lead", LeadBuilder.builder()
+                .id(null)
+                .name("")
+                .email("")
+                .phone("")
+                .company("")
+                .status(LeadStatus.NEW)
+                .build());
         return LEADS_CREATE;
     }
 
     /** Обрабатывает отправку формы и создаёт нового лида */
     @PostMapping("/leads")
-    public String createLead(@ModelAttribute Lead lead) {
-        leadService.addLead(lead.email(), lead.phone(), lead.company(), lead.status());
+    public String createLead(
+            @Valid @ModelAttribute Lead lead,
+            BindingResult result,
+            Model model) {
+
+        if (result.hasErrors()) {
+            model.addAttribute("errors", result);
+            return LEADS_CREATE;
+        }
+        leadService.addLead(lead);
         return REDIRECT_LEADS;
     }
 
@@ -83,7 +101,15 @@ public class LeadController {
 
     /** Обрабатывает отправку формы и обновляет данные лида */
     @PostMapping("/leads/{id}")
-    public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
+    public String updateLead(
+            @PathVariable UUID id,
+            @Valid @ModelAttribute Lead lead,
+            BindingResult result,
+            Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("errors", result);
+            return LEADS_EDIT;
+        }
         leadService.update(id, lead);
         return REDIRECT_LEADS;
     }

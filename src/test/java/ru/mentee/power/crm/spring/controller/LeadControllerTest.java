@@ -13,6 +13,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
 
@@ -42,13 +43,13 @@ class LeadControllerTest {
     @BeforeEach
     void setUp() {
         validId = UUID.randomUUID();
-        existingLead = new Lead(
-                validId,
-                "test@example.com",
-                "+79991234567",
-                "Test",
-                LeadStatus.NEW
-        );
+        existingLead = LeadBuilder.builder()
+                .id(validId)
+                .email("test@example.com")
+                .phone("+79991234567")
+                .company("Test")
+                .status(LeadStatus.NEW)
+                .build();
     }
 
     // GET /leads/{id}/edit - форма редактирования
@@ -72,6 +73,7 @@ class LeadControllerTest {
 
         // When & Then
         mockMvc.perform(post("/leads/{id}", validId)
+                        .param("name", "test")
                         .param("email", "updated@example.com")
                         .param("phone", "+79999999999")
                         .param("company", "Updated Corp")
@@ -115,24 +117,27 @@ class LeadControllerTest {
     @Test
     void shouldCreateLeadAndRedirectToList() throws Exception {
         // Given
-        Lead newLead = new Lead(
-                UUID.randomUUID(),
-                "new@example.com",
-                "+79991234567",
-                "New Company",
-                LeadStatus.NEW
-        );
+        Lead newLead = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("new@example.com")
+                .phone("+79991234567")
+                .company("New Company")
+                .status(LeadStatus.NEW)
+                .build();
 
         // Мокируем addLead, чтобы он возвращал новый лид
-        when(leadService.addLead(
-                "new@example.com",
-                "+79991234567",
-                "New Company",
-                LeadStatus.NEW
+        when(leadService.addLead(LeadBuilder.builder()
+                .name("Test")
+                .email("new@example.com")
+                .phone("+79991234567")
+                .company("New Company")
+                .status(LeadStatus.NEW)
+                .build()
         )).thenReturn(newLead);
 
         // When & Then
         mockMvc.perform(post("/leads")
+                        .param("name", "Test")
                         .param("email", "new@example.com")
                         .param("phone", "+79991234567")
                         .param("company", "New Company")
@@ -142,11 +147,13 @@ class LeadControllerTest {
                 .andExpect(redirectedUrl("/leads"));
 
         // Проверяем, что сервис вызвал addLead с правильными параметрами
-        verify(leadService).addLead(
-                "new@example.com",
-                "+79991234567",
-                "New Company",
-                LeadStatus.NEW
+        verify(leadService).addLead(LeadBuilder.builder()
+                .name("Test")
+                .email("new@example.com")
+                .phone("+79991234567")
+                .company("New Company")
+                .status(LeadStatus.NEW)
+                .build()
         );
     }
 
@@ -167,13 +174,13 @@ class LeadControllerTest {
     void shouldFilterBySearchTerm() throws Exception {
         // Given
         String searchTerm = "test";
-        Lead expectedLead = new Lead(
-                UUID.randomUUID(),
-                "test@example.com",
-                "+79991234567",
-                "Test Company",
-                LeadStatus.NEW
-        );
+        Lead expectedLead = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("test@example.com")
+                .phone("+79991234567")
+                .company("Test Company")
+                .status(LeadStatus.NEW)
+                .build();
         when(leadService.findLeads((searchTerm), (null)))
                 .thenReturn(List.of(expectedLead));
 
@@ -192,8 +199,20 @@ class LeadControllerTest {
     void shouldFilterByStatus() throws Exception {
         // Given
         LeadStatus status = LeadStatus.NEW;
-        Lead lead1 = new Lead(UUID.randomUUID(), "a@example.com", "123", "A", status);
-        Lead lead2 = new Lead(UUID.randomUUID(), "b@example.com", "456", "B", status);
+        Lead lead1 = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("a@example.com")
+                .phone("123")
+                .company("A")
+                .status(status)
+                .build();
+        Lead lead2 = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("b@example.com")
+                .phone("456")
+                .company("B")
+                .status(status)
+                .build();
         List<Lead> expectedLeads = List.of(lead1, lead2);
         when(leadService.findLeads((null), (status)))
                 .thenReturn(expectedLeads);
@@ -212,8 +231,20 @@ class LeadControllerTest {
     @Test
     void shouldReturnAllLeadsWhenNoParameters() throws Exception {
         // Given
-        Lead lead1 = new Lead(UUID.randomUUID(), "a@example.com", "123", "A", LeadStatus.NEW);
-        Lead lead2 = new Lead(UUID.randomUUID(), "b@example.com", "456", "B", LeadStatus.CONTACTED);
+        Lead lead1 = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("a@example.com")
+                .phone("123")
+                .company("A")
+                .status(LeadStatus.NEW)
+                .build();
+        Lead lead2 = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("b@example.com")
+                .phone("456")
+                .company("B")
+                .status(LeadStatus.CONTACTED)
+                .build();
         List<Lead> allLeads = List.of(lead1, lead2);
         when(leadService.findLeads((null), null))
                 .thenReturn(allLeads);
@@ -233,13 +264,13 @@ class LeadControllerTest {
         // Given
         String searchTerm = "acme";
         LeadStatus status = LeadStatus.NEW;
-        Lead expectedLead = new Lead(
-                UUID.randomUUID(),
-                "contact@acme.com",
-                "+79990000000",
-                "Acme Inc",
-                status
-        );
+        Lead expectedLead = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("contact@acme.com")
+                .phone("+79990000000")
+                .company("Acme Inc")
+                .status(status)
+                .build();
         when(leadService.findLeads((searchTerm), (status)))
                 .thenReturn(List.of(expectedLead));
 
@@ -252,5 +283,76 @@ class LeadControllerTest {
                 .andExpect(model().attribute("leads", List.of(expectedLead)))
                 .andExpect(model().attribute("search", searchTerm))
                 .andExpect(model().attribute("status", status.name()));
+    }
+
+    @Test
+    void shouldReturnFormWhenNameIsEmpty() throws Exception {
+        mockMvc.perform(post("/leads")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("name", "")
+                        .param("email", "test@example.com")
+                        .param("phone", "+71234567890")
+                        .param("company", "Acme")
+                        .param("status", "NEW"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/create"))
+                .andExpect(model().attributeHasFieldErrors("lead", "name"));
+    }
+
+    @Test
+    void shouldReturnFormWhenEmailIsInvalid() throws Exception {
+        mockMvc.perform(post("/leads")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("name", "Иван")
+                        .param("email", "invalid-email") // ← без @
+                        .param("phone", "+71234567890")
+                        .param("company", "Acme")
+                        .param("status", "NEW"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/create"))
+                .andExpect(model().attributeHasFieldErrors("lead", "email"))
+                .andExpect(model().attributeHasFieldErrorCode("lead", "email", "Email"));
+    }
+
+    @Test
+    void shouldRedirectWhenAllFieldsAreValid() throws Exception {
+        mockMvc.perform(post("/leads")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("name", "Иван")
+                        .param("email", "ivan@example.com")
+                        .param("phone", "+71234567890")
+                        .param("company", "Acme")
+                        .param("status", "NEW"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/leads"));
+    }
+
+    @Test
+    void shouldReturnFormWhenNameIsTooShort() throws Exception {
+        mockMvc.perform(post("/leads")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("name", "A") // ← 1 символ
+                        .param("email", "test@example.com")
+                        .param("phone", "+71234567890")
+                        .param("company", "Acme")
+                        .param("status", "NEW"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/create"))
+                .andExpect(model().attributeHasFieldErrors("lead", "name"));
+    }
+
+    @Test
+    void shouldReturnFormWhenCompanyIsTooLong() throws Exception {
+        String longName = "A".repeat(101);
+        mockMvc.perform(post("/leads")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("name", "Иван")
+                        .param("email", "test@example.com")
+                        .param("phone", "+71234567890")
+                        .param("company", longName)
+                        .param("status", "NEW"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("leads/create"))
+                .andExpect(model().attributeHasFieldErrors("lead", "company"));
     }
 }

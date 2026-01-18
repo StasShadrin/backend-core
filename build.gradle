@@ -22,7 +22,10 @@ ext {
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.12'
     jteVersion = '3.2.1'
-    jteSpringBootVersion= '3.2.1'
+    jteSpringBootVersion = '3.2.1'
+    validationApiVersion = '4.0.0-M1'
+    hibernateValidatorVersion = '9.1.0.Final'
+
 }
 
 java {
@@ -55,6 +58,15 @@ dependencies {
     // JTE интеграция для Spring Boot
     implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
     implementation "gg.jte:jte:${jteVersion}"
+
+    // Валидация
+    implementation "jakarta.validation:jakarta.validation-api:${validationApiVersion}"
+    implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
+    implementation("org.springframework.boot:spring-boot-starter-validation:4.0.1")
+
+    // @RecordBuilder
+    annotationProcessor 'io.soabase.record-builder:record-builder-processor:51'
+    compileOnly 'io.soabase.record-builder:record-builder-core:51'
 
     // Для тестирования
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
@@ -119,6 +131,13 @@ jacocoTestReport {
         html.required = true
         html.outputLocation = layout.buildDirectory.dir('reports/jacoco/test/html')
     }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'ru/mentee/power/crm/model/LeadBuilder*.class'
+            ])
+        }))
+    }
 }
 
 jacocoTestCoverageVerification {
@@ -130,7 +149,8 @@ jacocoTestCoverageVerification {
                     'ru/mentee/power/crm/Main.class',
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
                     'ru/mentee/power/crm/web/**/TestDataUtils*.class',
-                    'ru/mentee/power/crm/web/**/TestDataInitializer*.class'
+                    'ru/mentee/power/crm/web/**/TestDataInitializer*.class',
+                    'ru/mentee/power/crm/model/LeadBuilder*.class'
             ])
         }))
     }

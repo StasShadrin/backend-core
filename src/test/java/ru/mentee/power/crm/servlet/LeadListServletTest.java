@@ -20,6 +20,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
 
@@ -72,17 +73,20 @@ class LeadListServletTest {
     @Test
     void shouldReturnHtmlTable_whenDoGetCalled() throws IOException {
         List<Lead> mockLeads = Arrays.asList(
-                new Lead(UUID.randomUUID(),
-                        "test1@example.com",
-                        "+123",
-                        "Company A",
-                        LeadStatus.NEW),
-                new Lead(UUID.randomUUID(),
-                        "test2@example.com",
-                        "+456",
-                        "Company B",
-                        LeadStatus.CONTACTED)
-        );
+                LeadBuilder.builder()
+                        .id(UUID.randomUUID())
+                        .email("test1@example.com")
+                        .phone("+123")
+                        .company("Company A")
+                        .status(LeadStatus.NEW)
+                        .build(),
+                LeadBuilder.builder()
+                        .id(UUID.randomUUID())
+                        .email("test2@example.com")
+                        .phone("+456")
+                        .company("Company B")
+                        .status(LeadStatus.CONTACTED)
+                        .build());
 
         when(leadService.findAll()).thenReturn(mockLeads);
 
@@ -147,7 +151,13 @@ class LeadListServletTest {
     @Test
     void shouldSetContentTypeToHtml_whenDoGetCalled() throws IOException {
         List<Lead> mockLeads = List.of(
-                new Lead(UUID.randomUUID(), "test@example.com", "+123", "Company", LeadStatus.NEW)
+                LeadBuilder.builder()
+                        .id(UUID.randomUUID())
+                        .email("test@example.com")
+                        .phone("+123")
+                        .company("Company")
+                        .status(LeadStatus.NEW)
+                        .build()
         );
 
         when(leadService.findAll()).thenReturn(mockLeads);

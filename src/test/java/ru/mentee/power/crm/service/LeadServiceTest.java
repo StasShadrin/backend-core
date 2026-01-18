@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.InMemoryLeadRepository;
 
@@ -23,18 +24,78 @@ class LeadServiceTest {
         var repository = new InMemoryLeadRepository();
         service = new LeadService(repository);
 
-        service.addLead("bob1@example.com", "+123", "Google", LeadStatus.NEW);
-        service.addLead("bob2@example.com", "+456", "Meta", LeadStatus.NEW);
-        service.addLead("alice@example.com", "+789", "Apple", LeadStatus.NEW);
+        service.addLead(LeadBuilder.builder()
+                .name("Bob")
+                .email("bob1@example.com")
+                .phone("+123")
+                .company("Google")
+                .status(LeadStatus.NEW)
+                .build());
+        service.addLead(LeadBuilder.builder()
+                .name("Bob")
+                .email("bob2@example.com")
+                .phone("+456")
+                .company("Meta")
+                .status(LeadStatus.NEW)
+                .build());
+        service.addLead(LeadBuilder.builder()
+                .name("Alice")
+                .email("alice@example.com")
+                .phone("+789")
+                .company("Apple")
+                .status(LeadStatus.NEW)
+                .build());
 
-        service.addLead("john1@example.com", "+111", "Microsoft", LeadStatus.CONTACTED);
-        service.addLead("john2@example.com", "+222", "Amazon", LeadStatus.CONTACTED);
-        service.addLead("sara@example.com", "+333", "Netflix", LeadStatus.CONTACTED);
-        service.addLead("charlie@example.com", "+444", "Tesla", LeadStatus.CONTACTED);
-        service.addLead("diana@example.com", "+555", "SpaceX", LeadStatus.CONTACTED);
+        service.addLead(LeadBuilder.builder()
+                .name("John")
+                .email("john1@example.com")
+                .phone("+111")
+                .company("Microsoft")
+                .status(LeadStatus.CONTACTED)
+                .build());
+        service.addLead(LeadBuilder.builder()
+                .name("John")
+                .email("john2@example.com")
+                .phone("+222")
+                .company("Amazon")
+                .status(LeadStatus.CONTACTED)
+                .build());
+        service.addLead(LeadBuilder.builder()
+                .name("Sara")
+                .email("sara@example.com")
+                .phone("+333")
+                .company("Netflix")
+                .status(LeadStatus.CONTACTED)
+                .build());
+        service.addLead(LeadBuilder.builder()
+                .name("Charlie")
+                .email("charlie@example.com")
+                .phone("+444")
+                .company("Tesla")
+                .status(LeadStatus.CONTACTED)
+                .build());
+        service.addLead(LeadBuilder.builder()
+                .name("Diana")
+                .email("diana@example.com")
+                .phone("+555")
+                .company("SpaceX")
+                .status(LeadStatus.CONTACTED)
+                .build());
 
-        service.addLead("satana@example.com", "+666", "Evil", LeadStatus.QUALIFIED);
-        service.addLead("jim@example.com", "+777", "Yandex", LeadStatus.QUALIFIED);
+        service.addLead(LeadBuilder.builder()
+                .name("Satan")
+                .email("satan@example.com")
+                .phone("+666")
+                .company("Evil")
+                .status(LeadStatus.QUALIFIED)
+                .build());
+        service.addLead(LeadBuilder.builder()
+                .name("Jim")
+                .email("jim@example.com")
+                .phone("+777")
+                .company("Yandex")
+                .status(LeadStatus.QUALIFIED)
+                .build());
     }
 
 
@@ -44,7 +105,13 @@ class LeadServiceTest {
         String email = "newuser@example.com";
 
         // When
-        Lead lead = service.addLead(email, "+000", "Startup", LeadStatus.NEW);
+        Lead lead = service.addLead(LeadBuilder.builder()
+                .name("Test")
+                .email(email)
+                .phone("+000")
+                .company("Startup")
+                .status(LeadStatus.NEW)
+                .build());
 
         // Then
         assertThat(lead).isNotNull();
@@ -55,7 +122,13 @@ class LeadServiceTest {
     @Test
     void shouldThrowExceptionWhenEmailAlreadyExists() {
         assertThatThrownBy(() ->
-                service.addLead("bob1@example.com", "+999", "Duplicate", LeadStatus.NEW)
+                service.addLead(LeadBuilder.builder()
+                        .name("Test")
+                        .email("bob1@example.com")
+                        .phone("+999")
+                        .company("Duplicate")
+                        .status(LeadStatus.NEW)
+                        .build())
         )
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Lead with email already exists");

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
 
@@ -15,8 +16,20 @@ public class MockLeadService extends LeadService {
     public MockLeadService() {
         super(null); // repository не используется в mock
         this.mockLeads = List.of(
-                new Lead(UUID.randomUUID(), "test1@example.com", "+1234567890", "New Comp", LeadStatus.NEW),
-                new Lead(UUID.randomUUID(), "test2@example.com", "+0987654321", "Old Comp", LeadStatus.NEW)
+                LeadBuilder.builder()
+                        .id(UUID.randomUUID())
+                        .email("test1@example.com")
+                        .phone("+1234567890")
+                        .company("New Comp")
+                        .status(LeadStatus.NEW)
+                        .build(),
+                LeadBuilder.builder()
+                        .id(UUID.randomUUID())
+                        .email("test2@example.com")
+                        .phone("+0987654321")
+                        .company("Old Comp")
+                        .status(LeadStatus.NEW)
+                        .build()
         );
     }
 
