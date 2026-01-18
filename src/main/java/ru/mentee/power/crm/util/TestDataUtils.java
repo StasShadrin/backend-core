@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.util;
 
+import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.service.LeadService;
 
@@ -8,14 +9,40 @@ public class TestDataUtils {
     /** Создание lead*/
     public static void initializeTestData(LeadService leadService) {
 
-        leadService.addLead("bob1@example.com", "+123", "Google", LeadStatus.NEW);
-        leadService.addLead("bob2@example.com", "+456", "Meta", LeadStatus.CONTACTED);
-        leadService.addLead("alice@example.com", "+789", "Apple", LeadStatus.QUALIFIED);
-        leadService.addLead("john@example.com", "+111", "Microsoft", LeadStatus.NEW);
-        leadService.addLead("sara@example.com", "+222", "Amazon", LeadStatus.CONTACTED);
-
-        leadService.addLead("<script>alert('XSS Attack!')</script>", "+999", "Hacker Corp", LeadStatus.NEW);
-        leadService.addLead("\"><img src=x onerror=alert('XSS2')>", "+888", "Evil Corp", LeadStatus.CONTACTED);
-        leadService.addLead("'; DROP TABLE users; --", "+777", "SQL Injection", LeadStatus.QUALIFIED);
+        leadService.addLead(LeadBuilder.builder()
+                .name("Bob")
+                .email("bob1@example.com")
+                .phone("+123")
+                .company("Google")
+                .status(LeadStatus.NEW)
+                .build());
+        leadService.addLead(LeadBuilder.builder()
+                .name("Bob")
+                .email("bob2@example.com")
+                .phone("+456")
+                .company("Meta")
+                .status(LeadStatus.CONTACTED)
+                .build());
+        leadService.addLead(LeadBuilder.builder()
+                .name("Alice")
+                .email("alice@example.com")
+                .phone("+789")
+                .company("Apple")
+                .status(LeadStatus.QUALIFIED)
+                .build());
+        leadService.addLead(LeadBuilder.builder()
+                .name("John")
+                .email("john@example.com")
+                .phone("+111")
+                .company("Microsoft")
+                .status(LeadStatus.NEW)
+                .build());
+        leadService.addLead(LeadBuilder.builder()
+                .name("Sara")
+                .email("sara@example.com")
+                .phone("+222")
+                .company("Amazon")
+                .status(LeadStatus.CONTACTED)
+                .build());
     }
 }

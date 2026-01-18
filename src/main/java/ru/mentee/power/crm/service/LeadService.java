@@ -36,22 +36,23 @@ public class LeadService {
      *
      * @throws IllegalStateException if a lead with the given email already exists
      */
-    public Lead addLead(String email, String phone, String company, LeadStatus status) {
+    public Lead addLead(Lead lead) {
         // Бизнес-правило: проверка уникальности email
-        Optional<Lead> existing = repository.findByEmail(email);
+        Optional<Lead> existing = repository.findByEmail(lead.email());
         if (existing.isPresent()) {
-            throw new IllegalStateException("Lead with email already exists: " + email);
+            throw new IllegalStateException("Lead with email already exists: " + lead.email());
         }
 
-        Lead lead = new Lead(
+        Lead newLead = new Lead(
                 UUID.randomUUID(),
-                email,
-                phone,
-                company,
-                status
+                lead.name(),
+                lead.email(),
+                lead.phone(),
+                lead.company(),
+                lead.status()
         );
 
-        return repository.save(lead);
+        return repository.save(newLead);
     }
 
     /** Returns all leads stored in the repository. */
@@ -82,6 +83,7 @@ public class LeadService {
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + id));
         Lead updated = new Lead(
                 existing.id(),
+                updatedLead.name(),
                 updatedLead.email(),
                 updatedLead.phone(),
                 updatedLead.company(),
@@ -106,6 +108,7 @@ public class LeadService {
         if (search != null && !search.trim().isEmpty()) {
             String lowerSearch = search.toLowerCase().trim();
             stream = stream.filter(lead ->
+                    lead.name().toLowerCase().contains(lowerSearch) ||
                     lead.email().toLowerCase().contains(lowerSearch) ||
                     lead.company().toLowerCase().contains(lowerSearch)
             );

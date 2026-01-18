@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
 
@@ -47,7 +48,13 @@ class LeadServiceMockTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // When: вызываем бизнес-метод
-        Lead result = service.addLead("new@example.com", "+71235", "Company", LeadStatus.NEW);
+        Lead result = service.addLead(LeadBuilder.builder()
+                        .name("Test")
+                .email("new@example.com")
+                .phone("+71235")
+                .company("Company")
+                .status(LeadStatus.NEW)
+                .build());
 
         // Then: проверяем что Repository.save() был вызван ровно 1 раз
         verify(mockRepository, times(1)).save(any(Lead.class));
@@ -59,19 +66,25 @@ class LeadServiceMockTest {
     @Test
     void shouldNotCallSave_whenEmailExists() {
         // Given: Repository возвращает существующий Lead
-        Lead existingLead = new Lead(
-                UUID.randomUUID(),
-                "existing@example.com",
-                "+71235",
-                "Existing Company",
-                LeadStatus.CONTACTED
-        );
+        Lead existingLead = LeadBuilder.builder()
+                .id(UUID.randomUUID())
+                .email("existing@example.com")
+                .phone("+71235")
+                .company("Existing Company")
+                .status( LeadStatus.CONTACTED)
+                .build();
         when(mockRepository.findByEmail("existing@example.com"))
                 .thenReturn(Optional.of(existingLead));
 
         // When/Then: ожидаем исключение
         assertThatThrownBy(() ->
-                service.addLead("existing@example.com", "+71235", "New Company", LeadStatus.NEW)
+                service.addLead(LeadBuilder.builder()
+                        .name("Test")
+                        .email("existing@example.com")
+                        .phone("+71235")
+                        .company("New Company")
+                        .status(LeadStatus.NEW)
+                        .build())
         ).isInstanceOf(IllegalStateException.class);
 
         // Then: save() НЕ должен быть вызван
@@ -87,7 +100,13 @@ class LeadServiceMockTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
-        service.addLead("test@example.com", "+71235", "Company", LeadStatus.NEW);
+        service.addLead(LeadBuilder.builder()
+                .name("Test")
+                .email("test@example.com")
+                .phone("+71235")
+                .company("Company")
+                .status(LeadStatus.NEW)
+                .build());
 
         // Then: проверяем порядок вызовов
         var inOrder = inOrder(mockRepository);
