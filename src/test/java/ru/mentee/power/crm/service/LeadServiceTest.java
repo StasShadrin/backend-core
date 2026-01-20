@@ -6,11 +6,13 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.server.ResponseStatusException;
 
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.repository.InMemoryLeadRepository;
+import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
+import ru.mentee.power.crm.spring.service.LeadService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -214,5 +216,112 @@ class LeadServiceTest {
 
         // Then: пустой список (size 0)
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldUpdateExistingLead() {
+        // Given
+        Lead original = service.findAll().getFirst();
+        UUID id = original.id();
+
+        Lead updatedLead = LeadBuilder.builder(original)
+                .name("Updated Name")
+                .email("updated@example.com")
+                .phone("+999")
+                .company("Updated Company")
+                .status(LeadStatus.CONTACTED)
+                .build();
+
+        // When
+        service.update(id, updatedLead);
+
+        // Then
+        Optional<Lead> result = service.findById(id);
+        assertThat(result).isPresent();
+        assertThat(result.get().name()).isEqualTo("Updated Name");
+        assertThat(result.get().email()).isEqualTo("updated@example.com");
+        assertThat(result.get().status()).isEqualTo(LeadStatus.CONTACTED);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUpdatingNonexistentLead() {
+        // Given
+        Lead updatedLead = LeadBuilder.builder()
+                .name("Test")
+                .email("test@example.com")
+                .phone("+000")
+                .company("Test")
+                .status(LeadStatus.NEW)
+                .build();
+
+        UUID nonExistentId = UUID.randomUUID();
+
+        // When & Then
+        assertThatThrownBy(() -> service.update(nonExistentId, updatedLead))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Lead not found");
+    }
+
+    @Test
+    void shouldDeleteExistingLead() {
+        // Given
+        Lead lead = service.findAll().getFirst();
+        UUID id = lead.id();
+
+        // When
+        service.delete(id);
+
+        // Then
+        Optional<Lead> result = service.findById(id);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeletingNonexistentLead() {
+        // Given
+        UUID nonExistentId = UUID.randomUUID();
+
+        // When & Then
+        assertThatThrownBy(() -> service.delete(nonExistentId))
+                .isInstanceOf(ResponseStatusException.class);
+    }
+
+    @Test
+    void shouldFindLeadsByTextSearch() {
+        // Given/When
+        List<Lead> result = service.findLeads("Bob", null);
+
+        // Then
+        assertThat(result).hasSize(2) // ← Bob1 и Bob2
+                .allMatch(lead -> lead.name().contains("Bob"));
+    }
+
+    @Test
+    void shouldFindLeadsByStatus() {
+        // Given/When
+        List<Lead> result = service.findLeads(null, LeadStatus.CONTACTED);
+
+        // Then
+        assertThat(result).hasSize(5)
+                .allMatch(lead -> lead.status() == LeadStatus.CONTACTED);
+    }
+
+    @Test
+    void shouldFindLeadsByTextAndStatus() {
+        // Given/When
+        List<Lead> result = service.findLeads("John", LeadStatus.CONTACTED);
+
+        // Then
+        assertThat(result).hasSize(2) // ← John1 и John2
+                .allMatch(lead -> lead.name().contains("John") && lead.status() == LeadStatus.CONTACTED);
+    }
+
+    @Test
+    void shouldReturnAllLeadsWhenSearchAndStatusAreNull() {
+        // Given/When
+        List<Lead> result = service.findLeads(null, null);
+
+        // Then
+        assertThat(result).hasSize(10); // ← все лиды
     }
 }

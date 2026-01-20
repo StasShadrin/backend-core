@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.service.LeadService;
+import ru.mentee.power.crm.spring.service.LeadService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

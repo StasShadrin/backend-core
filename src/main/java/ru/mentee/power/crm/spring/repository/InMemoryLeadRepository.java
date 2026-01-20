@@ -1,4 +1,4 @@
-package ru.mentee.power.crm.repository;
+package ru.mentee.power.crm.spring.repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class InMemoryLeadRepository implements LeadRepository {
 
     /** Removes lead by ID. */
     @Override
-    public void delete(UUID id) {
+    public void deleteById(UUID id) {
         Lead lead = storage.remove(id);
         if (lead != null) {
             emailIndex.remove(lead.email());
