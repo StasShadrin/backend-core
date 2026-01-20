@@ -6,7 +6,7 @@ import java.util.UUID;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.service.LeadService;
+import ru.mentee.power.crm.spring.service.LeadService;
 
 /** Mock-реализация LeadService для unit-тестов */
 public class MockLeadService extends LeadService {

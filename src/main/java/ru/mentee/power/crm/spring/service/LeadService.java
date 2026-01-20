@@ -1,4 +1,4 @@
-package ru.mentee.power.crm.service;
+package ru.mentee.power.crm.spring.service;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.repository.LeadRepository;
+import ru.mentee.power.crm.spring.repository.LeadRepository;
 
 /**
  * Service layer for lead-related business logic, including deduplication by email.
@@ -97,7 +97,7 @@ public class LeadService {
     public void delete(UUID id) {
         repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     /** Выполняет поиск и фильтрацию лидов по текстовому запросу и статусу. */

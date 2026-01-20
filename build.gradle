@@ -134,6 +134,10 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
+                    'ru/mentee/power/crm/Main.class',
+                    'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
+                    'ru/mentee/power/crm/util/**/TestDataUtils*.class',
+                    'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
                     'ru/mentee/power/crm/model/LeadBuilder*.class'
             ])
         }))
@@ -148,8 +152,8 @@ jacocoTestCoverageVerification {
             fileTree(dir: it, exclude: [
                     'ru/mentee/power/crm/Main.class',
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
-                    'ru/mentee/power/crm/web/**/TestDataUtils*.class',
-                    'ru/mentee/power/crm/web/**/TestDataInitializer*.class',
+                    'ru/mentee/power/crm/util/**/TestDataUtils*.class',
+                    'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
                     'ru/mentee/power/crm/model/LeadBuilder*.class'
             ])
         }))

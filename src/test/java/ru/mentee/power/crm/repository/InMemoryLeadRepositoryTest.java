@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -93,7 +94,7 @@ class InMemoryLeadRepositoryTest {
     }
 
     @Test
-    void shouldDeleteLeadWhenLeadExists() {
+    void shouldDeleteByIdLeadWhenLeadExists() {
         // Given - сохранить лид
         UUID id = UUID.randomUUID();
         Lead lead = LeadBuilder.builder()
@@ -106,7 +107,7 @@ class InMemoryLeadRepositoryTest {
         repository.save(lead);
 
         // When - удалить через delete(id)
-        repository.delete(id);
+        repository.deleteById(id);
 
         // Then - findById() вернет null, size() == 0
         assertThat(repository.findById(id)).isEmpty();

@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import ru.mentee.power.crm.repository.InMemoryLeadRepository;
-import ru.mentee.power.crm.service.LeadService;
 import ru.mentee.power.crm.servlet.LeadListServlet;
+import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
+import ru.mentee.power.crm.spring.service.LeadService;
 import ru.mentee.power.crm.util.TestDataUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
