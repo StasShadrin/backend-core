@@ -29,18 +29,12 @@ public class TestDataInitializer {
      */
     @PostConstruct
     public void init() {
-        System.out.println("TestDataInitializer: started");
-
         if (leadService.findAll().isEmpty()) {
-            System.out.println("Creating test leads...");
             TestDataUtils.initializeTestData(leadService);
         }
 
         if (dealService.getAllDeals().isEmpty()) {
-            System.out.println("Creating test deals...");
             initializeDeals();
-        } else {
-            System.out.println("Deals already exist, skipping initialization");
         }
     }
 
@@ -49,11 +43,8 @@ public class TestDataInitializer {
         var qualifiedLeads = leadService.findByStatus(LeadStatus.QUALIFIED);
 
         if (qualifiedLeads.isEmpty()) {
-            System.out.println("No qualified leads found. Cannot create deals.");
             return;
         }
-
-        System.out.println("Creating " + qualifiedLeads.size() + " deals from qualified leads...");
 
         for (int i = 0; i < qualifiedLeads.size(); i++) {
             var lead = qualifiedLeads.get(i);
@@ -61,7 +52,6 @@ public class TestDataInitializer {
 
             // Создаём сделку → статус NEW
             var deal = dealService.convertLeadToDeal(lead.id(), amount);
-            System.out.println("Created deal #" + (i + 1) + ": " + deal.getId());
 
             // ВАЛИДНЫЕ переходы из NEW:
             try {
@@ -85,12 +75,11 @@ public class TestDataInitializer {
                         dealService.transitionDealStatus(deal.getId(), DealStatus.NEGOTIATION);
                         dealService.transitionDealStatus(deal.getId(), DealStatus.WON);
                         break;
+                    default:
                 }
             } catch (IllegalStateException e) {
                 System.out.println("Transition failed: " + e.getMessage());
             }
         }
-
-        System.out.println("All test deals created with valid transitions!");
     }
 }

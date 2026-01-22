@@ -5,13 +5,17 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Сделка (Deal) - основная сущность воронки продаж.
  * Является Aggregate Root: сам управляет своим состоянием и защищает бизнес-правила.
  */
+@AllArgsConstructor
 @Getter
+@ToString
 public class Deal {
     private final UUID id;
     private final UUID leadId;
@@ -32,15 +36,6 @@ public class Deal {
         this.amount = Objects.requireNonNull(amount, "amount must not be null");
         this.status = DealStatus.NEW;
         this.createdAt = LocalDateTime.now();
-    }
-
-    /** Конструктор для восстановления из БД (Sprint 7)*/
-    public Deal(UUID id, UUID leadId, BigDecimal amount, DealStatus status, LocalDateTime createdAt) {
-        this.id = id;
-        this.leadId = leadId;
-        this.amount = amount;
-        this.status = status;
-        this.createdAt = createdAt;
     }
 
     /**

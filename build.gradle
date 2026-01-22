@@ -52,8 +52,9 @@ dependencies {
     implementation "gg.jte:jte:${jteVersion}"
     implementation "gg.jte:jte-runtime:${jteVersion}"
 
-    // Sprint 5: Spring Boot Stack (BCORE-14)
+    // Spring Boot Starters
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     // JTE интеграция для Spring Boot
     implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
@@ -67,6 +68,12 @@ dependencies {
     // @RecordBuilder
     annotationProcessor 'io.soabase.record-builder:record-builder-processor:51'
     compileOnly 'io.soabase.record-builder:record-builder-core:51'
+
+    // PostgreSQL JDBC Driver (для dev и production)
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // H2 Database (только для тестов)
+    testRuntimeOnly 'com.h2database:h2:2.3.232'
 
     // Для тестирования
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
