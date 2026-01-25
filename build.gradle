@@ -54,7 +54,7 @@ dependencies {
 
     // Spring Boot Starters
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
 
     // JTE интеграция для Spring Boot
     implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
@@ -145,7 +145,9 @@ jacocoTestReport {
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
-                    'ru/mentee/power/crm/model/LeadBuilder*.class'
+                    'ru/mentee/power/crm/model/LeadBuilder*.class',
+                    'ru/mentee/power/crm/domain/Deal*.class',
+                    'ru/mentee/power/spring/crm/controller/DealController*.class'
             ])
         }))
     }
@@ -161,7 +163,9 @@ jacocoTestCoverageVerification {
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
-                    'ru/mentee/power/crm/model/LeadBuilder*.class'
+                    'ru/mentee/power/crm/model/LeadBuilder*.class',
+                    'ru/mentee/power/crm/domain/Deal*.class',
+                    'ru/mentee/power/crm/spring/controller/DealController*.class'
             ])
         }))
     }
