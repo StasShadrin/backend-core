@@ -1,12 +1,17 @@
 package ru.mentee.power.crm.spring.repository;
 
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.mentee.power.crm.entity.Lead;
@@ -21,6 +26,32 @@ class JpaLeadRepositoryTest {
 
     @Autowired
     private JpaLeadRepository repository;
+
+    private Lead lead1;
+    private Lead lead2;
+
+    @BeforeEach
+    void setUpForDerivedTests() {
+        lead1 = Lead.builder()
+                .name("John")
+                .email("john@example.com")
+                .phone("123")
+                .company("ACME Corp")
+                .status(LeadStatus.NEW)
+                .createdAt(OffsetDateTime.now().minusDays(5))
+                .build();
+        repository.save(lead1);
+
+        lead2 = Lead.builder()
+                .name("Jane")
+                .email("jane@example.com")
+                .phone("456")
+                .company("Tech Inc")
+                .status(LeadStatus.CONTACTED)
+                .createdAt(OffsetDateTime.now().minusDays(2))
+                .build();
+        repository.save(lead2);
+    }
 
     @Test
     void shouldSaveAndFindLeadById_whenValidData() {
@@ -74,40 +105,12 @@ class JpaLeadRepositoryTest {
 
     @Test
     void shouldFindAllLead() {
-        // Given
-        Lead lead1 = Lead.builder()
-                .name("test")
-                .email("native@test.com")
-                .phone("123456789")
-                .company("TechCorp")
-                .status(LeadStatus.NEW)
-                .build();
-        Lead lead2 = Lead.builder()
-                .name("Lead 1")
-                .email("test@example.com")
-                .phone("123456789")
-                .company("ACME")
-                .status(LeadStatus.NEW)
-                .build();
-        repository.save(lead1);
-        repository.save(lead2);
-
         //Then
         assertThat(repository.findAll()).hasSize(2);
     }
 
     @Test
     void shouldDeleteLeadById_whenLeadExists() {
-        //Given
-        Lead lead1 = Lead.builder()
-                .name("test")
-                .email("native@test.com")
-                .phone("123456789")
-                .company("TechCorp")
-                .status(LeadStatus.NEW)
-                .build();
-        repository.save(lead1);
-
         //When
         UUID id = lead1.getId();
         repository.deleteById(id);
@@ -115,5 +118,119 @@ class JpaLeadRepositoryTest {
 
         //Then
         assertThat(found).isEmpty();
+    }
+
+    @Test
+    void findByEmail_shouldReturnLead_whenExists() {
+        // When
+        Optional<Lead> found = repository.findByEmail("john@example.com");
+
+        // Then
+        assertThat(found).isPresent();
+        assertThat(found.get().getCompany()).isEqualTo("ACME Corp");
+    }
+
+    @Test
+    void findByStatus_shouldReturnFilteredLeads() {
+        // When
+        List<Lead> newLeads = repository.findByStatus(LeadStatus.NEW);
+
+        // Then
+        assertThat(newLeads).hasSize(1);
+        assertThat(newLeads.getFirst().getEmail()).isEqualTo("john@example.com");
+    }
+
+    @Test
+    void findByStatusIn_shouldReturnLeadsWithMultipleStatuses() {
+        // Given
+        List<LeadStatus> statuses = List.of(LeadStatus.NEW, LeadStatus.CONTACTED);
+
+        // When
+        List<Lead> found = repository.findByStatusIn(statuses);
+
+        // Then
+        assertThat(found).hasSize(2);
+    }
+
+    @Test
+    void findAll_withPageable_shouldReturnPage() {
+        // Given
+        PageRequest pageRequest = PageRequest.of(0, 1);
+
+        // When
+        Page<Lead> page = repository.findAll(pageRequest);
+
+        // Then
+        assertThat(page.getContent()).hasSize(1);
+        assertThat(page.getTotalElements()).isEqualTo(2);
+        assertThat(page.getTotalPages()).isEqualTo(2);
+        assertThat(page.getNumber()).isZero();
+    }
+
+    @Test
+    void countByStatus_shouldReturnCorrectCount() {
+        // When
+        long count = repository.countByStatus(LeadStatus.NEW);
+
+        // Then
+        assertThat(count).isEqualTo(1);
+    }
+
+    @Test
+    void existsByEmail_shouldReturnTrue_whenEmailExists() {
+        // When
+        boolean exists = repository.existsByEmail("john@example.com");
+
+        // Then
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    void existsByEmail_shouldReturnFalse_whenEmailNotFound() {
+        // When
+        boolean exists = repository.existsByEmail("nonexistent@test.com");
+
+        // Then
+        assertThat(exists).isFalse();
+    }
+
+    @Test
+    void findByStatusAndCompany_shouldReturnMatchingLeads() {
+        // When
+        List<Lead> leads = repository.findByStatusAndCompany(LeadStatus.NEW, "ACME Corp");
+
+        // Then
+        assertThat(leads).hasSize(1);
+        assertThat(leads.getFirst().getEmail()).isEqualTo("john@example.com");
+    }
+
+    @Test
+    void findByStatusOrderByCreatedAtDesc_shouldReturnSortedLeads() {
+        // When
+        List<Lead> leads = repository.findByStatusOrderByCreatedAtDesc(LeadStatus.CONTACTED);
+
+        // Then
+        assertThat(leads).hasSize(1);
+        assertThat(leads.getFirst().getEmail()).isEqualTo("jane@example.com");
+    }
+
+    @Test
+    void findCreatedAfter_shouldReturnRecentLeads() {
+        // When
+        List<Lead> leads = repository.findCreatedAfter(OffsetDateTime.now().minusDays(3));
+
+        // Then
+        assertThat(leads).hasSize(1);
+        assertThat(leads.getFirst().getEmail()).isEqualTo("jane@example.com");
+    }
+
+    @Test
+    void findByCompanyOrderedByDate_shouldReturnSortedLeads() {
+        // When
+        List<Lead> leads = repository.findByCompanyOrderedByDate("Tech Inc");
+
+        // Then
+        assertThat(leads).hasSize(1);
+        assertThat(leads.getFirst().getEmail()).isEqualTo("jane@example.com");
     }
 }
