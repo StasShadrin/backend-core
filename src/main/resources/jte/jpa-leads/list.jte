@@ -107,7 +107,7 @@
                     <!-- Кнопка конвертации (только для QUALIFIED) -->
                     <td>
                         @if(lead.getStatus() == LeadStatus.QUALIFIED)
-                            <a href="/deals/convert/${lead.getId().toString()}"
+                            <a href="/jpa-deals/convert/${lead.getId().toString()}"
                                class="text-green-600 hover:underline font-medium">
                                 Конвертировать
                             </a>

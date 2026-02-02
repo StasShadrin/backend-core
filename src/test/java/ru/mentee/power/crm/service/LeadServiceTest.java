@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.InMemoryDealRepository;
 import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -24,7 +25,8 @@ class LeadServiceTest {
     @BeforeEach
     void setUp() {
         var repository = new InMemoryLeadRepository();
-        service = new LeadService(repository);
+        var dealRepository = new InMemoryDealRepository();
+        service = new LeadService(repository, dealRepository);
 
         service.addLead(LeadBuilder.builder()
                 .name("Bob")
@@ -209,7 +211,8 @@ class LeadServiceTest {
     void shouldReturnEmptyListWhenNoLeadsWithStatus() {
         // Given: repository с лидами, но НЕТ QUALIFIED
         var emptyRepository = new InMemoryLeadRepository();
-        var serviceWithEmptyRepo = new LeadService(emptyRepository);
+        var dealRepository = new InMemoryDealRepository();
+        var serviceWithEmptyRepo = new LeadService(emptyRepository, dealRepository);
 
         // When: findByStatus(QUALIFIED)
         List<Lead> result = serviceWithEmptyRepo.findByStatus(LeadStatus.QUALIFIED);

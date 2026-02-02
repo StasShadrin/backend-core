@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.repository.LeadRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -31,11 +32,14 @@ class LeadServiceMockTest {
     @Mock
     private LeadRepository mockRepository;
 
+    @Mock
+    private DealRepository mockDealRepository;
+
     private LeadService service;
 
     @BeforeEach
     void setUp() {
-        service = new LeadService(mockRepository);
+        service = new LeadService(mockRepository, mockDealRepository);
     }
 
     @Test

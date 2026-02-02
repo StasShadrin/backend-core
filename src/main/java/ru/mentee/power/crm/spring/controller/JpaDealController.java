@@ -13,26 +13,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.domain.DealStatus;
-import ru.mentee.power.crm.spring.service.DealService;
-import ru.mentee.power.crm.spring.service.LeadService;
+import ru.mentee.power.crm.entity.Lead;
+import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.service.JpaDealService;
+import ru.mentee.power.crm.spring.service.JpaLeadService;
 
-/**
- * Контроллер для управления сделками (Deal) в CRM.
- * Обрабатывает операции: просмотр списка, конвертация лида, изменение статуса, отображение воронки.
- */
+/** JPA-версия контроллера для управления сделками. */
 @Controller
-@RequestMapping("/deals")
+@RequestMapping("/jpa-deals")
 @RequiredArgsConstructor
-public class DealController {
+public class JpaDealController {
 
-    private static final String DEALS_LIST = "deals/list";
-    private static final String DEALS_KANBAN = "deals/kanban";
-    private static final String DEALS_CONVERT = "deals/convert";
-    private static final String REDIRECT_DEALS = "redirect:/deals";
-    private static final String REDIRECT_DEALS_KANBAN = "redirect:/deals/kanban";
+    private static final String DEALS_LIST = "jpa-deals/list";
+    private static final String DEALS_KANBAN = "jpa-deals/kanban";
+    private static final String DEALS_CONVERT = "jpa-deals/convert";
+    private static final String REDIRECT_DEALS = "redirect:/jpa-deals";
+    private static final String REDIRECT_DEALS_KANBAN = "redirect:/jpa-deals/kanban";
 
-    private final DealService dealService;
-    private final LeadService leadService;
+    private final JpaDealService dealService;
+    private final JpaLeadService leadService;
 
     /** Отображает список всех сделок. */
     @GetMapping
@@ -51,15 +50,24 @@ public class DealController {
     /** Показывает форму конвертации лида в сделку. */
     @GetMapping("/convert/{leadId}")
     public String showConvertForm(@PathVariable UUID leadId, Model model) {
-        model.addAttribute("lead", leadService.findById(leadId)
-                .orElseThrow(() -> new RuntimeException("Lead not found: " + leadId)));
+        Lead lead = leadService.findById(leadId)
+                .orElseThrow(() -> new RuntimeException("Lead not found: " + leadId));
+        model.addAttribute("lead", lead);
         return DEALS_CONVERT;
     }
 
     /** Создаёт новую сделку из существующего лида. */
     @PostMapping("/convert")
-    public String convertLeadToDeal(@RequestParam UUID leadId, @RequestParam BigDecimal amount) {
-        leadService.convertLeadToDeal(leadId, amount);
+    public String convertLeadToDeal(@RequestParam UUID leadId,
+                                    @RequestParam String title,
+                                    @RequestParam BigDecimal amount,
+                                    @RequestParam UUID companyId) {
+        CreateDealRequest request = new CreateDealRequest();
+        request.setTitle(title);
+        request.setAmount(amount);
+        request.setCompanyId(companyId);
+
+        leadService.convertLeadToDeal(leadId, request);
         return REDIRECT_DEALS;
     }
 
