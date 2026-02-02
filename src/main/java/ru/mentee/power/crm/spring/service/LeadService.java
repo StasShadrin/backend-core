@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.spring.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -9,12 +10,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import ru.mentee.power.crm.domain.Deal;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.repository.LeadRepository;
 
 /**
@@ -24,7 +28,8 @@ import ru.mentee.power.crm.spring.repository.LeadRepository;
 @RequiredArgsConstructor
 public class LeadService {
     private static final Logger log = LoggerFactory.getLogger(LeadService.class);
-    private final LeadRepository repository;
+    private final LeadRepository leadRepository;
+    private final DealRepository dealRepository;
 
     @PostConstruct
     void init() {
@@ -38,7 +43,7 @@ public class LeadService {
      */
     public Lead addLead(Lead lead) {
         // Бизнес-правило: проверка уникальности email
-        Optional<Lead> existing = repository.findByEmail(lead.email());
+        Optional<Lead> existing = leadRepository.findByEmail(lead.email());
         if (existing.isPresent()) {
             throw new IllegalStateException("Lead with email already exists: " + lead.email());
         }
@@ -52,34 +57,34 @@ public class LeadService {
                 lead.status()
         );
 
-        return repository.save(newLead);
+        return leadRepository.save(newLead);
     }
 
     /** Returns all leads stored in the repository. */
     public List<Lead> findAll() {
-        return repository.findAll();
+        return leadRepository.findAll();
     }
 
     /** Finds a lead by its unique ID. */
     public Optional<Lead> findById(UUID id) {
-        return repository.findById(id);
+        return leadRepository.findById(id);
     }
 
     /** Finds a lead by email address. */
     public Optional<Lead> findByEmail(String email) {
-        return repository.findByEmail(email);
+        return leadRepository.findByEmail(email);
     }
 
     /** Возвращает список лидов с указанным статусом. */
     public List<Lead> findByStatus(LeadStatus status) {
-        return repository.findAll().stream()
+        return leadRepository.findAll().stream()
                 .filter(lead -> lead.status().equals(status))
                 .toList();
     }
 
     /** Обновление существующего лида. */
     public void update(UUID id, Lead updatedLead) {
-        Lead existing = repository.findById(id)
+        Lead existing = leadRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + id));
         Lead updated = new Lead(
                 existing.id(),
@@ -90,19 +95,19 @@ public class LeadService {
                 updatedLead.status()
         );
 
-        repository.save(updated);
+        leadRepository.save(updated);
     }
 
     /** Удаление существующего лида. */
     public void delete(UUID id) {
-        repository.findById(id)
+        leadRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        repository.deleteById(id);
+        leadRepository.deleteById(id);
     }
 
     /** Выполняет поиск и фильтрацию лидов по текстовому запросу и статусу. */
     public List<Lead> findLeads(String search, LeadStatus status) {
-        List<Lead> leads = repository.findAll();
+        List<Lead> leads = leadRepository.findAll();
         Stream<Lead> stream = leads.stream();
 
         if (search != null && !search.trim().isEmpty()) {
@@ -119,5 +124,33 @@ public class LeadService {
         }
 
         return stream.toList();
+    }
+
+    /**
+     * Конвертирует существующий лид в новую сделку.
+     * Проверяет существование лида и создаёт сделку со статусом NEW.
+     */
+    @Transactional
+    public Deal convertLeadToDeal(UUID leadId, BigDecimal amount) {
+        Lead lead = leadRepository.findById(leadId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+
+        if (lead.status() == LeadStatus.CONVERTED) {
+            throw new IllegalStateException("Lead already converted: " + leadId);
+        }
+
+        Deal deal = new Deal(leadId, amount);
+        dealRepository.save(deal);
+
+        Lead updatedLead = new Lead(
+                lead.id(),
+                lead.name(),
+                lead.email(),
+                lead.phone(),
+                lead.company(),
+                LeadStatus.CONVERTED
+        );
+        leadRepository.save(updatedLead);
+        return deal;
     }
 }

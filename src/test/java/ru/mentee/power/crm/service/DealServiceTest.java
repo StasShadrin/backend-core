@@ -19,6 +19,7 @@ import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.repository.LeadRepository;
 import ru.mentee.power.crm.spring.service.DealService;
+import ru.mentee.power.crm.spring.service.LeadService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -38,6 +39,8 @@ class DealServiceTest {
 
     @InjectMocks
     private DealService dealService;
+    @InjectMocks
+    private LeadService leadService;
 
     private final UUID leadId = UUID.randomUUID();
     private final UUID dealId = UUID.randomUUID();
@@ -64,7 +67,7 @@ class DealServiceTest {
         }).when(dealRepository).save(any());
 
         // When
-        Deal result = dealService.convertLeadToDeal(leadId, BigDecimal.valueOf(50000));
+        Deal result = leadService.convertLeadToDeal(leadId, BigDecimal.valueOf(50000));
 
         // Then
         assertThat(result).isNotNull();
@@ -81,7 +84,7 @@ class DealServiceTest {
         when(leadRepository.findById(leadId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThatThrownBy(() -> dealService.convertLeadToDeal(leadId, BigDecimal.valueOf(100000)))
+        assertThatThrownBy(() -> leadService.convertLeadToDeal(leadId, BigDecimal.valueOf(100000)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Lead not found");
     }

@@ -6,6 +6,8 @@ import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 
 import ru.mentee.power.crm.servlet.LeadListServlet;
+import ru.mentee.power.crm.spring.repository.DealRepository;
+import ru.mentee.power.crm.spring.repository.InMemoryDealRepository;
 import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
 import ru.mentee.power.crm.spring.repository.LeadRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
@@ -17,7 +19,8 @@ public class Main {
     static void main() throws Exception {
 
         LeadRepository leadRepository = new InMemoryLeadRepository();
-        LeadService leadService = new LeadService(leadRepository);
+        DealRepository dealRepository = new InMemoryDealRepository();
+        LeadService leadService = new LeadService(leadRepository, dealRepository);
 
         TestDataUtils.initializeTestData(leadService);
 

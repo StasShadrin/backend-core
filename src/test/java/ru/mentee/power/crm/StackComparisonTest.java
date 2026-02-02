@@ -18,6 +18,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import ru.mentee.power.crm.servlet.LeadListServlet;
+import ru.mentee.power.crm.spring.repository.InMemoryDealRepository;
 import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
 import ru.mentee.power.crm.util.TestDataUtils;
@@ -43,7 +44,7 @@ class StackComparisonTest {
     @BeforeAll
     static void startServers() throws Exception {
         // === Запуск Servlet-стека (Tomcat Embed) ===
-        LeadService leadService = new LeadService(new InMemoryLeadRepository());
+        LeadService leadService = new LeadService(new InMemoryLeadRepository(), new InMemoryDealRepository());
         TestDataUtils.initializeTestData(leadService);
 
         tomcat = new Tomcat();

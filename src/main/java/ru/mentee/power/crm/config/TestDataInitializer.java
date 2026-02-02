@@ -51,7 +51,7 @@ public class TestDataInitializer {
             BigDecimal amount = new BigDecimal(100000 + i * 1000);
 
             // Создаём сделку → статус NEW
-            var deal = dealService.convertLeadToDeal(lead.id(), amount);
+            var deal = leadService.convertLeadToDeal(lead.id(), amount);
 
             // ВАЛИДНЫЕ переходы из NEW:
             try {

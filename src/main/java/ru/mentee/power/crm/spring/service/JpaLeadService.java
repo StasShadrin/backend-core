@@ -14,8 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
+import ru.mentee.power.crm.domain.DealStatus;
+import ru.mentee.power.crm.entity.Deal;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.exception.IllegalLeadStateException;
+import ru.mentee.power.crm.spring.repository.JpaDealRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 /** Сервисный слой бизнес логики */
@@ -23,28 +28,30 @@ import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 @RequiredArgsConstructor
 public class JpaLeadService {
 
-    private final JpaLeadRepository repository;
+    private final JpaLeadRepository leadRepository;
+    private final LeadProcessor leadProcessor;
+    private final JpaDealRepository dealRepository;
 
     /** Сохраняет лида в БД*/
     @Transactional
     public Lead addLead(Lead lead) {
         // Проверка уникальности email
-        if (repository.findByEmailNative(lead.getEmail()).isPresent()) {
+        if (leadRepository.findByEmailNative(lead.getEmail()).isPresent()) {
             throw new IllegalStateException("Lead with email already exists: " + lead.getEmail());
         }
-        return repository.save(lead);
+        return leadRepository.save(lead);
     }
 
     /** Находит всех лидов в БД */
     @Transactional(readOnly = true)
     public List<Lead> findAll() {
-        return repository.findAll();
+        return leadRepository.findAll();
     }
 
     /** Находит лида в БД по ID*/
     @Transactional(readOnly = true)
     public Optional<Lead> findById(UUID id) {
-        return repository.findById(id);
+        return leadRepository.findById(id);
     }
 
 //    /** Находит лида в БД по email */
@@ -56,13 +63,13 @@ public class JpaLeadService {
     /** Находит лида по статусу */
     @Transactional(readOnly = true)
     public List<Lead> findByStatus(LeadStatus status) {
-        return repository.findByStatusNative(status.name());
+        return leadRepository.findByStatusNative(status.name());
     }
 
     /** Обновляет лида */
     @Transactional
     public void update(UUID id, Lead updatedLead) {
-        Lead existing = repository.findById(id)
+        Lead existing = leadRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + id));
 
         existing.setName(updatedLead.getName());
@@ -71,37 +78,37 @@ public class JpaLeadService {
         existing.setCompany(updatedLead.getCompany());
         existing.setStatus(updatedLead.getStatus());
 
-        repository.save(existing);
+        leadRepository.save(existing);
     }
 
     /** Удаление существующего лида. */
     @Transactional
     public void delete(UUID id) {
-        if (!repository.existsById(id)) {
+        if (!leadRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        repository.deleteById(id);
+        leadRepository.deleteById(id);
     }
 
     /** Выполняет поиск и фильтрацию лидов по текстовому запросу и статусу. */
     @Transactional(readOnly = true)
     public List<Lead> findLeads(String search, LeadStatus status) {
         String statusStr = (status != null) ? status.name() : null;
-        return repository.findLeadsNative(search, statusStr);
+        return leadRepository.findLeadsNative(search, statusStr);
     }
 
     /**
      * Поиск лида по email (derived method).
      */
     public Optional<Lead> findByEmail(String email) {
-        return repository.findByEmail(email);
+        return leadRepository.findByEmail(email);
     }
 
     /**
      * Поиск лидов по списку статусов (JPQL).
      */
     public List<Lead> findByStatuses(LeadStatus... statuses) {
-        return repository.findByStatusIn(List.of(statuses));
+        return leadRepository.findByStatusIn(List.of(statuses));
     }
 
     /**
@@ -113,13 +120,13 @@ public class JpaLeadService {
                 pageSize,
                 Sort.by("createdAt").descending()
         );
-        return repository.findAll(pageRequest);
+        return leadRepository.findAll(pageRequest);
     }
 
-    /***/
+    /** Поиск по компании с пагинацией */
     public Page<Lead> searchByCompany(String company, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findByCompany(company, pageable);
+        return leadRepository.findByCompany(company, pageable);
     }
 
     /**
@@ -128,7 +135,7 @@ public class JpaLeadService {
      */
     @Transactional
     public int convertNewToContacted() {
-        int updated = repository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
+        int updated = leadRepository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
         // Логируем для observability
         System.out.printf("Converted %d leads from NEW to CONTACTED%n", updated);
         return updated;
@@ -137,6 +144,46 @@ public class JpaLeadService {
     /***/
     @Transactional
     public int archiveOldLeads(LeadStatus status) {
-        return repository.deleteByStatusBulk(status);
+        return leadRepository.deleteByStatusBulk(status);
+    }
+
+    /**
+     * Обрабатывает список лидов.
+     * Демонстрирует self-invocation problem:
+     * вызов this.processSingleLead() обходит Spring proxy,
+     * поэтому @Transactional(propagation = REQUIRES_NEW) игнорируется.
+     */
+    @Transactional
+    public void processLeads(List<UUID> ids) {
+        for (UUID id : ids) {
+            leadProcessor.processSingleLead(id);
+        }
+    }
+
+    /**
+     * Конвертирует существующий лид в новую сделку.
+     * Обновляет статус лида на CONVERTED.
+     * Демонстрирует транзакционность: если amount = null -> rollback.
+     */
+    @Transactional
+    public Deal convertLeadToDeal(UUID leadId, CreateDealRequest request) {
+        Lead lead = leadRepository.findById(leadId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+
+        if (lead.getStatus() != LeadStatus.QUALIFIED) {
+            throw new IllegalLeadStateException(leadId, lead.getStatus().name());
+        }
+
+        Deal deal = new Deal();
+        deal.setLeadId(leadId);
+        deal.setAmount(request.getAmount());
+        deal.setTitle(request.getTitle());
+        deal.setStatus(DealStatus.NEW);
+        Deal savedDeal = dealRepository.save(deal);
+
+        lead.setStatus(LeadStatus.CONVERTED);
+        leadRepository.save(lead);
+
+        return savedDeal;
     }
 }

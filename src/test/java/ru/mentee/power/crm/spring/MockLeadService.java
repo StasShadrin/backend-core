@@ -14,7 +14,7 @@ public class MockLeadService extends LeadService {
 
     /** Создаёт сервис с фиксированным списком тестовых лидов */
     public MockLeadService() {
-        super(null); // repository не используется в mock
+        super(null, null); // repository не используется в mock
         this.mockLeads = List.of(
                 LeadBuilder.builder()
                         .id(UUID.randomUUID())
