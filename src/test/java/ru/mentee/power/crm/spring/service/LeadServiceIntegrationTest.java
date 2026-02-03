@@ -40,12 +40,13 @@ class LeadServiceIntegrationTest {
         leadRepository.deleteAll();
         dealRepository.deleteAll();
 
-        Lead lead = new Lead();
-        lead.setName("Test Lead");
-        lead.setEmail("test@example.com");
-        lead.setPhone("123456789");
-        lead.setCompany("Test Company");
-        lead.setStatus(LeadStatus.QUALIFIED);
+        Lead lead = Lead.builder()
+                .name("Test Lead")
+                .email("test@example.com")
+                .phone("123456789")
+                .company("Test Company")
+                .status(LeadStatus.QUALIFIED)
+                .build();
         leadRepository.save(lead);
     }
 
@@ -105,12 +106,13 @@ class LeadServiceIntegrationTest {
 
     // Вспомогательный метод
     private Lead createLead(String email) {
-        Lead lead = new Lead();
-        lead.setName("Test Lead");
-        lead.setEmail(email);
-        lead.setPhone("123");
-        lead.setCompany("Test");
-        lead.setStatus(LeadStatus.NEW);
+        Lead lead = Lead.builder()
+                .name("Test Lead")
+                .email(email)
+                .phone("123")
+                .company("Test")
+                .status(LeadStatus.NEW)
+                .build();
         return leadRepository.save(lead);
     }
 

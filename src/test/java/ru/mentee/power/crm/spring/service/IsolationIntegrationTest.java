@@ -46,12 +46,13 @@ class IsolationIntegrationTest {
     }
 
     private Lead createLead() {
-        Lead lead = new Lead();
-        lead.setName("Test Lead");
-        lead.setEmail("test@example.com");
-        lead.setPhone("123");
-        lead.setCompany("Test");
-        lead.setStatus(LeadStatus.NEW);
+        Lead lead = Lead.builder()
+                .name("Test Lead")
+                .email("test@example.com")
+                .phone("123")
+                .company("Test")
+                .status(LeadStatus.NEW)
+                .build();
         return leadRepository.save(lead);
     }
 }

@@ -34,11 +34,12 @@ class JpaLeadControllerTest {
     @Test
     void shouldShowLeadsList() throws Exception {
         // Given
-        Lead lead = new Lead();
-        lead.setId(UUID.randomUUID());
-        lead.setName("Test");
-        lead.setEmail("test@example.com");
-        lead.setStatus(LeadStatus.NEW);
+        Lead lead = Lead.builder()
+                .id(UUID.randomUUID())
+                .name("Test")
+                .email("test@example.com")
+                .status(LeadStatus.NEW)
+                .build();
 
         when(leadService.findLeads(null, null)).thenReturn(List.of(lead));
 
@@ -61,11 +62,12 @@ class JpaLeadControllerTest {
     @Test
     void shouldCreateLeadAndRedirect() throws Exception {
         // Given
-        Lead lead = new Lead();
-        lead.setId(UUID.randomUUID());
-        lead.setName("Test");
-        lead.setEmail("test@example.com");
-        lead.setStatus(LeadStatus.NEW);
+        Lead lead = Lead.builder()
+                .id(UUID.randomUUID())
+                .name("Test")
+                .email("test@example.com")
+                .status(LeadStatus.NEW)
+                .build();
 
         when(leadService.addLead(any())).thenReturn(lead);
 
@@ -84,11 +86,12 @@ class JpaLeadControllerTest {
     void shouldShowEditForm() throws Exception {
         // Given
         UUID id = UUID.randomUUID();
-        Lead lead = new Lead();
-        lead.setId(id);
-        lead.setName("Test");
-        lead.setEmail("test@example.com");
-        lead.setStatus(LeadStatus.NEW);
+        Lead lead = Lead.builder()
+                .id(id)
+                .name("Test")
+                .email("test@example.com")
+                .status(LeadStatus.NEW)
+                .build();
 
         when(leadService.findById(id)).thenReturn(Optional.of(lead));
 
@@ -103,11 +106,12 @@ class JpaLeadControllerTest {
     void shouldUpdateLeadAndRedirect() throws Exception {
         // Given
         UUID id = UUID.randomUUID();
-        Lead lead = new Lead();
-        lead.setId(id);
-        lead.setName("Updated");
-        lead.setEmail("updated@example.com");
-        lead.setStatus(LeadStatus.NEW);
+        Lead lead = Lead.builder()
+                .id(id)
+                .name("Updated")
+                .email("updated@example.com")
+                .status(LeadStatus.NEW)
+                .build();
 
         when(leadService.findById(id)).thenReturn(Optional.of(lead));
 

@@ -8,11 +8,13 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 
+import jakarta.persistence.LockModeType;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
@@ -172,4 +174,18 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
     @Modifying
     @Query("DELETE FROM Lead l WHERE l.status = :status")
     int deleteByStatusBulk(@Param("status") LeadStatus status);
+
+    /**
+     * Pessimistic lock для критических операций (конверсия Lead -> Deal)
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Lead l WHERE l.id = :id")
+    Optional<Lead> findByIdForUpdate(@Param("id") UUID id);
+
+    /**
+     * Метод с @Lock для блокировки по email
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Lead l WHERE l.email = :email")
+    Optional<Lead> findByEmailForUpdate(@Param("email") String email);
 }
