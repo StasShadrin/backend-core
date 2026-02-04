@@ -2,7 +2,6 @@ package ru.mentee.power.crm.entity;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -14,9 +13,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -24,9 +25,8 @@ import ru.mentee.power.crm.model.LeadStatus;
 /** Сущность лида для работы с БД*/
 @Entity
 @Table(name = "leads")
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class Lead {
@@ -34,6 +34,11 @@ public class Lead {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    @Setter(AccessLevel.NONE) // JPA управляет версией сам — НЕ создаём setter
+    private Long version;
 
     @Column(nullable = false)
     private String name;
@@ -59,19 +64,5 @@ public class Lead {
         if (this.createdAt == null) {
             this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Lead lead = (Lead) o;
-        return Objects.equals(id, lead.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 }

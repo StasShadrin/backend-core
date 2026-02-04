@@ -13,9 +13,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.mentee.power.crm.domain.DealStatus;
@@ -23,8 +25,7 @@ import ru.mentee.power.crm.domain.DealStatus;
 /** Сущность сделки для работы с БД*/
 @Entity
 @Table(name = "deals")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -33,6 +34,11 @@ public class Deal {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    @Setter(AccessLevel.NONE)
+    private Long version;
 
     @Column(name = "lead_id", nullable = false)
     private UUID leadId;

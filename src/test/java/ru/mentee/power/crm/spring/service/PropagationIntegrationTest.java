@@ -51,12 +51,13 @@ class PropagationIntegrationTest {
     }
 
     private Lead createLead(String email) {
-        Lead lead = new Lead();
-        lead.setName("Test");
-        lead.setEmail(email);
-        lead.setPhone("123");
-        lead.setCompany("Test");
-        lead.setStatus(LeadStatus.NEW);
+        Lead lead = Lead.builder()
+                .name("Test")
+                .email(email)
+                .phone("123")
+                .company("Test")
+                .status(LeadStatus.NEW)
+                .build();
         return leadRepository.save(lead);
     }
 

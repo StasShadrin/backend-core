@@ -55,6 +55,7 @@ dependencies {
     // Spring Boot Starters
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+    implementation 'org.springframework.retry:spring-retry'
 
     // JTE интеграция для Spring Boot
     implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
@@ -147,7 +148,9 @@ jacocoTestReport {
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
                     'ru/mentee/power/crm/model/LeadBuilder*.class',
                     'ru/mentee/power/crm/domain/Deal*.class',
-                    'ru/mentee/power/spring/crm/controller/DealController*.class'
+                    'ru/mentee/power/crm/spring/controller/DealController*.class',
+                    'ru/mentee/power/crm/spring/exception/LeadNotFoundException*.class',
+                    'ru/mentee/power/crm/spring/exception/IllegalLeadStateException*.class'
             ])
         }))
     }
@@ -165,7 +168,9 @@ jacocoTestCoverageVerification {
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
                     'ru/mentee/power/crm/model/LeadBuilder*.class',
                     'ru/mentee/power/crm/domain/Deal*.class',
-                    'ru/mentee/power/crm/spring/controller/DealController*.class'
+                    'ru/mentee/power/crm/spring/controller/DealController*.class',
+                    'ru/mentee/power/crm/spring/exception/LeadNotFoundException*.class',
+                    'ru/mentee/power/crm/spring/exception/IllegalLeadStateException*.class'
             ])
         }))
     }

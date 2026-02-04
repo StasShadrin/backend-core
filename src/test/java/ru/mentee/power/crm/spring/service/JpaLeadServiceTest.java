@@ -33,23 +33,25 @@ class JpaLeadServiceTest {
 
         // Создаём 3 NEW лида
         for (int i = 1; i <= 3; i++) {
-            Lead lead = new Lead();
-            lead.setName("Lead" + i);
-            lead.setEmail("lead" + i + "@example.com");
-            lead.setPhone(i + "123");
-            lead.setCompany("Company " + i);
-            lead.setStatus(LeadStatus.NEW);
+            Lead lead = Lead.builder()
+                    .name("Lead" + i)
+                    .email("lead" + i + "@example.com")
+                    .phone(i + "123")
+                    .company("Company " + i)
+                    .status(LeadStatus.NEW)
+                    .build();
             repository.save(lead);
         }
 
         // Добавляем лиды со статусом LOST для теста удаления
         for (int i = 4; i <= 5; i++) {
-            Lead lead = new Lead();
-            lead.setName("LostLead" + i);
-            lead.setEmail("lost" + i + "@example.com");
-            lead.setPhone(i + "456");
-            lead.setCompany("LostCompany " + i);
-            lead.setStatus(LeadStatus.LOST);
+            Lead lead = Lead.builder()
+                    .name("LostLead" + i)
+                    .email("lost" + i + "@example.com")
+                    .phone(i + "456")
+                    .company("LostCompany " + i)
+                    .status(LeadStatus.LOST)
+                    .build();
             repository.save(lead);
         }
     }
