@@ -83,11 +83,15 @@
                     <td class="px-4 py-2">${lead.getName()}</td>
                     <td class="px-4 py-2">${lead.getEmail()}</td>
                     <td class="px-4 py-2">${lead.getPhone()}</td>
-                    <td class="px-4 py-2">${lead.getCompany()}</td>
+                    <td class="px-4 py-2">
+                        ${lead.getCompany() != null ? lead.getCompany().getName() : "—"}
+                    </td>
                     <td class="p-3">
                         <span class="px-2 py-1 rounded text-sm ${
                         lead.getStatus().name().equals("QUALIFIED") ? "bg-green-100" :
-                        lead.getStatus().name().equals("CONTACTED") ? "bg-blue-100" : "bg-gray-100"
+                        lead.getStatus().name().equals("CONTACTED") ? "bg-blue-100" :
+                        lead.getStatus().name().equals("LOST") ? "bg-red-100" :
+                        lead.getStatus().name().equals("CONVERTED") ? "bg-yellow-100" : "bg-gray-100"
                          }">${lead.getStatus()}</span>
                     </td>
                     <td class="px-4 py-2">

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
@@ -27,26 +28,43 @@ class JpaLeadRepositoryTest {
     @Autowired
     private JpaLeadRepository repository;
 
+    @Autowired
+    private CompanyRepository companyRepository;
+
+
     private Lead lead1;
     private Lead lead2;
+    private Company company1;
+    private Company company2;
+
 
     @BeforeEach
     void setUpForDerivedTests() {
+        company1 = Company.builder()
+                .name("ACME Corp")
+                .build();
+        companyRepository.save(company1);
+
         lead1 = Lead.builder()
                 .name("John")
                 .email("john@example.com")
                 .phone("123")
-                .company("ACME Corp")
+                .company(company1)
                 .status(LeadStatus.NEW)
                 .createdAt(OffsetDateTime.now().minusDays(5))
                 .build();
         repository.save(lead1);
 
+        company2 = Company.builder()
+                .name("Tech Inc")
+                .build();
+        companyRepository.save(company2);
+
         lead2 = Lead.builder()
                 .name("Jane")
                 .email("jane@example.com")
                 .phone("456")
-                .company("Tech Inc")
+                .company(company2)
                 .status(LeadStatus.CONTACTED)
                 .createdAt(OffsetDateTime.now().minusDays(2))
                 .build();
@@ -56,11 +74,16 @@ class JpaLeadRepositoryTest {
     @Test
     void shouldSaveAndFindLeadById_whenValidData() {
         // Given
+        Company company = Company.builder()
+                .name("ACME Corp")
+                .build();
+        companyRepository.save(company);
+
         Lead lead = Lead.builder()
                 .name("Lead 1")
                 .email("test@example.com")
                 .phone("123456789")
-                .company("ACME")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
 
@@ -77,11 +100,16 @@ class JpaLeadRepositoryTest {
     @Test
     void shouldFindByEmailNative_whenLeadExists() {
         // Given
+        Company company = Company.builder()
+                .name("TechCorp")
+                .build();
+        company = companyRepository.save(company);
+
         Lead lead = Lead.builder()
                 .name("test")
                 .email("native@test.com")
                 .phone("123456789")
-                .company("TechCorp")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
         repository.save(lead);
@@ -91,7 +119,7 @@ class JpaLeadRepositoryTest {
 
         // Then
         assertThat(found).isPresent();
-        assertThat(found.get().getCompany()).isEqualTo("TechCorp");
+        assertThat(found.get().getCompany().getName()).isEqualTo("TechCorp");
     }
 
     @Test
@@ -127,7 +155,7 @@ class JpaLeadRepositoryTest {
 
         // Then
         assertThat(found).isPresent();
-        assertThat(found.get().getCompany()).isEqualTo("ACME Corp");
+        assertThat(found.get().getCompany().getName()).isEqualTo("ACME Corp");
     }
 
     @Test
@@ -197,7 +225,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByStatusAndCompany_shouldReturnMatchingLeads() {
         // When
-        List<Lead> leads = repository.findByStatusAndCompany(LeadStatus.NEW, "ACME Corp");
+        List<Lead> leads = repository.findByStatusAndCompany(LeadStatus.NEW, company1);
 
         // Then
         assertThat(leads).hasSize(1);
@@ -227,7 +255,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByCompanyOrderedByDate_shouldReturnSortedLeads() {
         // When
-        List<Lead> leads = repository.findByCompanyOrderedByDate("Tech Inc");
+        List<Lead> leads = repository.findByCompanyOrderedByDate(company2);
 
         // Then
         assertThat(leads).hasSize(1);

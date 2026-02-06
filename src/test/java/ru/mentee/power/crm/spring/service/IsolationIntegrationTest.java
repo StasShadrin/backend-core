@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
@@ -50,7 +51,9 @@ class IsolationIntegrationTest {
                 .name("Test Lead")
                 .email("test@example.com")
                 .phone("123")
-                .company("Test")
+                .company(Company.builder()
+                        .name("Test")
+                        .build())
                 .status(LeadStatus.NEW)
                 .build();
         return leadRepository.save(lead);

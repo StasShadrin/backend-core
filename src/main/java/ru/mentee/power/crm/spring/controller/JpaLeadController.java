@@ -1,6 +1,5 @@
 package ru.mentee.power.crm.spring.controller;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
@@ -16,8 +15,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.service.JpaCompanyService;
 import ru.mentee.power.crm.spring.service.JpaLeadService;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -34,6 +35,7 @@ public class JpaLeadController {
     private static final String LEADS_EDIT = "jpa-leads/edit";
 
     private final JpaLeadService leadService;
+    private final JpaCompanyService companyService;
 
     /** Обрабатывает GET-запрос /jpa-leads и отображает список лидов с фильтрацией */
     @GetMapping
@@ -47,7 +49,7 @@ public class JpaLeadController {
             statusEnum = LeadStatus.valueOf(status);
         }
 
-        List<Lead> leads = leadService.findLeads(search, statusEnum);
+        var leads = leadService.findLeads(search, statusEnum);
         model.addAttribute("leads", leads);
         model.addAttribute("search", search != null ? search : "");
         model.addAttribute("status", status != null ? status : "");
@@ -59,13 +61,13 @@ public class JpaLeadController {
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         Lead lead = Lead.builder()
-                .id(null)
                 .name("")
                 .email("")
                 .phone("")
-                .company("")
+                .company(null)
                 .status(LeadStatus.NEW)
                 .build();
+
         model.addAttribute("lead", lead);
         return LEADS_CREATE;
     }
@@ -73,14 +75,20 @@ public class JpaLeadController {
     /** Обрабатывает отправку формы и создаёт нового лида */
     @PostMapping
     public String createLead(
+            @RequestParam(required = false) String companyName,
             @Valid @ModelAttribute Lead lead,
-            BindingResult result,
-            Model model) {
+            BindingResult result) {
 
         if (result.hasErrors()) {
-            model.addAttribute("errors", result);
             return LEADS_CREATE;
         }
+
+        Company company = null;
+        if (companyName != null && !companyName.trim().isEmpty()) {
+            company = companyService.findOrCreateByName(companyName.trim());
+        }
+        lead.setCompany(company);
+
         leadService.addLead(lead);
         return REDIRECT_LEADS;
     }
@@ -98,13 +106,20 @@ public class JpaLeadController {
     @PostMapping("/{id}")
     public String updateLead(
             @PathVariable UUID id,
+            @RequestParam(required = false) String companyName,
             @Valid @ModelAttribute Lead lead,
-            BindingResult result,
-            Model model) {
+            BindingResult result) {
+
         if (result.hasErrors()) {
-            model.addAttribute("errors", result);
             return LEADS_EDIT;
         }
+
+        Company company = null;
+        if (companyName != null && !companyName.trim().isEmpty()) {
+            company = companyService.findOrCreateByName(companyName.trim());
+        }
+        lead.setCompany(company);
+
         leadService.update(id, lead);
         return REDIRECT_LEADS;
     }

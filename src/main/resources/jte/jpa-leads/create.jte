@@ -69,18 +69,15 @@
 
             <!-- Company -->
             <div class="mb-4">
-                <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Компания</label>
+                <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">Компания</label>
                 <input
                         type="text"
-                        id="company"
-                        name="company"
-                        value="${lead.getCompany() != null ? lead.getCompany() : ""}"
-                        class="w-full px-3 py-2 border ${errors != null && errors.hasFieldErrors("company") ? "border-red-500" : "border-gray-300"} rounded-md focus:ring-2 focus:ring-blue-500"
-                        placeholder="Название компании"
+                        id="companyName"
+                        name="companyName"
+                        placeholder="Введите название компании"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                 />
-                @if(errors != null && errors.hasFieldErrors("company"))
-                    <p class="text-red-600 text-sm mt-1">${errors.getFieldError("company").getDefaultMessage()}</p>
-                @endif
+                <!-- Ошибки для companyName не нужны - это просто строка -->
             </div>
 
             <!-- Status -->

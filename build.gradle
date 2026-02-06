@@ -16,7 +16,7 @@ version = '1.0-SNAPSHOT'
 ext {
     springBootVersion = '3.5.9'
     junitVersion = '5.11.0'
-    assertjVersion = '3.26.3'
+    assertjVersion = '3.27.7'
     lombokVersion = '1.18.38'
     mockitoVersion = '5.21.0'
     servletVersion = '6.1.0'
@@ -149,6 +149,7 @@ jacocoTestReport {
                     'ru/mentee/power/crm/model/LeadBuilder*.class',
                     'ru/mentee/power/crm/domain/Deal*.class',
                     'ru/mentee/power/crm/spring/controller/DealController*.class',
+                    'ru/mentee/power/crm/spring/service/LeadLockingService*.class',
                     'ru/mentee/power/crm/spring/exception/LeadNotFoundException*.class',
                     'ru/mentee/power/crm/spring/exception/IllegalLeadStateException*.class'
             ])
@@ -169,6 +170,7 @@ jacocoTestCoverageVerification {
                     'ru/mentee/power/crm/model/LeadBuilder*.class',
                     'ru/mentee/power/crm/domain/Deal*.class',
                     'ru/mentee/power/crm/spring/controller/DealController*.class',
+                    'ru/mentee/power/crm/spring/service/LeadLockingService*.class',
                     'ru/mentee/power/crm/spring/exception/LeadNotFoundException*.class',
                     'ru/mentee/power/crm/spring/exception/IllegalLeadStateException*.class'
             ])

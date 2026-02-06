@@ -1,3 +1,15 @@
+-- Таблица Companies
+CREATE TABLE IF NOT EXISTS companies
+(
+    id         UUID PRIMARY KEY,
+    name       VARCHAR(255)             NOT NULL,
+    industry   VARCHAR(100)
+);
+
+-- Индекс для поиска по названию компании
+CREATE INDEX IF NOT EXISTS idx_companies_name ON companies (name);
+
+
 -- Таблица Leads (потенциальные клиенты)
 CREATE TABLE IF NOT EXISTS leads
 (
@@ -6,7 +18,8 @@ CREATE TABLE IF NOT EXISTS leads
     name       VARCHAR(255)             NOT NULL,
     email      VARCHAR(255)             NOT NULL UNIQUE,
     phone      VARCHAR(50)              NOT NULL,
-    company    VARCHAR(255)             NOT NULL,
+--     company    VARCHAR(255)             NOT NULL,
+    company_id UUID REFERENCES companies(id),
     status     VARCHAR(50)              NOT NULL,
 --     source      VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -20,6 +33,9 @@ CREATE INDEX IF NOT EXISTS idx_leads_email ON leads (email);
 
 -- Индекс для фильтрации по статусу
 CREATE INDEX IF NOT EXISTS idx_leads_status ON leads (status);
+
+-- Индекс для фильтрации по компании
+CREATE INDEX IF NOT EXISTS idx_leads_company_id ON leads (company_id);
 
 -- Таблица Contacts (контактные лица)
 -- CREATE TABLE IF NOT EXISTS contacts

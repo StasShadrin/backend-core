@@ -10,9 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaDealRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -35,16 +37,24 @@ class LeadServiceIntegrationTest {
     @Autowired
     private JpaDealRepository dealRepository;
 
+    @Autowired
+    private CompanyRepository companyRepository;
+
     @BeforeEach
     void setUp() {
         leadRepository.deleteAll();
         dealRepository.deleteAll();
+        companyRepository.deleteAll();
+
+        Company company = Company.builder()
+                .name("Test Company").build();
+        companyRepository.save(company);
 
         Lead lead = Lead.builder()
                 .name("Test Lead")
                 .email("test@example.com")
                 .phone("123456789")
-                .company("Test Company")
+                .company(company)
                 .status(LeadStatus.QUALIFIED)
                 .build();
         leadRepository.save(lead);
@@ -106,11 +116,15 @@ class LeadServiceIntegrationTest {
 
     // Вспомогательный метод
     private Lead createLead(String email) {
+        Company company = Company.builder()
+                .name("Test").build();
+        companyRepository.save(company);
+
         Lead lead = Lead.builder()
                 .name("Test Lead")
                 .email(email)
                 .phone("123")
-                .company("Test")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
         return leadRepository.save(lead);

@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,15 +30,22 @@ class LeadLockingServiceTest {
     @Autowired
     private JpaLeadRepository leadRepository;
 
+    @Autowired
+    private CompanyRepository companyRepository;
+
     @SuppressWarnings("resource")
     @Test
     void shouldPreventLostUpdate_whenPessimisticLockUsed() throws Exception {
         // Given: Lead с начальным статусом
+        Company company = Company.builder()
+                .name("company A").build();
+        companyRepository.save(company);
+
         Lead lead = Lead.builder()
                 .name("Lead 1")
                 .email("concurrent@test.com")
                 .phone("123456789")
-                .company("company A")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
         lead = leadRepository.save(lead);
@@ -84,11 +93,15 @@ class LeadLockingServiceTest {
     @Test
     void shouldThrowOptimisticLockException_whenConcurrentUpdateWithoutLock() throws Exception {
         // Given: Lead с optimistic locking через @Version
+        Company company = Company.builder()
+                .name("company A").build();
+        companyRepository.save(company);
+
         Lead lead = Lead.builder()
                 .name("Lead 1")
                 .phone("123456789")
                 .email("optimistic@test.com")
-                .company("company A")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
         lead = leadRepository.save(lead);
@@ -133,18 +146,26 @@ class LeadLockingServiceTest {
     @Test
     void shouldDetectDeadlock_whenLeadsLockedInDifferentOrder() throws Exception {
         // Given: два лида
+        Company company1 = Company.builder()
+                .name("company A").build();
+        companyRepository.save(company1);
+
+        Company company2 = Company.builder()
+                .name("Company B").build();
+        companyRepository.save(company2);
+
         Lead lead1 = Lead.builder()
                 .name("Lead 1")
                 .email("lead1@test.com")
                 .phone("123")
-                .company("Company A")
+                .company(company1)
                 .status(LeadStatus.NEW)
                 .build();
         Lead lead2 = Lead.builder()
                 .name("Lead 2")
                 .email("lead2@test.com")
                 .phone("456")
-                .company("Company B")
+                .company(company2)
                 .status(LeadStatus.NEW)
                 .build();
 
