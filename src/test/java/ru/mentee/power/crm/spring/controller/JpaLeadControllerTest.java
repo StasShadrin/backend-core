@@ -11,8 +11,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.service.JpaCompanyService;
 import ru.mentee.power.crm.spring.service.JpaLeadService;
 
 import static org.mockito.Mockito.any;
@@ -30,6 +32,9 @@ class JpaLeadControllerTest {
 
     @MockitoBean
     private JpaLeadService leadService;
+
+    @MockitoBean
+    private JpaCompanyService companyService;
 
     @Test
     void shouldShowLeadsList() throws Exception {
@@ -62,11 +67,13 @@ class JpaLeadControllerTest {
     @Test
     void shouldCreateLeadAndRedirect() throws Exception {
         // Given
+        UUID companyId = UUID.randomUUID();
         Lead lead = Lead.builder()
                 .id(UUID.randomUUID())
                 .name("Test")
                 .email("test@example.com")
                 .status(LeadStatus.NEW)
+                .company(Company.builder().id(companyId).build())
                 .build();
 
         when(leadService.addLead(any())).thenReturn(lead);
@@ -76,7 +83,7 @@ class JpaLeadControllerTest {
                         .param("name", "Test")
                         .param("email", "test@example.com")
                         .param("phone", "123")
-                        .param("company", "ACME")
+                        .param("company_id", companyId.toString())
                         .param("status", "NEW"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/jpa-leads"));
@@ -106,11 +113,13 @@ class JpaLeadControllerTest {
     void shouldUpdateLeadAndRedirect() throws Exception {
         // Given
         UUID id = UUID.randomUUID();
+        UUID companyId = UUID.randomUUID();
         Lead lead = Lead.builder()
                 .id(id)
                 .name("Updated")
                 .email("updated@example.com")
                 .status(LeadStatus.NEW)
+                .company(Company.builder().id(companyId).build())
                 .build();
 
         when(leadService.findById(id)).thenReturn(Optional.of(lead));
@@ -120,7 +129,7 @@ class JpaLeadControllerTest {
                         .param("name", "Updated")
                         .param("email", "updated@example.com")
                         .param("phone", "123")
-                        .param("company", "ACME")
+                        .param("company_id", companyId.toString())
                         .param("status", "NEW"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/jpa-leads"));

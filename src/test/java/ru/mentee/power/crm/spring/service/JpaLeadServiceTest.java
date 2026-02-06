@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,17 +29,28 @@ class JpaLeadServiceTest {
     @Autowired
     private JpaLeadRepository repository;
 
+    @Autowired
+    private CompanyRepository companyRepository;
+
     @BeforeEach
     void setUp() {
         repository.deleteAll();
+        companyRepository.deleteAll();
 
         // Создаём 3 NEW лида
         for (int i = 1; i <= 3; i++) {
+            // Сначала сохраняем компанию
+            Company company = Company.builder()
+                    .name("Company " + i)
+                    .build();
+            company = companyRepository.save(company); // ← СОХРАНЯЕМ КОМПАНИЮ
+
+            // Потом создаём лид с сохранённой компанией
             Lead lead = Lead.builder()
                     .name("Lead" + i)
                     .email("lead" + i + "@example.com")
                     .phone(i + "123")
-                    .company("Company " + i)
+                    .company(company) // ← ИСПОЛЬЗУЕМ СОХРАНЁННУЮ КОМПАНИЮ
                     .status(LeadStatus.NEW)
                     .build();
             repository.save(lead);
@@ -45,11 +58,18 @@ class JpaLeadServiceTest {
 
         // Добавляем лиды со статусом LOST для теста удаления
         for (int i = 4; i <= 5; i++) {
+            // Сначала сохраняем компанию
+            Company company = Company.builder()
+                    .name("LostCompany " + i)
+                    .build();
+            company = companyRepository.save(company); // ← СОХРАНЯЕМ КОМПАНИЮ
+
+            // Потом создаём лид с сохранённой компанией
             Lead lead = Lead.builder()
                     .name("LostLead" + i)
                     .email("lost" + i + "@example.com")
                     .phone(i + "456")
-                    .company("LostCompany " + i)
+                    .company(company) // ← ИСПОЛЬЗУЕМ СОХРАНЁННУЮ КОМПАНИЮ
                     .status(LeadStatus.LOST)
                     .build();
             repository.save(lead);
@@ -92,11 +112,16 @@ class JpaLeadServiceTest {
     @Test
     void addLead_shouldSaveNewLead() {
         // Given
+        Company company = Company.builder()
+                .name("New Company")
+                .build();
+        companyRepository.save(company);
+
         Lead newLead = Lead.builder()
                 .name("New Lead")
                 .email("new@example.com")
                 .phone("123")
-                .company("New Company")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
 
@@ -112,11 +137,16 @@ class JpaLeadServiceTest {
     @Test
     void addLead_shouldThrowException_whenEmailExists() {
         // When & Then
+        Company company = Company.builder()
+                .name("Dup Company")
+                .build();
+        companyRepository.save(company);
+
         Lead duplicate = Lead.builder()
                 .name("Duplicate")
                 .email("lead1@example.com") // уже существует
                 .phone("123")
-                .company("Dup Company")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
 
@@ -161,11 +191,16 @@ class JpaLeadServiceTest {
     void update_shouldUpdateLeadFields() {
         // Given
         UUID id = repository.findAll().getFirst().getId();
+        Company company = Company.builder()
+                .name("Updated Company")
+                .build();
+        companyRepository.save(company);
+
         Lead updatedLead = Lead.builder()
                 .name("Updated Name")
                 .email("updated@example.com")
                 .phone("999")
-                .company("Updated Company")
+                .company(company)
                 .status(LeadStatus.CONTACTED)
                 .build();
 
@@ -232,10 +267,12 @@ class JpaLeadServiceTest {
 
     @Test
     void searchByCompany_shouldReturnPagedResults() {
-        // When
-        var page = service.searchByCompany("Company 1", 0, 1);
+        // Найдём существующую компанию по названию
+        Company company = companyRepository.findByName("Company 1")
+                .orElseThrow(() -> new RuntimeException("Company 'Company 1' not found"));
 
-        // Then
+        var page = service.searchByCompany(company, 0, 1);
+
         assertThat(page.getContent()).hasSize(1);
         assertThat(page.getContent().getFirst().getEmail()).isEqualTo("lead1@example.com");
     }

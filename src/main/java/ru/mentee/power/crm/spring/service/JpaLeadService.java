@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.domain.DealStatus;
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Deal;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -124,7 +125,7 @@ public class JpaLeadService {
     }
 
     /** Поиск по компании с пагинацией */
-    public Page<Lead> searchByCompany(String company, int page, int size) {
+    public Page<Lead> searchByCompany(Company company, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return leadRepository.findByCompany(company, pageable);
     }

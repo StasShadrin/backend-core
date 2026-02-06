@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +24,9 @@ class PropagationIntegrationTest {
 
     @Autowired
     private JpaLeadRepository leadRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
 
     @BeforeEach
     void setUp() {
@@ -51,11 +56,16 @@ class PropagationIntegrationTest {
     }
 
     private Lead createLead(String email) {
+        Company company = Company.builder()
+                .name("Test")
+                .build();
+        companyRepository.save(company);
+
         Lead lead = Lead.builder()
                 .name("Test")
                 .email(email)
                 .phone("123")
-                .company("Test")
+                .company(company)
                 .status(LeadStatus.NEW)
                 .build();
         return leadRepository.save(lead);

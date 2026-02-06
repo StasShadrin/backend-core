@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 
 import jakarta.persistence.LockModeType;
+import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
@@ -30,13 +31,14 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
 
     /** Поиск по тексту + статусу (аналог findLeads) */
     @Query(value = """
-            SELECT * FROM leads 
-            WHERE (:status IS NULL OR status = :status)
+            SELECT l.* FROM leads l
+            LEFT JOIN companies c ON l.company_id = c.id
+            WHERE (:status IS NULL OR l.status = :status)
               AND (
                 :search IS NULL 
-                OR LOWER(name) LIKE LOWER(CONCAT('%', :search, '%'))
-                OR LOWER(email) LIKE LOWER(CONCAT('%', :search, '%'))
-                OR LOWER(company) LIKE LOWER(CONCAT('%', :search, '%'))
+                OR LOWER(l.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                OR LOWER(l.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))
               )
             """, nativeQuery = true)
     List<Lead> findLeadsNative(@Param("search") String search, @Param("status") String status);
@@ -60,7 +62,7 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
      *  Поиск по компании.
      *  SQL: SELECT * FROM leads WHERE company = ?
      */
-    List<Lead> findByCompany(String company);
+    List<Lead> findByCompany(Company company);
 
     /**
      *  Подсчёт лидов по статусу.
@@ -84,7 +86,7 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
      * Поиск по статусу И компании.
      * SQL: SELECT * FROM leads WHERE status = ? AND company = ?
      */
-    List<Lead> findByStatusAndCompany(LeadStatus status, String company);
+    List<Lead> findByStatusAndCompany(LeadStatus status, Company company);
 
     /**
      * Поиск с сортировкой.
@@ -117,14 +119,13 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
      * SQL: SELECT * FROM leads WHERE company = ? ORDER BY created_at DESC
      */
     @Query("SELECT l FROM Lead l WHERE l.company = :company ORDER BY l.createdAt DESC")
-    List<Lead> findByCompanyOrderedByDate(@Param("company") String company);
+    List<Lead> findByCompanyOrderedByDate(@Param("company") Company company);
 
-//    /**
-//     *  Если у Lead есть связь @ManyToOne с Company.
-//     *  (Закомментирован до появления связи)
-//     */
-//    @Query("SELECT l FROM Lead l JOIN l.company c WHERE c.name = :companyName")
-//    List<Lead> findByCompanyName(@Param("companyName") String name);
+    /**
+     *  Если у Lead есть связь @ManyToOne с Company.
+     */
+    @Query("SELECT l FROM Lead l JOIN l.company c WHERE c.name = :companyName")
+    List<Lead> findByCompanyName(@Param("companyName") String name);
 
 
     // Методы с пагинацией
@@ -144,7 +145,7 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
     /**
      *  Поиск по компании с пагинацией.
      */
-    Page<Lead> findByCompany(String company, Pageable pageable);
+    Page<Lead> findByCompany(Company company, Pageable pageable);
 
     /**
      * JPQL запрос с пагинацией.
