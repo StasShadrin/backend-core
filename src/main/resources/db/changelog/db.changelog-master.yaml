@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - include:
+      file: migrations/001_create_companies.sql
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/002_create_leads.sql
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/003_create_contacts.sql
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/004_create_deals.sql
+      relativeToChangelogFile: true
+  - include:
+      file: migrations/005_create_products.sql
+      relativeToChangelogFile: true
