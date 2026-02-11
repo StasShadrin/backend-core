@@ -42,22 +42,23 @@ class DealProductIntegrationTest {
                 .build();
         lead = leadRepository.save(lead);
 
-        Product product1 = Product.builder()
+        Product productFirst = Product.builder()
                 .name("Ноутбук Dell")
                 .sku("LAPTOP-001")
                 .price(BigDecimal.valueOf(90000))
                 .active(true)
                 .build();
 
-        Product product2 = Product.builder()
+
+        Product productSecond = Product.builder()
                 .name("Монитор LG")
                 .sku("MONITOR-001")
                 .price(BigDecimal.valueOf(25000))
                 .active(true)
                 .build();
 
-        productRepository.save(product1);
-        productRepository.save(product2);
+        productRepository.save(productFirst);
+        productRepository.save(productSecond);
 
         Deal deal = Deal.builder()
                 .amount(BigDecimal.valueOf(187000))
@@ -66,20 +67,20 @@ class DealProductIntegrationTest {
                 .leadId(lead.getId())
                 .build();
 
-        DealProduct dealProduct1 = DealProduct.builder()
-                .product(product1)
+        DealProduct dealProductFirst = DealProduct.builder()
+                .product(productFirst)
                 .quantity(2)
                 .unitPrice(BigDecimal.valueOf(81000))
                 .build();
 
-        DealProduct dealProduct2 = DealProduct.builder()
-                .product(product2)
+        DealProduct dealProductSecond = DealProduct.builder()
+                .product(productSecond)
                 .quantity(1)
                 .unitPrice(BigDecimal.valueOf(25000))
                 .build();
 
-        deal.addDealProduct(dealProduct1);
-        deal.addDealProduct(dealProduct2);
+        deal.addDealProduct(dealProductFirst);
+        deal.addDealProduct(dealProductSecond);
         Deal savedDeal = dealRepository.save(deal);
 
         Optional<Deal> found = dealRepository.findById(savedDeal.getId());
@@ -89,19 +90,19 @@ class DealProductIntegrationTest {
         List<DealProduct> products = loadedDeal.getDealProducts();
         assertThat(products).hasSize(2);
 
-        DealProduct dp1 = products.stream()
+        DealProduct dpFirst = products.stream()
                 .filter(dp -> dp.getProduct().getSku().equals("LAPTOP-001"))
                 .findFirst()
                 .orElseThrow();
-        assertThat(dp1.getQuantity()).isEqualTo(2);
-        assertThat(dp1.getUnitPrice()).isEqualTo(BigDecimal.valueOf(81000));
+        assertThat(dpFirst.getQuantity()).isEqualTo(2);
+        assertThat(dpFirst.getUnitPrice()).isEqualTo(BigDecimal.valueOf(81000));
 
-        DealProduct dp2 = products.stream()
+        DealProduct dpSecond = products.stream()
                 .filter(dp -> dp.getProduct().getSku().equals("MONITOR-001"))
                 .findFirst()
                 .orElseThrow();
-        assertThat(dp2.getQuantity()).isEqualTo(1);
-        assertThat(dp2.getUnitPrice()).isEqualTo(BigDecimal.valueOf(25000));
+        assertThat(dpSecond.getQuantity()).isEqualTo(1);
+        assertThat(dpSecond.getUnitPrice()).isEqualTo(BigDecimal.valueOf(25000));
     }
 
     @Test
@@ -113,21 +114,21 @@ class DealProductIntegrationTest {
                 .status(LeadStatus.NEW)
                 .build());
 
-        Product p1 = productRepository.save(Product.builder()
+        Product productFirst = productRepository.save(Product.builder()
                 .name("Клавиатура")
                 .sku("KEYBOARD-001")
                 .price(BigDecimal.valueOf(3000))
                 .active(true)
                 .build());
 
-        Product p2 = productRepository.save(Product.builder()
+        Product productSecond = productRepository.save(Product.builder()
                 .name("Мышь")
                 .sku("MOUSE-001")
                 .price(BigDecimal.valueOf(2000))
                 .active(true)
                 .build());
 
-        Product p3 = productRepository.save(Product.builder()
+        Product productThird = productRepository.save(Product.builder()
                 .name("Подставка")
                 .sku("STAND-001")
                 .price(BigDecimal.valueOf(1500))
@@ -142,19 +143,19 @@ class DealProductIntegrationTest {
                 .build();
 
         deal.addDealProduct(DealProduct.builder()
-                .product(p1)
+                .product(productFirst)
                 .quantity(1)
                 .unitPrice(BigDecimal.valueOf(3000))
                 .build());
 
         deal.addDealProduct(DealProduct.builder()
-                .product(p2)
+                .product(productSecond)
                 .quantity(1)
                 .unitPrice(BigDecimal.valueOf(2000))
                 .build());
 
         deal.addDealProduct(DealProduct.builder()
-                .product(p3)
+                .product(productThird)
                 .quantity(1)
                 .unitPrice(BigDecimal.valueOf(1500))
                 .build());

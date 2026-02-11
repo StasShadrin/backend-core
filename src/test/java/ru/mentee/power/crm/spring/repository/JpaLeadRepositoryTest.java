@@ -32,43 +32,44 @@ class JpaLeadRepositoryTest {
     private CompanyRepository companyRepository;
 
 
-    private Lead lead1;
-    private Lead lead2;
-    private Company company1;
-    private Company company2;
+    private Lead leadFirst;
+    private Lead leadSecond;
+    private Company companyFirst;
+    private Company companySecond;
 
 
     @BeforeEach
+
     void setUpForDerivedTests() {
-        company1 = Company.builder()
+        companyFirst = Company.builder()
                 .name("ACME Corp")
                 .build();
-        companyRepository.save(company1);
+        companyRepository.save(companyFirst);
 
-        lead1 = Lead.builder()
+        leadFirst = Lead.builder()
                 .name("John")
                 .email("john@example.com")
                 .phone("123")
-                .company(company1)
+                .company(companyFirst)
                 .status(LeadStatus.NEW)
                 .createdAt(OffsetDateTime.now().minusDays(5))
                 .build();
-        repository.save(lead1);
+        repository.save(leadFirst);
 
-        company2 = Company.builder()
+        companySecond = Company.builder()
                 .name("Tech Inc")
                 .build();
-        companyRepository.save(company2);
+        companyRepository.save(companySecond);
 
-        lead2 = Lead.builder()
+        leadSecond = Lead.builder()
                 .name("Jane")
                 .email("jane@example.com")
                 .phone("456")
-                .company(company2)
+                .company(companySecond)
                 .status(LeadStatus.CONTACTED)
                 .createdAt(OffsetDateTime.now().minusDays(2))
                 .build();
-        repository.save(lead2);
+        repository.save(leadSecond);
     }
 
     @Test
@@ -140,7 +141,7 @@ class JpaLeadRepositoryTest {
     @Test
     void shouldDeleteLeadById_whenLeadExists() {
         //When
-        UUID id = lead1.getId();
+        UUID id = leadFirst.getId();
         repository.deleteById(id);
         Optional<Lead> found = repository.findById(id);
 
@@ -225,7 +226,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByStatusAndCompany_shouldReturnMatchingLeads() {
         // When
-        List<Lead> leads = repository.findByStatusAndCompany(LeadStatus.NEW, company1);
+        List<Lead> leads = repository.findByStatusAndCompany(LeadStatus.NEW, companyFirst);
 
         // Then
         assertThat(leads).hasSize(1);
@@ -255,7 +256,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByCompanyOrderedByDate_shouldReturnSortedLeads() {
         // When
-        List<Lead> leads = repository.findByCompanyOrderedByDate(company2);
+        List<Lead> leads = repository.findByCompanyOrderedByDate(companySecond);
 
         // Then
         assertThat(leads).hasSize(1);
