@@ -64,7 +64,6 @@ public class JpaLeadController {
                 .name("")
                 .email("")
                 .phone("")
-                .company(null)
                 .status(LeadStatus.NEW)
                 .build();
 

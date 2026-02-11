@@ -17,9 +17,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Сущность компании для работы с CRM.
- */
+/***/
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,10 +35,6 @@ public class Company {
 
     private String industry;
 
-    /**
-     * Список потенциальных клиентов (лидов), привязанных к компании.
-     * Обратная сторона связи один-ко-многим.
-     */
     @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST)
     @Builder.Default
     private List<Lead> leads = new ArrayList<>();
