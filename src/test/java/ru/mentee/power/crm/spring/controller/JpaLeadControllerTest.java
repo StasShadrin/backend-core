@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.JpaCompanyService;
 import ru.mentee.power.crm.spring.service.JpaLeadService;
 
@@ -35,6 +36,9 @@ class JpaLeadControllerTest {
 
     @MockitoBean
     private JpaCompanyService companyService;
+
+    @MockitoBean
+    private CompanyRepository  companyRepository;
 
     @Test
     void shouldShowLeadsList() throws Exception {
@@ -144,5 +148,18 @@ class JpaLeadControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/jpa-leads/" + id + "/delete"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/jpa-leads"));
+    }
+
+    @Test
+    void shouldUpdateLeadStatus() throws Exception {
+        UUID companyId = UUID.randomUUID();
+        Company company = Company.builder().id(companyId).name("Test").build();
+
+        when(companyRepository.findById(companyId)).thenReturn(Optional.of(company));
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/jpa-leads/status")
+                        .param("companyId", companyId.toString())
+                        .param("status", "CONTACTED"))
+                .andExpect(status().is3xxRedirection());
     }
 }

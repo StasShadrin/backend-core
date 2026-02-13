@@ -24,17 +24,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class JpaLeadServiceTest {
 
     @Autowired
-    private JpaLeadService service;
+    private JpaLeadService leadService;
 
     @Autowired
-    private JpaLeadRepository repository;
+    private JpaLeadRepository leadRepository;
 
     @Autowired
     private CompanyRepository companyRepository;
 
     @BeforeEach
     void setUp() {
-        repository.deleteAll();
+        leadRepository.deleteAll();
         companyRepository.deleteAll();
 
         // Создаём 3 NEW лида
@@ -53,7 +53,7 @@ class JpaLeadServiceTest {
                     .company(company) // ← ИСПОЛЬЗУЕМ СОХРАНЁННУЮ КОМПАНИЮ
                     .status(LeadStatus.NEW)
                     .build();
-            repository.save(lead);
+            leadRepository.save(lead);
         }
 
         // Добавляем лиды со статусом LOST для теста удаления
@@ -72,40 +72,40 @@ class JpaLeadServiceTest {
                     .company(company) // ← ИСПОЛЬЗУЕМ СОХРАНЁННУЮ КОМПАНИЮ
                     .status(LeadStatus.LOST)
                     .build();
-            repository.save(lead);
+            leadRepository.save(lead);
         }
     }
 
     @Test
     void convertNewToContacted_shouldUpdateMultipleLeads() {
         // When
-        int updated = service.convertNewToContacted();
+        int updated = leadService.convertNewToContacted();
 
         // Then
         assertThat(updated).isEqualTo(3);
 
         // Проверяем что статус изменился
-        long contactedCount = repository.countByStatus(LeadStatus.CONTACTED);
+        long contactedCount = leadRepository.countByStatus(LeadStatus.CONTACTED);
         assertThat(contactedCount).isEqualTo(3);
 
-        long newCount = repository.countByStatus(LeadStatus.NEW);
+        long newCount = leadRepository.countByStatus(LeadStatus.NEW);
         assertThat(newCount).isZero();
     }
 
     @Test
     void archiveOldLeads_shouldDeleteLeadsByStatus() {
         // When
-        int deleted = service.archiveOldLeads(LeadStatus.LOST);
+        int deleted = leadService.archiveOldLeads(LeadStatus.LOST);
 
         // Then
         assertThat(deleted).isEqualTo(2);
 
         // Проверяем, что лиды со статусом LOST удалены
-        long lostCount = repository.countByStatus(LeadStatus.LOST);
+        long lostCount = leadRepository.countByStatus(LeadStatus.LOST);
         assertThat(lostCount).isZero();
 
         // Проверяем, что другие лиды остались
-        long newCount = repository.countByStatus(LeadStatus.NEW);
+        long newCount = leadRepository.countByStatus(LeadStatus.NEW);
         assertThat(newCount).isEqualTo(3);
     }
 
@@ -126,7 +126,7 @@ class JpaLeadServiceTest {
                 .build();
 
         // When
-        Lead saved = service.addLead(newLead);
+        Lead saved = leadService.addLead(newLead);
 
         // Then
         assertThat(saved).isNotNull();
@@ -150,7 +150,7 @@ class JpaLeadServiceTest {
                 .status(LeadStatus.NEW)
                 .build();
 
-        assertThatThrownBy(() -> service.addLead(duplicate))
+        assertThatThrownBy(() -> leadService.addLead(duplicate))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Lead with email already exists");
     }
@@ -158,7 +158,7 @@ class JpaLeadServiceTest {
     @Test
     void findAll_shouldReturnAllLeads() {
         // When
-        List<Lead> leads = service.findAll();
+        List<Lead> leads = leadService.findAll();
 
         // Then
         assertThat(leads).hasSize(5); // 3 NEW + 2 LOST
@@ -167,10 +167,10 @@ class JpaLeadServiceTest {
     @Test
     void findById_shouldReturnLead_whenExists() {
         // Given
-        UUID id = repository.findAll().getFirst().getId();
+        UUID id = leadRepository.findAll().getFirst().getId();
 
         // When
-        Optional<Lead> found = service.findById(id);
+        Optional<Lead> found = leadService.findById(id);
 
         // Then
         assertThat(found).isPresent();
@@ -180,7 +180,7 @@ class JpaLeadServiceTest {
     @Test
     void findByStatus_shouldReturnFilteredLeads() {
         // When
-        List<Lead> newLeads = service.findByStatus(LeadStatus.NEW);
+        List<Lead> newLeads = leadService.findByStatus(LeadStatus.NEW);
 
         // Then
         assertThat(newLeads).hasSize(3);
@@ -190,7 +190,7 @@ class JpaLeadServiceTest {
     @Test
     void update_shouldUpdateLeadFields() {
         // Given
-        UUID id = repository.findAll().getFirst().getId();
+        UUID id = leadRepository.findAll().getFirst().getId();
         Company company = Company.builder()
                 .name("Updated Company")
                 .build();
@@ -205,10 +205,10 @@ class JpaLeadServiceTest {
                 .build();
 
         // When
-        service.update(id, updatedLead);
+        leadService.update(id, updatedLead);
 
         // Then
-        Optional<Lead> result = service.findById(id);
+        Optional<Lead> result = leadService.findById(id);
         assertThat(result).isPresent();
         assertThat(result.get().getName()).isEqualTo("Updated Name");
         assertThat(result.get().getStatus()).isEqualTo(LeadStatus.CONTACTED);
@@ -217,19 +217,19 @@ class JpaLeadServiceTest {
     @Test
     void delete_shouldRemoveLead() {
         // Given
-        UUID id = repository.findAll().getFirst().getId();
+        UUID id = leadRepository.findAll().getFirst().getId();
 
         // When
-        service.delete(id);
+        leadService.delete(id);
 
         // Then
-        assertThat(service.findById(id)).isEmpty();
+        assertThat(leadService.findById(id)).isEmpty();
     }
 
     @Test
     void findLeads_shouldFilterBySearchAndStatus() {
         // When
-        List<Lead> results = service.findLeads("Lead1", LeadStatus.NEW);
+        List<Lead> results = leadService.findLeads("Lead1", LeadStatus.NEW);
 
         // Then
         assertThat(results).hasSize(1);
@@ -239,7 +239,7 @@ class JpaLeadServiceTest {
     @Test
     void findByEmail_shouldReturnLead_whenExists() {
         // When
-        Optional<Lead> found = service.findByEmail("lead1@example.com");
+        Optional<Lead> found = leadService.findByEmail("lead1@example.com");
 
         // Then
         assertThat(found).isPresent();
@@ -249,7 +249,7 @@ class JpaLeadServiceTest {
     @Test
     void findByStatuses_shouldReturnLeadsWithMultipleStatuses() {
         // When
-        List<Lead> leads = service.findByStatuses(LeadStatus.NEW, LeadStatus.LOST);
+        List<Lead> leads = leadService.findByStatuses(LeadStatus.NEW, LeadStatus.LOST);
 
         // Then
         assertThat(leads).hasSize(5); // все лиды
@@ -258,7 +258,7 @@ class JpaLeadServiceTest {
     @Test
     void getFirstPage_shouldReturnPagedResults() {
         // When
-        var page = service.getFirstPage(2);
+        var page = leadService.getFirstPage(2);
 
         // Then
         assertThat(page.getContent()).hasSize(2);
@@ -271,9 +271,27 @@ class JpaLeadServiceTest {
         Company company = companyRepository.findByName("Company 1")
                 .orElseThrow(() -> new RuntimeException("Company 'Company 1' not found"));
 
-        var page = service.searchByCompany(company, 0, 1);
+        var page = leadService.searchByCompany(company, 0, 1);
 
         assertThat(page.getContent()).hasSize(1);
         assertThat(page.getContent().getFirst().getEmail()).isEqualTo("lead1@example.com");
+    }
+
+    @Test
+    void changStatus_shouldUpdateLeadsByCompany() {
+        Company company = companyRepository.findByName("Company 1")
+                .orElseThrow(() -> new RuntimeException("Company 'Company 1' not found"));
+
+        long initialNewCount = leadRepository.countByStatus(LeadStatus.NEW);
+        assertThat(initialNewCount).isGreaterThanOrEqualTo(1);
+
+        leadService.changStatus(company, LeadStatus.CONTACTED);
+
+
+        long newCount = leadRepository.countByStatus(LeadStatus.NEW);
+        long contactedCount = leadRepository.countByStatus(LeadStatus.CONTACTED);
+
+        assertThat(newCount).isEqualTo(initialNewCount - 1);
+        assertThat(contactedCount).isEqualTo(1);
     }
 }

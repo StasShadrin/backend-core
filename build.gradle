@@ -149,6 +149,7 @@ jacocoTestReport {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                     'ru/mentee/power/crm/Main.class',
+                    'ru/mentee/power/crm/Application.class',
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
@@ -170,6 +171,7 @@ jacocoTestCoverageVerification {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
                     'ru/mentee/power/crm/Main.class',
+                    'ru/mentee/power/crm/Application.class',
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
