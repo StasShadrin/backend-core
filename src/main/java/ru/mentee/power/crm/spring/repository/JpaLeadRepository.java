@@ -189,4 +189,7 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT l FROM Lead l WHERE l.email = :email")
     Optional<Lead> findByEmailForUpdate(@Param("email") String email);
+
+    /** Метод поиска по email */
+    Optional<Lead> findByEmailIgnoreCase(String email);
 }

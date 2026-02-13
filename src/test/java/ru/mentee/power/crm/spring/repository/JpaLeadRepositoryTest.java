@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JpaLeadRepositoryTest {
 
     @Autowired
-    private JpaLeadRepository repository;
+    private JpaLeadRepository leadRepository;
 
     @Autowired
     private CompanyRepository companyRepository;
@@ -54,7 +54,7 @@ class JpaLeadRepositoryTest {
                 .status(LeadStatus.NEW)
                 .createdAt(OffsetDateTime.now().minusDays(5))
                 .build();
-        repository.save(leadFirst);
+        leadRepository.save(leadFirst);
 
         companySecond = Company.builder()
                 .name("Tech Inc")
@@ -69,7 +69,7 @@ class JpaLeadRepositoryTest {
                 .status(LeadStatus.CONTACTED)
                 .createdAt(OffsetDateTime.now().minusDays(2))
                 .build();
-        repository.save(leadSecond);
+        leadRepository.save(leadSecond);
     }
 
     @Test
@@ -89,8 +89,8 @@ class JpaLeadRepositoryTest {
                 .build();
 
         // When
-        Lead saved = repository.save(lead);
-        Optional<Lead> found = repository.findById(saved.getId());
+        Lead saved = leadRepository.save(lead);
+        Optional<Lead> found = leadRepository.findById(saved.getId());
 
         // Then
         assertThat(found).isPresent();
@@ -113,10 +113,10 @@ class JpaLeadRepositoryTest {
                 .company(company)
                 .status(LeadStatus.NEW)
                 .build();
-        repository.save(lead);
+        leadRepository.save(lead);
 
         // When
-        Optional<Lead> found = repository.findByEmailNative("native@test.com");
+        Optional<Lead> found = leadRepository.findByEmailNative("native@test.com");
 
         // Then
         assertThat(found).isPresent();
@@ -126,7 +126,7 @@ class JpaLeadRepositoryTest {
     @Test
     void shouldReturnEmptyOptional_whenEmailNotFound() {
         // When
-        Optional<Lead> found = repository.findByEmailNative("nonexistent@test.com");
+        Optional<Lead> found = leadRepository.findByEmailNative("nonexistent@test.com");
 
         // Then
         assertThat(found).isEmpty();
@@ -135,15 +135,15 @@ class JpaLeadRepositoryTest {
     @Test
     void shouldFindAllLead() {
         //Then
-        assertThat(repository.findAll()).hasSize(2);
+        assertThat(leadRepository.findAll()).hasSize(2);
     }
 
     @Test
     void shouldDeleteLeadById_whenLeadExists() {
         //When
         UUID id = leadFirst.getId();
-        repository.deleteById(id);
-        Optional<Lead> found = repository.findById(id);
+        leadRepository.deleteById(id);
+        Optional<Lead> found = leadRepository.findById(id);
 
         //Then
         assertThat(found).isEmpty();
@@ -152,7 +152,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByEmail_shouldReturnLead_whenExists() {
         // When
-        Optional<Lead> found = repository.findByEmail("john@example.com");
+        Optional<Lead> found = leadRepository.findByEmail("john@example.com");
 
         // Then
         assertThat(found).isPresent();
@@ -162,7 +162,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByStatus_shouldReturnFilteredLeads() {
         // When
-        List<Lead> newLeads = repository.findByStatus(LeadStatus.NEW);
+        List<Lead> newLeads = leadRepository.findByStatus(LeadStatus.NEW);
 
         // Then
         assertThat(newLeads).hasSize(1);
@@ -175,7 +175,7 @@ class JpaLeadRepositoryTest {
         List<LeadStatus> statuses = List.of(LeadStatus.NEW, LeadStatus.CONTACTED);
 
         // When
-        List<Lead> found = repository.findByStatusIn(statuses);
+        List<Lead> found = leadRepository.findByStatusIn(statuses);
 
         // Then
         assertThat(found).hasSize(2);
@@ -187,7 +187,7 @@ class JpaLeadRepositoryTest {
         PageRequest pageRequest = PageRequest.of(0, 1);
 
         // When
-        Page<Lead> page = repository.findAll(pageRequest);
+        Page<Lead> page = leadRepository.findAll(pageRequest);
 
         // Then
         assertThat(page.getContent()).hasSize(1);
@@ -199,7 +199,7 @@ class JpaLeadRepositoryTest {
     @Test
     void countByStatus_shouldReturnCorrectCount() {
         // When
-        long count = repository.countByStatus(LeadStatus.NEW);
+        long count = leadRepository.countByStatus(LeadStatus.NEW);
 
         // Then
         assertThat(count).isEqualTo(1);
@@ -208,7 +208,7 @@ class JpaLeadRepositoryTest {
     @Test
     void existsByEmail_shouldReturnTrue_whenEmailExists() {
         // When
-        boolean exists = repository.existsByEmail("john@example.com");
+        boolean exists = leadRepository.existsByEmail("john@example.com");
 
         // Then
         assertThat(exists).isTrue();
@@ -217,7 +217,7 @@ class JpaLeadRepositoryTest {
     @Test
     void existsByEmail_shouldReturnFalse_whenEmailNotFound() {
         // When
-        boolean exists = repository.existsByEmail("nonexistent@test.com");
+        boolean exists = leadRepository.existsByEmail("nonexistent@test.com");
 
         // Then
         assertThat(exists).isFalse();
@@ -226,7 +226,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByStatusAndCompany_shouldReturnMatchingLeads() {
         // When
-        List<Lead> leads = repository.findByStatusAndCompany(LeadStatus.NEW, companyFirst);
+        List<Lead> leads = leadRepository.findByStatusAndCompany(LeadStatus.NEW, companyFirst);
 
         // Then
         assertThat(leads).hasSize(1);
@@ -236,7 +236,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findByStatusOrderByCreatedAtDesc_shouldReturnSortedLeads() {
         // When
-        List<Lead> leads = repository.findByStatusOrderByCreatedAtDesc(LeadStatus.CONTACTED);
+        List<Lead> leads = leadRepository.findByStatusOrderByCreatedAtDesc(LeadStatus.CONTACTED);
 
         // Then
         assertThat(leads).hasSize(1);
@@ -246,7 +246,7 @@ class JpaLeadRepositoryTest {
     @Test
     void findCreatedAfter_shouldReturnRecentLeads() {
         // When
-        List<Lead> leads = repository.findCreatedAfter(OffsetDateTime.now().minusDays(3));
+        List<Lead> leads = leadRepository.findCreatedAfter(OffsetDateTime.now().minusDays(3));
 
         // Then
         assertThat(leads).hasSize(1);
@@ -256,10 +256,36 @@ class JpaLeadRepositoryTest {
     @Test
     void findByCompanyOrderedByDate_shouldReturnSortedLeads() {
         // When
-        List<Lead> leads = repository.findByCompanyOrderedByDate(companySecond);
+        List<Lead> leads = leadRepository.findByCompanyOrderedByDate(companySecond);
 
         // Then
         assertThat(leads).hasSize(1);
         assertThat(leads.getFirst().getEmail()).isEqualTo("jane@example.com");
+    }
+    @Test
+    void shouldFindByEmailIgnoreCase_whenEmailExists() {
+        // Given
+        Lead lead = Lead.builder()
+                .name("Test")
+                .phone("+123")
+                .email("Test@ex.com")
+                .status(LeadStatus.NEW)
+                .company(companyFirst)
+                .build();
+        leadRepository.save(lead);
+
+        // When
+        Optional<Lead> found = leadRepository.findByEmailIgnoreCase("test@ex.com");
+
+        // Then
+        assertThat(found).isPresent();
+        assertThat(found.get().getEmail()).isEqualTo(lead.getEmail());
+    }
+
+    @Test
+    void shouldReturnEmpty_whenEmailNotFound() {
+        Optional<Lead> found = leadRepository.findByEmailIgnoreCase("nonexist@ex.com");
+
+        assertThat(found).isEmpty();
     }
 }

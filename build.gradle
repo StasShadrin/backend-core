@@ -79,6 +79,7 @@ dependencies {
 
     // H2 Database (только для тестов)
     testRuntimeOnly 'com.h2database:h2:2.3.232'
+    runtimeOnly 'com.h2database:h2'
 
     // Для тестирования
     testImplementation 'org.instancio:instancio-junit:5.5.1'
