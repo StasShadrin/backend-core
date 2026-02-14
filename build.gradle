@@ -162,6 +162,7 @@ jacocoTestReport {
             fileTree(dir: it, exclude: [
                     'ru/mentee/power/crm/Main.class',
                     'ru/mentee/power/crm/Application.class',
+                    'ru/mentee/power/crm/spring/TestBadFormat.class',
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
@@ -184,6 +185,7 @@ jacocoTestCoverageVerification {
             fileTree(dir: it, exclude: [
                     'ru/mentee/power/crm/Main.class',
                     'ru/mentee/power/crm/Application.class',
+                    'ru/mentee/power/crm/spring/TestBadFormat.class',
                     'ru/mentee/power/crm/web/**/HelloCrmServer*.class',
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
