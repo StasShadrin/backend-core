@@ -1,3 +1,9 @@
+# M-CRM Spring
+
+[![Java CI with Spotless](https://github.com/StasShadrin/backend-core/actions/workflows/ci.yml/badge.svg)](https://github.com/StasShadrin/backend-core/actions/workflows/ci.yml)
+
+CRM система на Spring Boot...
+
 ## Сравнение стеков Servlet vs Spring Boot
 ### Результаты интеграционного теста
 
