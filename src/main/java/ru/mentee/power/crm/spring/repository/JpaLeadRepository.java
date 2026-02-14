@@ -189,4 +189,14 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT l FROM Lead l WHERE l.email = :email")
     Optional<Lead> findByEmailForUpdate(@Param("email") String email);
+
+    /** Метод поиска по email */
+    Optional<Lead> findByEmailIgnoreCase(String email);
+
+    /**
+     * Массовое обновление статуса лидов при схожести с переданной компанией.
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Lead l SET l.status = :status WHERE l.company = :company AND l.status != 'CONVERTED' AND l.status != :status")
+    void updateStatuses(@Param("company") Company company, @Param("status") LeadStatus status);
 }

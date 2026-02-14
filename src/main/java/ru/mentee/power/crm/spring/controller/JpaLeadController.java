@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.JpaCompanyService;
 import ru.mentee.power.crm.spring.service.JpaLeadService;
 
@@ -36,6 +37,7 @@ public class JpaLeadController {
 
     private final JpaLeadService leadService;
     private final JpaCompanyService companyService;
+    private final CompanyRepository companyRepository;
 
     /** Обрабатывает GET-запрос /jpa-leads и отображает список лидов с фильтрацией */
     @GetMapping
@@ -127,6 +129,19 @@ public class JpaLeadController {
     @PostMapping("/{id}/delete")
     public String deleteLead(@PathVariable UUID id) {
         leadService.delete(id);
+        return REDIRECT_LEADS;
+    }
+
+    /** Обновление статуса лидов по переданной компании*/
+    @PostMapping("/status")
+    public String updateLeadStatus(
+            @RequestParam UUID companyId,
+            @RequestParam LeadStatus status) {
+
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Company not found"));
+
+        leadService.changStatus(company, status);
         return REDIRECT_LEADS;
     }
 }
