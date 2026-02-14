@@ -2,12 +2,10 @@ package ru.mentee.power.crm.domain;
 
 import lombok.Data;
 
-/**
- * Demonstration of Contact with Lombok
- */
+/** Демонстрация контакта с ломбоком */
 @Data
 public class ContactLombok {
-    private String firstName;
-    private String lastName;
-    private String email;
+  private String firstName;
+  private String lastName;
+  private String email;
 }

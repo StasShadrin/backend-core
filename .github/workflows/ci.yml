@@ -1,4 +1,4 @@
-name: Java CI with Checkstyle and JaCoCo
+name: Java CI with Spotless
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - master
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,6 +27,9 @@ jobs:
           java-version: '25'
           cache: 'gradle'
 
+      - name: Check code formatting (Spotless)
+        run: ./gradlew --no-daemon spotlessCheck
+
       - name: Run Checkstyle
         run: ./gradlew --no-daemon checkstyleMain checkstyleTest
 
@@ -36,7 +39,7 @@ jobs:
       - name: Generate JaCoCo report
         run: ./gradlew --no-daemon jacocoTestReport
 
-      - name: Verify code coverage
+      - name: Verify code coverage (80%)
         run: ./gradlew --no-daemon jacocoTestCoverageVerification
 
       - name: Build project

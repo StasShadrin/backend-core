@@ -1,131 +1,117 @@
 package ru.mentee.power.crm.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
-
 import ru.mentee.power.crm.storage.LeadStorage;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 class LeadEqualsHashCodeTest {
-    private final UUID randomUUID = UUID.randomUUID();
-    private final Address address1 = new Address("San Francisco", "123 Main St", "94105");
-    private final Contact contact1 = new Contact(
-            "test@example.com",
-            "+71234567890",
-            address1);
-    private final Address address2 = new Address("San Francisco", "123 Main St", "91234");
-    private final Contact contact2 = new Contact(
-            "test2@example.com",
-            "+71234567999",
-            address2);
-    private final Lead base = new Lead(randomUUID,
-            contact1,
-            "TechCorp",
-            "NEW");
+  private final UUID randomUUID = UUID.randomUUID();
+  private final Address address1 = new Address("San Francisco", "123 Main St", "94105");
+  private final Contact contact1 = new Contact("test@example.com", "+71234567890", address1);
+  private final Address address2 = new Address("San Francisco", "123 Main St", "91234");
+  private final Contact contact2 = new Contact("test2@example.com", "+71234567999", address2);
+  private final Lead base = new Lead(randomUUID, contact1, "TechCorp", "NEW");
 
-    @Test
-    void shouldBeReflexiveWhenEqualsCalledOnSameObject() {
-        // Given
-        Lead lead = base;
+  @Test
+  void shouldBeReflexiveWhenEqualsCalledOnSameObject() {
+    // Given
+    Lead lead = base;
 
-        // Then: Объект равен сам себе (isEqualTo использует equals() внутри)
-        assertThat(lead).isEqualTo(lead);
-    }
+    // Then
+    assertThat(lead).isEqualTo(lead);
+  }
 
-    @Test
-    void shouldBeSymmetricWhenEqualsCalledOnTwoObjects() {
-        // Given
-        Lead firstLead = base;
-        Lead secondLead = base;
+  @Test
+  void shouldBeSymmetricWhenEqualsCalledOnTwoObjects() {
+    // Given
+    Lead firstLead = base;
+    Lead secondLead = base;
 
-        // Then: Симметричность — порядок сравнения не важен
-        assertThat(firstLead).isEqualTo(secondLead);
-        assertThat(secondLead).isEqualTo(firstLead);
-    }
+    // Then
+    assertThat(firstLead).isEqualTo(secondLead);
+    assertThat(secondLead).isEqualTo(firstLead);
+  }
 
-    @Test
-    void shouldBeTransitiveWhenEqualsChainOfThreeObjects() {
-        // Given
-        Lead firstLead = base;
-        Lead secondLead = base;
-        Lead thirdLead = base;
+  @Test
+  void shouldBeTransitiveWhenEqualsChainOfThreeObjects() {
+    // Given
+    Lead firstLead = base;
+    Lead secondLead = base;
+    Lead thirdLead = base;
 
-        // Then: Транзитивность — если A=B и B=C, то A=C
-        assertThat(firstLead).isEqualTo(secondLead);
-        assertThat(secondLead).isEqualTo(thirdLead);
-        assertThat(firstLead).isEqualTo(thirdLead);
-    }
+    // Then
+    assertThat(firstLead).isEqualTo(secondLead);
+    assertThat(secondLead).isEqualTo(thirdLead);
+    assertThat(firstLead).isEqualTo(thirdLead);
+  }
 
-    @Test
-    void shouldBeConsistentWhenEqualsCalledMultipleTimes() {
-        // Given
-        Lead firstLead = base;
-        Lead secondLead = base;
+  @Test
+  void shouldBeConsistentWhenEqualsCalledMultipleTimes() {
+    // Given
+    Lead firstLead = base;
+    Lead secondLead = base;
 
-        // Then: Результат одинаковый при многократных вызовах
-        assertThat(firstLead).isEqualTo(secondLead);
-        assertThat(firstLead).isEqualTo(secondLead);
-        assertThat(firstLead).isEqualTo(secondLead);
-    }
+    // Then: Результат одинаковый при многократных вызовах
+    assertThat(firstLead).isEqualTo(secondLead);
+    assertThat(firstLead).isEqualTo(secondLead);
+    assertThat(firstLead).isEqualTo(secondLead);
+  }
 
-    @Test
-    void shouldReturnFalseWhenEqualsComparedWithNull() {
-        // Then: Объект не равен null (isNotEqualTo проверяет equals(null) = false)
-        assertThat(base).isNotEqualTo(null);
-    }
+  @Test
+  void shouldReturnFalseWhenEqualsComparedWithNull() {
+    // Then: Объект не равен null (isNotEqualTo проверяет equals(null) = false)
+    assertThat(base).isNotEqualTo(null);
+  }
 
-    @Test
-    void shouldHaveSameHashCodeWhenObjectsAreEqual() {
-        // Given
-        Lead firstLead = base;
-        Lead secondLead = base;
+  @Test
+  void shouldHaveSameHashCodeWhenObjectsAreEqual() {
+    // Given
+    Lead firstLead = base;
+    Lead secondLead = base;
 
-        // Then: Если объекты равны, то hashCode должен быть одинаковым
-        assertThat(firstLead).isEqualTo(secondLead);
-        assertThat(firstLead.hashCode()).hasSameHashCodeAs(secondLead.hashCode());
-    }
+    // Then: Если объекты равны, то hashCode должен быть одинаковым
+    assertThat(firstLead).isEqualTo(secondLead);
+    assertThat(firstLead.hashCode()).hasSameHashCodeAs(secondLead.hashCode());
+  }
 
-    @Test
-    void shouldWorkInHashMapWhenLeadUsedAsKey() {
-        // Given
+  @Test
+  void shouldWorkInHashMapWhenLeadUsedAsKey() {
+    // Given
 
-        Map<Lead, String> map = new HashMap<>();
-        map.put(base, "CONTACTED");
+    Map<Lead, String> map = new HashMap<>();
+    map.put(base, "CONTACTED");
 
-        // When: Получаем значение по другому объекту с тем же id
-        String status = map.get(base);
+    // When: Получаем значение по другому объекту с тем же id
+    String status = map.get(base);
 
-        // Then: HashMap нашел значение благодаря equals/hashCode
-        assertThat(status).isEqualTo("CONTACTED");
-    }
+    // Then: HashMap нашел значение благодаря equals/hashCode
+    assertThat(status).isEqualTo("CONTACTED");
+  }
 
-    @Test
-    void shouldNotBeEqualWhenIdsAreDifferent() {
-        // Given
-        Lead differentLead = new Lead(UUID.randomUUID(),
-                contact2,
-                "TechCorp",
-                "NEW");
+  @Test
+  void shouldNotBeEqualWhenIdsAreDifferent() {
+    // Given
+    Lead differentLead = new Lead(UUID.randomUUID(), contact2, "TechCorp", "NEW");
 
-        // Then: Разные id = разные объекты (isNotEqualTo использует equals() внутри)
-        assertThat(base).isNotEqualTo(differentLead);
-    }
+    // Then: Разные id = разные объекты (isNotEqualTo использует equals() внутри)
+    assertThat(base).isNotEqualTo(differentLead);
+  }
 
-    @Test
-    void shouldPreventStringConfusionWhenUsingUUID() {
-        // Given
-        LeadStorage storage = new LeadStorage();
-        storage.add(base);
+  @Test
+  void shouldPreventStringConfusionWhenUsingUUID() {
+    // Given
+    LeadStorage storage = new LeadStorage();
+    storage.add(base);
 
-        // When — вызов с правильным типом UUID
-        Lead found = storage.findById(base.getId());
+    // When
+    Lead found = storage.findById(base.getId());
 
-        // Then
-        assertThat(found).isNotNull();
-        assertThat(found.getId()).isEqualTo(base.getId());
-    }
+    // Then
+    assertThat(found).isNotNull();
+    assertThat(found.getId()).isEqualTo(base.getId());
+  }
 }
