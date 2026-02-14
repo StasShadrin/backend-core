@@ -1,61 +1,57 @@
 package ru.mentee.power.crm.spring.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest
 @Transactional
 class IsolationIntegrationTest {
 
-    @Autowired
-    private IsolationDemoService demoService;
+  @Autowired private IsolationDemoService demoService;
 
-    @Autowired
-    private JpaLeadRepository leadRepository;
+  @Autowired private JpaLeadRepository leadRepository;
 
-    @BeforeEach
-    void setUp() {
-        leadRepository.deleteAll();
-    }
+  @BeforeEach
+  void setUp() {
+    leadRepository.deleteAll();
+  }
 
-    @Test
-    void demonstrate_READ_COMMITTED_usage() {
-        Lead lead = createLead();
+  @Test
+  void demonstrate_READ_COMMITTED_usage() {
+    Lead lead = createLead();
 
-        Lead result = demoService.readWithReadCommitted(lead.getId());
+    Lead result = demoService.readWithReadCommitted(lead.getId());
 
-        assertThat(result.getStatus()).isEqualTo(LeadStatus.NEW);
-    }
+    assertThat(result.getStatus()).isEqualTo(LeadStatus.NEW);
+  }
 
-    @Test
-    void demonstrate_REPEATABLE_READ_usage() {
-        Lead lead = createLead();
+  @Test
+  void demonstrate_REPEATABLE_READ_usage() {
+    Lead lead = createLead();
 
-        Lead result = demoService.readWithRepeatableRead(lead.getId());
+    Lead result = demoService.readWithRepeatableRead(lead.getId());
 
-        assertThat(result.getStatus()).isEqualTo(LeadStatus.NEW);
-    }
+    assertThat(result.getStatus()).isEqualTo(LeadStatus.NEW);
+  }
 
-    private Lead createLead() {
-        Lead lead = Lead.builder()
-                .name("Test Lead")
-                .email("test@example.com")
-                .phone("123")
-                .company(Company.builder()
-                        .name("Test")
-                        .build())
-                .status(LeadStatus.NEW)
-                .build();
-        return leadRepository.save(lead);
-    }
+  private Lead createLead() {
+    Lead lead =
+        Lead.builder()
+            .name("Test Lead")
+            .email("test@example.com")
+            .phone("123")
+            .company(Company.builder().name("Test").build())
+            .status(LeadStatus.NEW)
+            .build();
+    return leadRepository.save(lead);
+  }
 }

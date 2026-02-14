@@ -1,10 +1,8 @@
 package ru.mentee.power.crm;
 
 import java.io.File;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
-
 import ru.mentee.power.crm.servlet.LeadListServlet;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.repository.InMemoryDealRepository;
@@ -16,29 +14,29 @@ import ru.mentee.power.crm.util.TestDataUtils;
 /** Точка входа в программу */
 public class Main {
 
-    static void main() throws Exception {
+  static void main() throws Exception {
 
-        LeadRepository leadRepository = new InMemoryLeadRepository();
-        DealRepository dealRepository = new InMemoryDealRepository();
-        LeadService leadService = new LeadService(leadRepository, dealRepository);
+    LeadRepository leadRepository = new InMemoryLeadRepository();
+    DealRepository dealRepository = new InMemoryDealRepository();
+    LeadService leadService = new LeadService(leadRepository, dealRepository);
 
-        TestDataUtils.initializeTestData(leadService);
+    TestDataUtils.initializeTestData(leadService);
 
-        Tomcat tomcat = new Tomcat();
-        tomcat.setPort(8080);
-        tomcat.getConnector();
+    Tomcat tomcat = new Tomcat();
+    tomcat.setPort(8080);
+    tomcat.getConnector();
 
-        Context context = tomcat.addContext("", new File(".").getAbsolutePath());
-        context.getServletContext().setAttribute("leadService", leadService);
+    Context context = tomcat.addContext("", new File(".").getAbsolutePath());
+    context.getServletContext().setAttribute("leadService", leadService);
 
-        String servletName = "LeadListServlet";
-        Tomcat.addServlet(context, servletName, new LeadListServlet());
-        context.addServletMappingDecoded("/leads", servletName);
+    String servletName = "LeadListServlet";
+    Tomcat.addServlet(context, servletName, new LeadListServlet());
+    context.addServletMappingDecoded("/leads", servletName);
 
-        tomcat.start();
-        System.out.println("Tomcat started on port 8080");
-        System.out.println("Open http://localhost:8080/leads in browser");
+    tomcat.start();
+    System.out.println("Tomcat started on port 8080");
+    System.out.println("Open http://localhost:8080/leads in browser");
 
-        tomcat.getServer().await();
-    }
+    tomcat.getServer().await();
+  }
 }

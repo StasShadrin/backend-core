@@ -8,8 +8,8 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableRetry
 @SpringBootApplication
 public class Application {
-    /** Запускает встроенное Spring Boot-приложение */
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+  /** Запускает встроенное Spring Boot-приложение */
+  public static void main(String[] args) {
+    SpringApplication.run(Application.class, args);
+  }
 }
