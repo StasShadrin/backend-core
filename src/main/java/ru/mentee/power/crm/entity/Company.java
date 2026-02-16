@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,6 +37,7 @@ public class Company {
 
   @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST)
   @Builder.Default
+  @JsonIgnore
   private List<Lead> leads = new ArrayList<>();
 
   /** Добавляет лид к компании и устанавливает обратную связь. */

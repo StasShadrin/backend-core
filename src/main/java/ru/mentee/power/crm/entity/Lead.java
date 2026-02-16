@@ -39,7 +39,7 @@ public class Lead {
 
   @Version
   @Column(name = "version", nullable = false)
-  @Setter(AccessLevel.NONE) // JPA управляет версией сам — НЕ создаём setter
+  @Setter(AccessLevel.NONE)
   private Long version;
 
   @Column(nullable = false)

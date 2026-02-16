@@ -94,6 +94,7 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2:2.3.232'
 
     // Для тестирования
+    testImplementation 'org.wiremock:wiremock-standalone:3.4.2'
     testImplementation 'org.instancio:instancio-junit:5.5.1'
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
     testImplementation platform("org.junit:junit-bom:${junitVersion}")
@@ -167,7 +168,7 @@ jacocoTestReport {
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
                     'ru/mentee/power/crm/model/LeadBuilder*.class',
-                    'ru/mentee/power/crm/domain/Deal*.class',
+                    'ru/mentee/power/crm/domain/**/*.class',
                     'ru/mentee/power/crm/spring/controller/DealController*.class',
                     'ru/mentee/power/crm/spring/service/LeadLockingService*.class',
                     'ru/mentee/power/crm/spring/exception/LeadNotFoundException*.class',
@@ -190,7 +191,7 @@ jacocoTestCoverageVerification {
                     'ru/mentee/power/crm/util/**/TestDataUtils*.class',
                     'ru/mentee/power/crm/config/**/TestDataInitializer*.class',
                     'ru/mentee/power/crm/model/LeadBuilder*.class',
-                    'ru/mentee/power/crm/domain/Deal*.class',
+                    'ru/mentee/power/crm/domain/**/*.class',
                     'ru/mentee/power/crm/spring/controller/DealController*.class',
                     'ru/mentee/power/crm/spring/service/LeadLockingService*.class',
                     'ru/mentee/power/crm/spring/exception/LeadNotFoundException*.class',
