@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.spring.client;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
@@ -58,14 +59,10 @@ class EmailValidationClientWireMockTest {
         get(urlPathEqualTo("/api/validate/email"))
             .withQueryParam("email", equalTo("invalid-email"))
             .willReturn(
-                okJson(
-                    """
-                                {
-                                    "email": "invalid-email",
-                                    "valid": false,
-                                    "reason": "Invalid email format"
-                                }
-                                """)));
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBodyFile("invalid-email-response.json")));
 
     EmailValidationResponse response = emailValidationClient.validateEmail("invalid-email");
 

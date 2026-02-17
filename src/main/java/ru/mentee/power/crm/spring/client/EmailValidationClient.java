@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-/** HTTP-клиент для взаимодействия с внешним API валидации email */
+/***/
 @Component
 public class EmailValidationClient {
 
