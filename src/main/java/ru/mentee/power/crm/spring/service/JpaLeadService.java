@@ -53,12 +53,6 @@ public class JpaLeadService {
     return leadRepository.findById(id);
   }
 
-  //    /** Находит лида в БД по email */
-  //    @Transactional(readOnly = true)
-  //    public Optional<Lead> findByEmail(String email) {
-  //        return repository.findByEmailNative(email);
-  //    }
-
   /** Находит лида по статусу */
   @Transactional(readOnly = true)
   public List<Lead> findByStatus(LeadStatus status) {
@@ -181,22 +175,6 @@ public class JpaLeadService {
 
     return savedDeal;
   }
-
-  /** Поиск всех лидов по компании и обновление статуса */
-  //    @Transactional
-  //    public void changStatus(Company company, LeadStatus status) {
-  //        if (company == null || status == null) {
-  //           throw new IllegalArgumentException("Company and LeadStatus must not be null");
-  //        }
-  //        List<Lead> found = leadRepository.findByCompany(company);
-  //
-  //        for (Lead lead : found) {
-  //            if (lead.getStatus() != LeadStatus.CONVERTED && lead.getStatus() != status) {
-  //                lead.setStatus(status);
-  //            }
-  //            leadRepository.save(lead);
-  //        }
-  //    }
 
   /** Поиск всех лидов по компании и обновление статуса */
   @Transactional

@@ -158,4 +158,12 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
                WHERE l.company = :company AND l.status != 'CONVERTED' AND l.status != :status
             """)
   void updateStatuses(@Param("company") Company company, @Param("status") LeadStatus status);
+
+  /** Загружает все лиды вместе с компанией (JOIN FETCH) */
+  @Query("SELECT l FROM Lead l JOIN FETCH l.company")
+  List<Lead> findAllWithCompany();
+
+  /** Загружает лид по ID вместе с компанией */
+  @Query("SELECT l FROM Lead l LEFT JOIN FETCH l.company WHERE l.id = :id")
+  Optional<Lead> findByIdWithCompany(@Param("id") UUID id);
 }
