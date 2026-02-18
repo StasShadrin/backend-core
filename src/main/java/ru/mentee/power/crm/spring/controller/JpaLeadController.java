@@ -83,7 +83,7 @@ public class JpaLeadController {
     }
     lead.setCompany(company);
 
-    leadService.addLead(lead);
+    leadService.createLead(lead);
     return REDIRECT_LEADS;
   }
 
@@ -136,7 +136,7 @@ public class JpaLeadController {
             .findById(companyId)
             .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Company not found"));
 
-    leadService.changStatus(company, status);
+    leadService.changeStatus(company, status);
     return REDIRECT_LEADS;
   }
 }

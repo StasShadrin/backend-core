@@ -78,7 +78,7 @@ class JpaLeadControllerTest {
             .company(Company.builder().id(companyId).build())
             .build();
 
-    when(leadService.addLead(any())).thenReturn(lead);
+    when(leadService.createLead(any())).thenReturn(lead);
 
     // When & Then
     mockMvc

@@ -23,8 +23,6 @@ import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 @ActiveProfiles("test")
 class LeadServiceIntegrationTest {
 
-  @Autowired private JpaDealService dealService;
-
   @Autowired private JpaLeadService leadService;
 
   @Autowired private JpaLeadRepository leadRepository;
@@ -73,38 +71,6 @@ class LeadServiceIntegrationTest {
 
     assertThat(dealRepository.findAll()).isEmpty();
   }
-
-  //    @Test
-  //    void demonstrateSelfInvocationProblem() {
-  //        // Given
-  //        Lead lead1 = createLead("lead1@example.com");
-  //        Lead lead2 = createLead("lead2@example.com");
-  //        Lead lead3 = createLead("lead3@example.com");
-  //        Lead failingLead = createLead("fail@example.com");
-  //
-  //        List<UUID> ids = List.of(
-  //                lead1.getId(),
-  //                lead2.getId(),
-  //                failingLead.getId(), // ← Используем реальный ID
-  //                lead3.getId()
-  //        );
-  //
-  //        // When & Then
-  //        assertThatThrownBy(() -> leadService.processLeads(ids))
-  //                .isInstanceOf(RuntimeException.class)
-  //                .hasMessageContaining("Simulated failure");
-  //
-  //
-  //        assertLeadStatusUnchanged(lead1.getId());
-  //        assertLeadStatusUnchanged(lead2.getId());
-  //        assertLeadStatusUnchanged(lead3.getId());
-  //    }
-
-  //    private void assertLeadStatusUnchanged(UUID id) {
-  //        Lead lead = leadRepository.findById(id)
-  //                .orElseThrow(() -> new AssertionError("Lead not found: " + id));
-  //        assertThat(lead.getStatus()).isEqualTo(LeadStatus.NEW);
-  //    }
 
   // Вспомогательный метод
   private Lead createLead(String email) {

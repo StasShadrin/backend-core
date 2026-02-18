@@ -1,9 +1,14 @@
 package ru.mentee.power.crm.spring.service;
 
+import feign.FeignException;
+import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,8 +22,11 @@ import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Deal;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
+import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
 import ru.mentee.power.crm.spring.exception.IllegalLeadStateException;
+import ru.mentee.power.crm.spring.exception.LeadNotFoundException;
 import ru.mentee.power.crm.spring.repository.JpaDealRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -26,18 +34,51 @@ import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 @Service
 @RequiredArgsConstructor
 public class JpaLeadService {
+  private static final Logger LOG = LoggerFactory.getLogger(JpaLeadService.class);
 
   private final JpaLeadRepository leadRepository;
   private final LeadProcessor leadProcessor;
   private final JpaDealRepository dealRepository;
+  private final EmailValidationFeignClient emailValidationClient;
 
-  /** Сохраняет лида в БД */
-  @Transactional
-  public Lead addLead(Lead lead) {
-    // Проверка уникальности email
+  /**
+   * Создает нового лида с валидацией email через внешний сервис Если сервис валидации недоступен -
+   * создает лида без валидации (graceful degradation)
+   */
+  @Retry(name = "email-validation", fallbackMethod = "createLeadFallback")
+  public Lead createLead(Lead lead) {
     if (leadRepository.findByEmailNative(lead.getEmail()).isPresent()) {
-      throw new IllegalStateException("Lead with email already exists: " + lead.getEmail());
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Lead with email already exists: " + lead.getEmail());
     }
+
+    try {
+      EmailValidationResponse validation = emailValidationClient.validateEmail(lead.getEmail());
+
+      if (!validation.valid()) {
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST, "Invalid email: " + validation.reason());
+      }
+
+      return leadRepository.save(lead);
+
+    } catch (FeignException.BadRequest _) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Email validation service rejected the email");
+    }
+  }
+
+  /**
+   * Fallback метод - вызывается, когда все попытки retry исчерпаны Создает лида без валидации email
+   * (graceful degradation)
+   */
+  @SuppressWarnings("unused")
+  public Lead createLeadFallback(Lead lead, @NonNull FeignException feignException) {
+    LOG.warn(
+        "Email validation service unavailable after retries. "
+            + "Creating lead without validation. Error: {}",
+        feignException.getMessage());
+
     return leadRepository.save(lead);
   }
 
@@ -62,10 +103,7 @@ public class JpaLeadService {
   /** Обновляет лида */
   @Transactional
   public void update(UUID id, Lead updatedLead) {
-    Lead existing =
-        leadRepository
-            .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + id));
+    Lead existing = leadRepository.findById(id).orElseThrow(() -> new LeadNotFoundException(id));
 
     existing.setName(updatedLead.getName());
     existing.setEmail(updatedLead.getEmail());
@@ -153,7 +191,7 @@ public class JpaLeadService {
    * транзакционность: если amount = null -> rollback.
    */
   @Transactional
-  public Deal convertLeadToDeal(UUID leadId, CreateDealRequest request) {
+  public void convertLeadToDeal(UUID leadId, CreateDealRequest request) {
     Lead lead =
         leadRepository
             .findById(leadId)
@@ -168,20 +206,58 @@ public class JpaLeadService {
     deal.setAmount(request.getAmount());
     deal.setTitle(request.getTitle());
     deal.setStatus(DealStatus.NEW);
-    Deal savedDeal = dealRepository.save(deal);
+    dealRepository.save(deal);
 
     lead.setStatus(LeadStatus.CONVERTED);
     leadRepository.save(lead);
-
-    return savedDeal;
   }
 
   /** Поиск всех лидов по компании и обновление статуса */
   @Transactional
-  public void changStatus(Company company, LeadStatus status) {
+  public void changeStatus(Company company, LeadStatus status) {
     if (company == null || status == null) {
       throw new IllegalArgumentException("Company and LeadStatus must not be null");
     }
     leadRepository.updateStatuses(company, status);
+  }
+
+  /** Обновляет лида и возвращает Optional. Проверяем, что новый email не содержится в БД */
+  @Transactional
+  public Optional<Lead> updateLead(UUID id, Lead updatedLead) {
+    return leadRepository
+        .findById(id)
+        .map(
+            existing -> {
+              if (!existing.getEmail().equals(updatedLead.getEmail())) {
+                boolean emailExists =
+                    leadRepository
+                        .findByEmailNative(updatedLead.getEmail())
+                        .map(lead -> !lead.getId().equals(id))
+                        .orElse(false);
+
+                if (emailExists) {
+                  throw new ResponseStatusException(
+                      HttpStatus.BAD_REQUEST,
+                      "Email already in use by another lead: " + updatedLead.getEmail());
+                }
+              }
+              existing.setName(updatedLead.getName());
+              existing.setEmail(updatedLead.getEmail());
+              existing.setPhone(updatedLead.getPhone());
+              existing.setCompany(updatedLead.getCompany());
+              existing.setStatus(updatedLead.getStatus());
+
+              return leadRepository.save(existing);
+            });
+  }
+
+  /** Удаляет лида, возвращает boolean */
+  @Transactional
+  public boolean deleteLead(UUID id) {
+    if (leadRepository.existsById(id)) {
+      leadRepository.deleteById(id);
+      return true;
+    }
+    return false;
   }
 }
