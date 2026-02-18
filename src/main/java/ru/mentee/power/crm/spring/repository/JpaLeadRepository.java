@@ -166,4 +166,7 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
   /** Загружает лид по ID вместе с компанией */
   @Query("SELECT l FROM Lead l LEFT JOIN FETCH l.company WHERE l.id = :id")
   Optional<Lead> findByIdWithCompany(@Param("id") UUID id);
+
+  /** Поиск по ID */
+  Optional<Lead> findById(@NonNull UUID id);
 }

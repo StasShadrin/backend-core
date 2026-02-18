@@ -3,6 +3,7 @@ package ru.mentee.power.crm.spring.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,9 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.exception.IllegalLeadStateException;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -90,7 +94,7 @@ class JpaLeadServiceTest {
   }
 
   @Test
-  void addLead_shouldSaveNewLead() {
+  void createLead_shouldSaveNewLead() {
     Company company = Company.builder().name("New Company").build();
     companyRepository.save(company);
 
@@ -103,7 +107,7 @@ class JpaLeadServiceTest {
             .status(LeadStatus.NEW)
             .build();
 
-    Lead saved = leadService.addLead(newLead);
+    Lead saved = leadService.createLead(newLead);
 
     assertThat(saved).isNotNull();
     assertThat(saved.getId()).isNotNull();
@@ -111,7 +115,7 @@ class JpaLeadServiceTest {
   }
 
   @Test
-  void addLead_shouldThrowException_whenEmailExists() {
+  void createLead_shouldThrowException_whenEmailExists() {
     Company company = Company.builder().name("Dup Company").build();
     companyRepository.save(company);
 
@@ -124,8 +128,8 @@ class JpaLeadServiceTest {
             .status(LeadStatus.NEW)
             .build();
 
-    assertThatThrownBy(() -> leadService.addLead(duplicate))
-        .isInstanceOf(IllegalStateException.class)
+    assertThatThrownBy(() -> leadService.createLead(duplicate))
+        .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("Lead with email already exists");
   }
 
@@ -231,7 +235,7 @@ class JpaLeadServiceTest {
   }
 
   @Test
-  void changStatus_shouldUpdateLeadsByCompany() {
+  void changeStatus_shouldUpdateLeadsByCompany() {
     Company company =
         companyRepository
             .findByName("Company 1")
@@ -240,12 +244,187 @@ class JpaLeadServiceTest {
     long initialNewCount = leadRepository.countByStatus(LeadStatus.NEW);
     assertThat(initialNewCount).isGreaterThanOrEqualTo(1);
 
-    leadService.changStatus(company, LeadStatus.CONTACTED);
+    leadService.changeStatus(company, LeadStatus.CONTACTED);
 
     long newCount = leadRepository.countByStatus(LeadStatus.NEW);
     long contactedCount = leadRepository.countByStatus(LeadStatus.CONTACTED);
 
     assertThat(newCount).isEqualTo(initialNewCount - 1);
     assertThat(contactedCount).isEqualTo(1);
+  }
+
+  @Test
+  void updateLead_shouldUpdate_whenEmailNotChanged() {
+    // Given
+    Lead existingLead = leadRepository.findAll().getFirst();
+    UUID id = existingLead.getId();
+
+    Lead updatedLead =
+        Lead.builder()
+            .name("New Name")
+            .email(existingLead.getEmail())
+            .phone("999")
+            .company(existingLead.getCompany())
+            .status(LeadStatus.CONTACTED)
+            .build();
+
+    // When
+    Optional<Lead> result = leadService.updateLead(id, updatedLead);
+
+    // Then
+    assertThat(result).isPresent();
+    assertThat(result.get().getName()).isEqualTo("New Name");
+    assertThat(result.get().getStatus()).isEqualTo(LeadStatus.CONTACTED);
+    assertThat(result.get().getEmail()).isEqualTo(existingLead.getEmail());
+  }
+
+  @Test
+  void updateLead_shouldUpdate_whenNewEmailIsUnique() {
+    // Given
+    Lead existingLead = leadRepository.findAll().getFirst();
+    UUID id = existingLead.getId();
+
+    Lead updatedLead =
+        Lead.builder()
+            .name("New Name")
+            .email("unique-new@example.com")
+            .phone("999")
+            .company(existingLead.getCompany())
+            .status(LeadStatus.CONTACTED)
+            .build();
+
+    // When
+    Optional<Lead> result = leadService.updateLead(id, updatedLead);
+
+    // Then
+    assertThat(result).isPresent();
+    assertThat(result.get().getEmail()).isEqualTo("unique-new@example.com");
+  }
+
+  @Test
+  void updateLead_shouldThrowException_whenEmailAlreadyExists() {
+    // Given
+    List<Lead> leads = leadRepository.findAll();
+    Lead firstLead = leads.get(0);
+    Lead secondLead = leads.get(1);
+
+    Lead updatedLead =
+        Lead.builder()
+            .name("Updated Name")
+            .email(secondLead.getEmail())
+            .phone("999")
+            .company(firstLead.getCompany())
+            .status(LeadStatus.CONTACTED)
+            .build();
+
+    // When/Then
+    assertThatThrownBy(() -> leadService.updateLead(firstLead.getId(), updatedLead))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("Email already in use");
+  }
+
+  @Test
+  void updateLead_shouldReturnEmpty_whenLeadNotFound() {
+    // Given
+    UUID nonExistentId = UUID.randomUUID();
+    Lead updatedLead = Lead.builder().name("Name").email("test@example.com").build();
+
+    // When
+    Optional<Lead> result = leadService.updateLead(nonExistentId, updatedLead);
+
+    // Then
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void deleteLead_shouldReturnTrue_whenLeadExists() {
+    // Given
+    UUID id = leadRepository.findAll().getFirst().getId();
+
+    // When
+    boolean result = leadService.deleteLead(id);
+
+    // Then
+    assertThat(result).isTrue();
+    assertThat(leadService.findById(id)).isEmpty();
+  }
+
+  @Test
+  void deleteLead_shouldReturnFalse_whenLeadNotExists() {
+    // Given
+    UUID nonExistentId = UUID.randomUUID();
+
+    // When
+    boolean result = leadService.deleteLead(nonExistentId);
+
+    // Then
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void convertLeadToDeal_shouldCreateDeal_whenLeadIsQualified() {
+    // Given
+    Company company = Company.builder().name("Deal Company").build();
+    companyRepository.save(company);
+
+    Lead qualifiedLead =
+        Lead.builder()
+            .name("Qualified Lead")
+            .email("qualified@example.com")
+            .phone("123")
+            .company(company)
+            .status(LeadStatus.QUALIFIED)
+            .build();
+    leadRepository.save(qualifiedLead);
+
+    CreateDealRequest request = new CreateDealRequest();
+    request.setTitle("Test Deal");
+    request.setAmount(BigDecimal.valueOf(1000.0));
+
+    // When
+    leadService.convertLeadToDeal(qualifiedLead.getId(), request);
+
+    // Then
+    Lead updatedLead = leadService.findById(qualifiedLead.getId()).orElseThrow();
+    assertThat(updatedLead.getStatus()).isEqualTo(LeadStatus.CONVERTED);
+  }
+
+  @Test
+  void convertLeadToDeal_shouldThrowException_whenLeadNotFound() {
+    // Given
+    UUID nonExistentId = UUID.randomUUID();
+    CreateDealRequest request = new CreateDealRequest();
+    request.setTitle("Test Deal");
+    request.setAmount(BigDecimal.valueOf(1000.0));
+
+    // When/Then
+    assertThatThrownBy(() -> leadService.convertLeadToDeal(nonExistentId, request))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Lead not found");
+  }
+
+  @Test
+  void convertLeadToDeal_shouldThrowException_whenLeadNotQualified() {
+    // Given
+    Lead newLead = leadRepository.findByStatus(LeadStatus.NEW).getFirst();
+    CreateDealRequest request = new CreateDealRequest();
+    request.setTitle("Test Deal");
+    request.setAmount(BigDecimal.valueOf(1000.0));
+
+    // When/Then
+    assertThatThrownBy(() -> leadService.convertLeadToDeal(newLead.getId(), request))
+        .isInstanceOf(IllegalLeadStateException.class);
+  }
+
+  @Test
+  void changeStatus_shouldThrowException_whenParametersAreNull() {
+    // When/Then
+    assertThatThrownBy(() -> leadService.changeStatus(null, LeadStatus.NEW))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Company and LeadStatus must not be null");
+
+    assertThatThrownBy(() -> leadService.changeStatus(Company.builder().build(), null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Company and LeadStatus must not be null");
   }
 }

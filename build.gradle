@@ -15,7 +15,7 @@ group = 'ru.mentee.power'
 version = '1.0-SNAPSHOT'
 
 ext {
-    springBootVersion = '3.5.9'
+    springBootVersion = '3.5.8'
     junitVersion = '5.11.0'
     assertjVersion = '3.27.7'
     lombokVersion = '1.18.38'
@@ -57,8 +57,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.diffplug.spotless:spotless-plugin-gradle:${spotlessVersion}"
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    implementation "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     implementation "jakarta.servlet:jakarta.servlet-api:${servletVersion}"
@@ -69,31 +68,34 @@ dependencies {
     // Spring Boot Starters
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
-    implementation 'org.springframework.retry:spring-retry'
+    implementation "org.springframework.boot:spring-boot-starter-validation:${springBootVersion}"
 
-    // JTE интеграция для Spring Boot
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // Resilience4j
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+    implementation 'io.github.resilience4j:resilience4j-feign:2.2.0'
+
+    // JTE
     implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
     implementation "gg.jte:jte:${jteVersion}"
 
-    // Валидация
-    implementation "jakarta.validation:jakarta.validation-api:${validationApiVersion}"
-    implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
-    implementation("org.springframework.boot:spring-boot-starter-validation:4.0.1")
-
-    // @RecordBuilder
+    // RecordBuilder
     annotationProcessor 'io.soabase.record-builder:record-builder-processor:51'
     compileOnly 'io.soabase.record-builder:record-builder-core:51'
 
-    // Liquibase for DB migrations (Sprint 7, BCORE-32)
+    // Liquibase
     implementation "org.liquibase:liquibase-core:${liquibaseVersion}"
 
-    // PostgreSQL JDBC Driver (для dev и production)
+    // PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
 
-    // H2 Database (только для тестов)
+    // H2 for tests
     testRuntimeOnly 'com.h2database:h2:2.3.232'
 
-    // Для тестирования
+    // Test dependencies
     testImplementation 'org.wiremock:wiremock-standalone:3.4.2'
     testImplementation 'org.instancio:instancio-junit:5.5.1'
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
@@ -103,8 +105,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-    testImplementation 'net.bytebuddy:byte-buddy:1.17.7'
-    testImplementation 'net.bytebuddy:byte-buddy-agent:1.17.7'
 }
 
 bootRun {
@@ -222,4 +222,10 @@ jte {
     sourceDirectory = file("src/main/jte").toPath()
     contentType = ContentType.Html
     binaryStaticContent = false
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.1"
+    }
 }
