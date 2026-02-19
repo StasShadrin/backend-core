@@ -39,9 +39,10 @@ public interface LeadMapper {
   @Mapping(target = "phone", source = "request.phone", qualifiedByName = "unwrapOptional")
   void updateEntity(UpdateLeadRequest request, @MappingTarget Lead entity);
 
-  /** Преобразует Optional<T> в T для UpdateLeadRequest,
-   * если Optional содержит значение, возвращает его.
-   * Если нет, возвращает null и поле не изменяется. */
+  /**
+   * Преобразует Optional<T> в T для UpdateLeadRequest, если Optional содержит значение, возвращает
+   * его. Если нет, возвращает null и поле не изменяется.
+   */
   @Named("unwrapOptional")
   default <T> T unwrapOptional(Optional<T> optional) {
     return optional.isPresent() ? optional.orElse(null) : null;

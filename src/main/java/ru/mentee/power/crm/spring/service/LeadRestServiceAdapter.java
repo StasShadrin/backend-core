@@ -15,7 +15,7 @@ import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.mapper.LeadMapper;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 
-/** Адаптер сервис для работы Rest контроллера с DTO*/
+/** Адаптер сервис для работы Rest контроллера с DTO */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,7 +30,7 @@ public class LeadRestServiceAdapter {
     return leadService.findAll().stream().map(leadMapper::toResponse).toList();
   }
 
-  /** Находит лида по ID  */
+  /** Находит лида по ID */
   public LeadResponse findLeadById(UUID id) {
     return leadService
         .findById(id)
@@ -38,7 +38,7 @@ public class LeadRestServiceAdapter {
         .orElseThrow(() -> new EntityNotFoundException(Lead.class, id));
   }
 
-  /** Создает нового лида с компанией из БД и статусом NEW  */
+  /** Создает нового лида с компанией из БД и статусом NEW */
   @Transactional
   public LeadResponse createLead(CreateLeadRequest request) {
     Company company =
