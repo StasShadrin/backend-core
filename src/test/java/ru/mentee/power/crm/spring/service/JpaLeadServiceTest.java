@@ -17,6 +17,7 @@ import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.exception.IllegalLeadStateException;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
@@ -399,7 +400,7 @@ class JpaLeadServiceTest {
 
     // When/Then
     assertThatThrownBy(() -> leadService.convertLeadToDeal(nonExistentId, request))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(EntityNotFoundException.class)
         .hasMessageContaining("Lead not found");
   }
 
