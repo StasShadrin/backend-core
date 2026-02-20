@@ -17,15 +17,15 @@ import ru.mentee.power.crm.model.LeadStatus;
 @AllArgsConstructor
 @Builder
 public class UpdateLeadRequest {
-  @Size(min = 2, max = 100, message = "{lead.name.size}")
-  private Optional<@NotBlank String> name;
 
-  @Email(message = "{lead.email.email}")
-  @Size(max = 100, message = "{lead.email.size}")
-  private Optional<@NotBlank String> email;
+  private Optional<@NotBlank @Size(min = 2, max = 50, message = "{lead.name.size}") String> name;
 
-  @Size(max = 20, message = "{lead.phone.size}")
-  private Optional<String> phone;
+  private Optional<
+          @NotBlank @Email(message = "{lead.email.email}")
+          @Size(max = 100, message = "{lead.email.size}") String>
+      email;
+
+  private Optional<@Size(max = 20, message = "{lead.phone.size}") String> phone;
 
   private Optional<UUID> companyId;
 

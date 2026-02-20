@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateLeadRequest {
   @NotBlank(message = "{lead.name.notblank}")
-  @Size(min = 2, max = 100, message = "{lead.name.size}")
+  @Size(min = 2, max = 50, message = "{lead.name.size}")
   private String name;
 
   @NotBlank(message = "{lead.email.notblank}")
