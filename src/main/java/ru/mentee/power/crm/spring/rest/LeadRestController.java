@@ -1,11 +1,13 @@
 package ru.mentee.power.crm.spring.rest;
 
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +28,7 @@ import ru.mentee.power.crm.spring.service.LeadRestServiceAdapter;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/leads")
+@Validated
 public class LeadRestController {
   private final LeadRestServiceAdapter leadRestServiceAdapter;
 
@@ -47,7 +50,7 @@ public class LeadRestController {
 
   /** Создает нового лида из JSON и возвращает сохраненный объект */
   @PostMapping
-  public ResponseEntity<LeadResponse> createLead(@RequestBody CreateLeadRequest lead) {
+  public ResponseEntity<LeadResponse> createLead(@Valid @RequestBody CreateLeadRequest lead) {
     LeadResponse createdLead = leadRestServiceAdapter.createLead(lead);
     URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
@@ -60,7 +63,7 @@ public class LeadRestController {
   /** Обновляет текущего лида и возвращает сохраненный объект */
   @PutMapping("/{id}")
   public ResponseEntity<LeadResponse> updateLead(
-      @PathVariable UUID id, @RequestBody UpdateLeadRequest request) {
+      @PathVariable UUID id, @Valid @RequestBody UpdateLeadRequest request) {
     try {
       LeadResponse updatedLead = leadRestServiceAdapter.updateLead(id, request);
       log.info("Lead successfully updated: {}", id);
