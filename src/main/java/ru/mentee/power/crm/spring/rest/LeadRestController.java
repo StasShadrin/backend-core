@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,63 +15,70 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
-import ru.mentee.power.crm.spring.service.JpaLeadService;
+import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.LeadResponse;
+import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
+import ru.mentee.power.crm.spring.service.LeadRestServiceAdapter;
 
 /** REST контроллер для работы с лидами (возвращает JSON) */
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/leads")
 public class LeadRestController {
-
-  private final JpaLeadService leadService;
-  private final JpaLeadRepository leadRepository;
+  private final LeadRestServiceAdapter leadRestServiceAdapter;
 
   /** Возвращает список всех лидов с информацией о компаниях */
   @GetMapping
-  public ResponseEntity<List<Lead>> getAllLeads() {
-    List<Lead> leads = leadRepository.findAllWithCompany();
-    return ResponseEntity.ok(leads);
+  public ResponseEntity<List<LeadResponse>> getAllLeads() {
+    return ResponseEntity.ok(leadRestServiceAdapter.findAllLeads());
   }
 
-  /** Возвращает лида по ID или null если не найден */
   @GetMapping("/{id}")
-  public ResponseEntity<Lead> getLeadById(@PathVariable UUID id) {
-    return leadRepository
-        .findByIdWithCompany(id)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+  public ResponseEntity<LeadResponse> getLeadById(@PathVariable UUID id) {
+    try {
+      LeadResponse lead = leadRestServiceAdapter.findLeadById(id);
+      return ResponseEntity.ok(lead);
+    } catch (Exception _) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   /** Создает нового лида из JSON и возвращает сохраненный объект */
   @PostMapping
-  public ResponseEntity<Lead> createLead(@RequestBody Lead lead) {
-    Lead createdLead = leadService.createLead(lead);
+  public ResponseEntity<LeadResponse> createLead(@RequestBody CreateLeadRequest lead) {
+    LeadResponse createdLead = leadRestServiceAdapter.createLead(lead);
     URI location =
         ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
-            .buildAndExpand(createdLead.getId())
-            .encode()
+            .buildAndExpand(createdLead.id())
             .toUri();
     return ResponseEntity.created(location).body(createdLead);
   }
 
   /** Обновляет текущего лида и возвращает сохраненный объект */
   @PutMapping("/{id}")
-  public ResponseEntity<Lead> updateLead(@PathVariable UUID id, @RequestBody Lead lead) {
-    return leadService
-        .updateLead(id, lead)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
+  public ResponseEntity<LeadResponse> updateLead(
+      @PathVariable UUID id, @RequestBody UpdateLeadRequest request) {
+    try {
+      LeadResponse updatedLead = leadRestServiceAdapter.updateLead(id, request);
+      log.info("Lead successfully updated: {}", id);
+      return ResponseEntity.ok(updatedLead);
+    } catch (EntityNotFoundException _) {
+      log.warn("Lead not found for update: {}", id);
+      return ResponseEntity.notFound().build();
+    }
   }
 
   /** Удаляет лида, если есть(204), ели нет(404) */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteLead(@PathVariable UUID id) {
-    if (leadService.deleteLead(id)) {
+    try {
+      leadRestServiceAdapter.deleteLead(id);
       return ResponseEntity.noContent().build();
+    } catch (Exception _) {
+      return ResponseEntity.notFound().build();
     }
-    return ResponseEntity.notFound().build();
   }
 }

@@ -25,8 +25,8 @@ import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.exception.IllegalLeadStateException;
-import ru.mentee.power.crm.spring.exception.LeadNotFoundException;
 import ru.mentee.power.crm.spring.repository.JpaDealRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -103,7 +103,8 @@ public class JpaLeadService {
   /** Обновляет лида */
   @Transactional
   public void update(UUID id, Lead updatedLead) {
-    Lead existing = leadRepository.findById(id).orElseThrow(() -> new LeadNotFoundException(id));
+    Lead existing =
+        leadRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(Lead.class, id));
 
     existing.setName(updatedLead.getName());
     existing.setEmail(updatedLead.getEmail());
@@ -195,7 +196,7 @@ public class JpaLeadService {
     Lead lead =
         leadRepository
             .findById(leadId)
-            .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
 
     if (lead.getStatus() != LeadStatus.QUALIFIED) {
       throw new IllegalLeadStateException(leadId, lead.getStatus().name());

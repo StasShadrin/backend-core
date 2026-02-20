@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.exception.LeadNotFoundException;
+import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 /**
@@ -32,7 +32,7 @@ public class LeadLockingService {
     Lead lead =
         leadRepository
             .findByIdForUpdate(leadId)
-            .orElseThrow(() -> new LeadNotFoundException(leadId));
+            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
 
     // Здесь могла бы быть сложная бизнес-логика конверсии:
     // - создание Deal
@@ -48,7 +48,9 @@ public class LeadLockingService {
   @Transactional
   public void updateLeadStatusOptimistic(UUID leadId, LeadStatus newStatus) {
     Lead lead =
-        leadRepository.findById(leadId).orElseThrow(() -> new LeadNotFoundException(leadId));
+        leadRepository
+            .findById(leadId)
+            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
 
     // Блокировки НЕТ — другие транзакции могут читать и изменять
     // При сохранении JPA проверит version и выбросит OptimisticLockException если конфликт
@@ -66,7 +68,9 @@ public class LeadLockingService {
   @Transactional
   public Lead updateWithRetry(UUID leadId, LeadStatus newStatus) {
     Lead lead =
-        leadRepository.findById(leadId).orElseThrow(() -> new LeadNotFoundException(leadId));
+        leadRepository
+            .findById(leadId)
+            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
     lead.setStatus(newStatus);
     return leadRepository.save(lead);
   }
@@ -78,7 +82,9 @@ public class LeadLockingService {
   @Transactional
   public void processTwoLeadsInOrder(UUID leadId1, UUID leadId2) {
     // Блокируем первый лид
-    leadRepository.findByIdForUpdate(leadId1).orElseThrow(() -> new LeadNotFoundException(leadId1));
+    leadRepository
+        .findByIdForUpdate(leadId1)
+        .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId1));
 
     // Небольшая задержка для гарантии пересечения с другим потоком
     try {
@@ -89,6 +95,8 @@ public class LeadLockingService {
     }
 
     // Блокируем второй лид
-    leadRepository.findByIdForUpdate(leadId2).orElseThrow(() -> new LeadNotFoundException(leadId2));
+    leadRepository
+        .findByIdForUpdate(leadId2)
+        .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId2));
   }
 }

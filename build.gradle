@@ -19,6 +19,8 @@ ext {
     junitVersion = '5.11.0'
     assertjVersion = '3.27.7'
     lombokVersion = '1.18.38'
+    mapstructVersion = '1.6.3'
+    lombokMapstructBindingVersion = '0.2.0'
     mockitoVersion = '5.21.0'
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.12'
@@ -57,13 +59,23 @@ repositories {
 }
 
 dependencies {
-    implementation "org.projectlombok:lombok:${lombokVersion}"
+    // Lombok (должен быть первым в annotationProcessor)
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    // lombok-mapstruct-binding (критически важно!)
+    implementation "org.projectlombok:lombok-mapstruct-binding:${lombokMapstructBindingVersion}"
+
+    // MapStruct (должен быть после Lombok в annotationProcessor)
+    implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
     implementation "jakarta.servlet:jakarta.servlet-api:${servletVersion}"
     implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
 
     implementation "gg.jte:jte-runtime:${jteVersion}"
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
 
     // Spring Boot Starters
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
@@ -228,4 +240,11 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.1"
     }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            '-Amapstruct.defaultComponentModel=spring',
+            '-Amapstruct.unmappedTargetPolicy=ERROR'
+    ]
 }
