@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +18,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
 import ru.mentee.power.crm.spring.dto.LeadResponse;
 import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.service.LeadRestServiceAdapter;
 
 /** REST контроллер для работы с лидами (возвращает JSON) */
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/leads")
 public class LeadRestController {
-
   private final LeadRestServiceAdapter leadRestServiceAdapter;
 
   /** Возвращает список всех лидов с информацией о компаниях */
@@ -33,7 +35,6 @@ public class LeadRestController {
     return ResponseEntity.ok(leadRestServiceAdapter.findAllLeads());
   }
 
-  /** Возвращает лида по ID или 404 если не найден */
   @GetMapping("/{id}")
   public ResponseEntity<LeadResponse> getLeadById(@PathVariable UUID id) {
     try {
@@ -62,8 +63,10 @@ public class LeadRestController {
       @PathVariable UUID id, @RequestBody UpdateLeadRequest request) {
     try {
       LeadResponse updatedLead = leadRestServiceAdapter.updateLead(id, request);
+      log.info("Lead successfully updated: {}", id);
       return ResponseEntity.ok(updatedLead);
-    } catch (Exception _) {
+    } catch (EntityNotFoundException _) {
+      log.warn("Lead not found for update: {}", id);
       return ResponseEntity.notFound().build();
     }
   }
