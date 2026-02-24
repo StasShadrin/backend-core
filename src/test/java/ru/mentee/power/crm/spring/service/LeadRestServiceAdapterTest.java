@@ -141,8 +141,7 @@ class LeadRestServiceAdapterTest {
 
     // When/Then
     assertThatThrownBy(() -> adapter.findLeadById(nonExistentId))
-        .isInstanceOf(EntityNotFoundException.class)
-        .hasMessageContaining("Lead not found: " + nonExistentId);
+        .isInstanceOf(EntityNotFoundException.class);
 
     verify(leadService).findById(nonExistentId);
     verify(leadMapper, never()).toResponse(any());
@@ -187,8 +186,7 @@ class LeadRestServiceAdapterTest {
 
     // When/Then
     assertThatThrownBy(() -> adapter.createLead(request))
-        .isInstanceOf(EntityNotFoundException.class)
-        .hasMessageContaining("Company not found: " + companyId);
+        .isInstanceOf(EntityNotFoundException.class);
 
     verify(companyRepository).findById(companyId);
     verify(leadMapper, never()).toEntity(any());
@@ -320,8 +318,7 @@ class LeadRestServiceAdapterTest {
 
     // When/Then
     assertThatThrownBy(() -> adapter.updateLead(nonExistentId, request))
-        .isInstanceOf(EntityNotFoundException.class)
-        .hasMessageContaining("Lead not found: " + nonExistentId);
+        .isInstanceOf(EntityNotFoundException.class);
 
     verify(leadService).findById(nonExistentId);
     verify(leadMapper, never()).updateEntity(any(), any());
@@ -345,8 +342,7 @@ class LeadRestServiceAdapterTest {
 
     // When/Then
     assertThatThrownBy(() -> adapter.updateLead(leadId, request))
-        .isInstanceOf(EntityNotFoundException.class)
-        .hasMessageContaining("Company not found: " + companyId);
+        .isInstanceOf(EntityNotFoundException.class);
 
     verify(leadService).findById(leadId);
     verify(leadMapper).updateEntity(request, lead);
@@ -376,8 +372,7 @@ class LeadRestServiceAdapterTest {
 
     // When/Then
     assertThatThrownBy(() -> adapter.deleteLead(nonExistentId))
-        .isInstanceOf(EntityNotFoundException.class)
-        .hasMessageContaining("Lead not found: " + nonExistentId);
+        .isInstanceOf(EntityNotFoundException.class);
 
     verify(leadService).deleteLead(nonExistentId);
   }

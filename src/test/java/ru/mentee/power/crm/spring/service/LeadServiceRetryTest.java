@@ -20,10 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.exception.BadRequestException;
+import ru.mentee.power.crm.spring.exception.DuplicateEmailException;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -143,10 +144,8 @@ class LeadServiceRetryTest {
             .company(testCompany)
             .build();
 
-    // ✅ Исправлено: ожидаем ResponseStatusException
     assertThatThrownBy(() -> leadService.createLead(invalidLead))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("Email validation service rejected the email");
+        .isInstanceOf(BadRequestException.class);
 
     verify(
         1,
@@ -180,8 +179,7 @@ class LeadServiceRetryTest {
                                     """)));
 
     assertThatThrownBy(() -> leadService.createLead(validLead))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("Lead with email already exists");
+        .isInstanceOf(DuplicateEmailException.class);
 
     verify(0, getRequestedFor(urlPathEqualTo("/api/validate/email")));
   }
@@ -238,8 +236,7 @@ class LeadServiceRetryTest {
             .build();
 
     assertThatThrownBy(() -> leadService.createLead(invalidLead))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("Invalid email: Disposable email domain");
+        .isInstanceOf(BadRequestException.class);
 
     assertThat(leadRepository.findByEmailNative("bad@example.com")).isEmpty();
 

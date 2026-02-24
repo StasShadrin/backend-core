@@ -20,7 +20,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
 import ru.mentee.power.crm.spring.dto.LeadResponse;
 import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
-import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.service.LeadRestServiceAdapter;
 
 /** REST контроллер для работы с лидами (возвращает JSON) */
@@ -40,12 +39,8 @@ public class LeadRestController {
 
   @GetMapping("/{id}")
   public ResponseEntity<LeadResponse> getLeadById(@PathVariable UUID id) {
-    try {
-      LeadResponse lead = leadRestServiceAdapter.findLeadById(id);
-      return ResponseEntity.ok(lead);
-    } catch (Exception _) {
-      return ResponseEntity.notFound().build();
-    }
+    LeadResponse lead = leadRestServiceAdapter.findLeadById(id);
+    return ResponseEntity.ok(lead);
   }
 
   /** Создает нового лида из JSON и возвращает сохраненный объект */
@@ -64,24 +59,15 @@ public class LeadRestController {
   @PutMapping("/{id}")
   public ResponseEntity<LeadResponse> updateLead(
       @PathVariable UUID id, @Valid @RequestBody UpdateLeadRequest request) {
-    try {
-      LeadResponse updatedLead = leadRestServiceAdapter.updateLead(id, request);
-      log.info("Lead successfully updated: {}", id);
-      return ResponseEntity.ok(updatedLead);
-    } catch (EntityNotFoundException _) {
-      log.warn("Lead not found for update: {}", id);
-      return ResponseEntity.notFound().build();
-    }
+    LeadResponse updatedLead = leadRestServiceAdapter.updateLead(id, request);
+    log.info("Lead successfully updated: {}", id);
+    return ResponseEntity.ok(updatedLead);
   }
 
   /** Удаляет лида, если есть(204), ели нет(404) */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteLead(@PathVariable UUID id) {
-    try {
-      leadRestServiceAdapter.deleteLead(id);
-      return ResponseEntity.noContent().build();
-    } catch (Exception _) {
-      return ResponseEntity.notFound().build();
-    }
+    leadRestServiceAdapter.deleteLead(id);
+    return ResponseEntity.noContent().build();
   }
 }

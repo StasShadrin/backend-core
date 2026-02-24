@@ -32,7 +32,7 @@ public class LeadLockingService {
     Lead lead =
         leadRepository
             .findByIdForUpdate(leadId)
-            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
+            .orElseThrow(() -> new EntityNotFoundException("Lead", leadId.toString()));
 
     // Здесь могла бы быть сложная бизнес-логика конверсии:
     // - создание Deal
@@ -50,7 +50,7 @@ public class LeadLockingService {
     Lead lead =
         leadRepository
             .findById(leadId)
-            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
+            .orElseThrow(() -> new EntityNotFoundException("Lead", leadId.toString()));
 
     // Блокировки НЕТ — другие транзакции могут читать и изменять
     // При сохранении JPA проверит version и выбросит OptimisticLockException если конфликт
@@ -70,7 +70,7 @@ public class LeadLockingService {
     Lead lead =
         leadRepository
             .findById(leadId)
-            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
+            .orElseThrow(() -> new EntityNotFoundException("Lead", leadId.toString()));
     lead.setStatus(newStatus);
     return leadRepository.save(lead);
   }
@@ -84,7 +84,7 @@ public class LeadLockingService {
     // Блокируем первый лид
     leadRepository
         .findByIdForUpdate(leadId1)
-        .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId1));
+        .orElseThrow(() -> new EntityNotFoundException("Lead", leadId1.toString()));
 
     // Небольшая задержка для гарантии пересечения с другим потоком
     try {
@@ -97,6 +97,6 @@ public class LeadLockingService {
     // Блокируем второй лид
     leadRepository
         .findByIdForUpdate(leadId2)
-        .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId2));
+        .orElseThrow(() -> new EntityNotFoundException("Lead", leadId2.toString()));
   }
 }

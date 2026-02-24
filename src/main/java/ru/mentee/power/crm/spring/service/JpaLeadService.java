@@ -25,6 +25,8 @@ import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.exception.BadRequestException;
+import ru.mentee.power.crm.spring.exception.DuplicateEmailException;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.exception.IllegalLeadStateException;
 import ru.mentee.power.crm.spring.repository.JpaDealRepository;
@@ -48,23 +50,20 @@ public class JpaLeadService {
   @Retry(name = "email-validation", fallbackMethod = "createLeadFallback")
   public Lead createLead(Lead lead) {
     if (leadRepository.findByEmailNative(lead.getEmail()).isPresent()) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Lead with email already exists: " + lead.getEmail());
+      throw new DuplicateEmailException(lead.getEmail());
     }
 
     try {
       EmailValidationResponse validation = emailValidationClient.validateEmail(lead.getEmail());
 
       if (!validation.valid()) {
-        throw new ResponseStatusException(
-            HttpStatus.BAD_REQUEST, "Invalid email: " + validation.reason());
+        throw new BadRequestException("Invalid email: " + validation.reason());
       }
 
       return leadRepository.save(lead);
 
     } catch (FeignException.BadRequest _) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "Email validation service rejected the email");
+      throw new BadRequestException("Email validation service rejected the email");
     }
   }
 
@@ -104,7 +103,9 @@ public class JpaLeadService {
   @Transactional
   public void update(UUID id, Lead updatedLead) {
     Lead existing =
-        leadRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(Lead.class, id));
+        leadRepository
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
 
     existing.setName(updatedLead.getName());
     existing.setEmail(updatedLead.getEmail());
@@ -196,7 +197,7 @@ public class JpaLeadService {
     Lead lead =
         leadRepository
             .findById(leadId)
-            .orElseThrow(() -> new EntityNotFoundException(Lead.class, leadId));
+            .orElseThrow(() -> new EntityNotFoundException("Lead", leadId.toString()));
 
     if (lead.getStatus() != LeadStatus.QUALIFIED) {
       throw new IllegalLeadStateException(leadId, lead.getStatus().name());

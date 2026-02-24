@@ -28,7 +28,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
 import ru.mentee.power.crm.spring.dto.LeadResponse;
@@ -128,7 +127,7 @@ class LeadRestControllerTest {
     UUID nonExistentId = UUID.randomUUID();
 
     when(leadRestServiceAdapter.findLeadById(nonExistentId))
-        .thenThrow(new EntityNotFoundException(Lead.class, nonExistentId));
+        .thenThrow(new EntityNotFoundException("Lead", nonExistentId.toString()));
 
     mockMvc.perform(get("/api/leads/" + nonExistentId)).andExpect(status().isNotFound());
   }
@@ -223,7 +222,7 @@ class LeadRestControllerTest {
   void shouldReturn404_whenDeleteNonExistentLead() throws Exception {
     UUID nonExistentId = UUID.randomUUID();
 
-    doThrow(new EntityNotFoundException(Lead.class, nonExistentId))
+    doThrow(new EntityNotFoundException("Lead", nonExistentId.toString()))
         .when(leadRestServiceAdapter)
         .deleteLead(nonExistentId);
 
