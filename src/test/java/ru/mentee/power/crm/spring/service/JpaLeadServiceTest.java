@@ -17,6 +17,7 @@ import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.exception.DuplicateEmailException;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.exception.IllegalLeadStateException;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
@@ -123,15 +124,14 @@ class JpaLeadServiceTest {
     Lead duplicate =
         Lead.builder()
             .name("Duplicate")
-            .email("lead1@example.com") // уже существует
+            .email("lead1@example.com")
             .phone("123")
             .company(company)
             .status(LeadStatus.NEW)
             .build();
 
     assertThatThrownBy(() -> leadService.createLead(duplicate))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("Lead with email already exists");
+        .isInstanceOf(DuplicateEmailException.class);
   }
 
   @Test

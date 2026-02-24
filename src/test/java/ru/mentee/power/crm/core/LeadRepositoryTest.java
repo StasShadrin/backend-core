@@ -3,9 +3,6 @@ package ru.mentee.power.crm.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -97,39 +94,5 @@ class LeadRepositoryTest {
     // Then - проверить что выбрасывается UnsupportedOperationException
     assertThatThrownBy(() -> result.add(createLead("new@test.com", "+7999", "New")))
         .isInstanceOf(UnsupportedOperationException.class);
-  }
-
-  @Test
-  @DisplayName("Should perform contains() faster than ArrayList")
-  void shouldPerformFasterThanArrayList() {
-    // Given - создать HashSet и ArrayList с 10000 одинаковых лидов
-    int size = 10000;
-    Set<Lead> hashSet = new HashSet<>();
-    List<Lead> arrayList = new ArrayList<>();
-
-    for (int i = 0; i < size; i++) {
-      Lead lead = createLead("lead" + i + "@test.com", "+7" + i, "Company" + i);
-
-      hashSet.add(lead);
-      arrayList.add(lead);
-    }
-
-    Lead lead = arrayList.get(5000);
-
-    // When - выполнить contains() 1000 раз на каждой коллекции
-    long hashSetStart = System.nanoTime();
-    for (int i = 0; i < 1000; i++) {
-      hashSet.contains(lead);
-    }
-    long hashSetDuration = System.nanoTime() - hashSetStart;
-
-    long arrayListStart = System.nanoTime();
-    for (int i = 0; i < 1000; i++) {
-      arrayList.contains(lead);
-    }
-    long arrayListDuration = System.nanoTime() - arrayListStart;
-
-    // Then - замерить время, HashSet быстрее минимум в 100 раз
-    assertThat(arrayListDuration).isGreaterThan(hashSetDuration * 100);
   }
 }

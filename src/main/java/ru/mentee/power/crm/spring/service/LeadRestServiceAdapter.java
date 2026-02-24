@@ -35,7 +35,7 @@ public class LeadRestServiceAdapter {
     return leadService
         .findById(id)
         .map(leadMapper::toResponse)
-        .orElseThrow(() -> new EntityNotFoundException(Lead.class, id));
+        .orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
   }
 
   /** Создает нового лида с компанией из БД и статусом NEW */
@@ -44,7 +44,8 @@ public class LeadRestServiceAdapter {
     Company company =
         companyRepository
             .findById(request.getCompanyId())
-            .orElseThrow(() -> new EntityNotFoundException(Company.class, request.getCompanyId()));
+            .orElseThrow(
+                () -> new EntityNotFoundException("Company", request.getCompanyId().toString()));
 
     Lead lead = leadMapper.toEntity(request);
     lead.setCompany(company);
@@ -57,7 +58,9 @@ public class LeadRestServiceAdapter {
   @Transactional
   public LeadResponse updateLead(UUID id, UpdateLeadRequest request) {
     Lead existingLead =
-        leadService.findById(id).orElseThrow(() -> new EntityNotFoundException(Lead.class, id));
+        leadService
+            .findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
 
     leadMapper.updateEntity(request, existingLead);
 
@@ -68,14 +71,15 @@ public class LeadRestServiceAdapter {
               Company company =
                   companyRepository
                       .findById(companyId)
-                      .orElseThrow(() -> new EntityNotFoundException(Company.class, companyId));
+                      .orElseThrow(
+                          () -> new EntityNotFoundException("Company", companyId.toString()));
               existingLead.setCompany(company);
             });
 
     Lead updatedLead =
         leadService
             .updateLead(id, existingLead)
-            .orElseThrow(() -> new EntityNotFoundException(Lead.class, id));
+            .orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
     return leadMapper.toResponse(updatedLead);
   }
 
@@ -83,7 +87,7 @@ public class LeadRestServiceAdapter {
   @Transactional
   public void deleteLead(UUID id) {
     if (!leadService.deleteLead(id)) {
-      throw new EntityNotFoundException(Lead.class, id);
+      throw new EntityNotFoundException("Lead", id.toString());
     }
   }
 }
