@@ -13,7 +13,7 @@ import ru.mentee.power.crm.entity.Deal;
 import ru.mentee.power.crm.entity.DealProduct;
 import ru.mentee.power.crm.entity.Lead;
 import ru.mentee.power.crm.entity.Product;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 @DataJpaTest
 class DealProductIntegrationTest {
@@ -33,7 +33,7 @@ class DealProductIntegrationTest {
             .name("Иван Иванов")
             .email("ivan@example.com")
             .phone("+79991234567")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     lead = leadRepository.save(lead);
 
@@ -114,7 +114,7 @@ class DealProductIntegrationTest {
                 .name("Иван Иванов")
                 .email("ivan@example.com")
                 .phone("+79991234567")
-                .status(LeadStatus.NEW)
+                .status(StatusEnum.NEW)
                 .build());
 
     Product productFirst =

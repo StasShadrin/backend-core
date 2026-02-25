@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.repository.LeadRepository;
@@ -49,7 +48,7 @@ class LeadServiceMockTest {
     // When: вызываем бизнес-метод
     Lead result =
         service.addLead(
-            LeadBuilder.builder()
+            Lead.builder()
                 .name("Test")
                 .email("new@example.com")
                 .phone("+71235")
@@ -68,7 +67,7 @@ class LeadServiceMockTest {
   void shouldNotCallSave_whenEmailExists() {
     // Given: Repository возвращает существующий Lead
     Lead existingLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("existing@example.com")
             .phone("+71235")
@@ -81,7 +80,7 @@ class LeadServiceMockTest {
     assertThatThrownBy(
             () ->
                 service.addLead(
-                    LeadBuilder.builder()
+                    Lead.builder()
                         .name("Test")
                         .email("existing@example.com")
                         .phone("+71235")
@@ -102,7 +101,7 @@ class LeadServiceMockTest {
 
     // When
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Test")
             .email("test@example.com")
             .phone("+71235")

@@ -1,6 +1,7 @@
 package ru.mentee.power.crm.spring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 @SpringBootTest
@@ -31,7 +31,7 @@ class IsolationIntegrationTest {
 
     Lead result = demoService.readWithReadCommitted(lead.getId());
 
-    assertThat(result.getStatus()).isEqualTo(LeadStatus.NEW);
+    assertThat(result.getStatus()).isEqualTo(StatusEnum.NEW);
   }
 
   @Test
@@ -40,7 +40,7 @@ class IsolationIntegrationTest {
 
     Lead result = demoService.readWithRepeatableRead(lead.getId());
 
-    assertThat(result.getStatus()).isEqualTo(LeadStatus.NEW);
+    assertThat(result.getStatus()).isEqualTo(StatusEnum.NEW);
   }
 
   private Lead createLead() {
@@ -50,7 +50,7 @@ class IsolationIntegrationTest {
             .email("test@example.com")
             .phone("123")
             .company(Company.builder().name("Test").build())
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     return leadRepository.save(lead);
   }

@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 @SpringBootTest
 class CompanyRepositoryTest {
@@ -33,21 +33,21 @@ class CompanyRepositoryTest {
             .name("Ivan")
             .email("ivan@sber.ru")
             .phone("123456789")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     Lead lead2 =
         Lead.builder()
             .name("Maria")
             .email("maria@sber.ru")
             .phone("123459999")
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .build();
     Lead lead3 =
         Lead.builder()
             .name("Bob")
             .email("bob@sber.ru")
             .phone("999999999")
-            .status(LeadStatus.QUALIFIED)
+            .status(StatusEnum.QUALIFIED)
             .build();
 
     company.addLead(lead1);
@@ -72,7 +72,7 @@ class CompanyRepositoryTest {
               .name("lead" + i)
               .email("lead" + i + "@tinkoff.ru")
               .phone("+123" + i)
-              .status(LeadStatus.NEW)
+              .status(StatusEnum.NEW)
               .build();
 
       company.addLead(lead);

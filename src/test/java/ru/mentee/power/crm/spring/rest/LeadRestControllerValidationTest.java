@@ -16,9 +16,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.LeadRestServiceAdapter;
 
@@ -90,7 +90,7 @@ class LeadRestControllerValidationTest {
             "bob@ex.com",
             "+7123456789",
             companyId,
-            LeadStatus.NEW,
+            StatusEnum.NEW,
             OffsetDateTime.now(ZoneOffset.UTC));
 
     when(leadService.createLead(any(CreateLeadRequest.class))).thenReturn(expectedResponse);

@@ -2,6 +2,7 @@ package ru.mentee.power.crm.spring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -48,7 +49,7 @@ class JpaLeadServiceTest {
               .email("lead" + i + "@example.com")
               .phone(i + "123")
               .company(company)
-              .status(LeadStatus.NEW)
+              .status(StatusEnum.NEW)
               .build();
       leadRepository.save(lead);
     }
@@ -63,7 +64,7 @@ class JpaLeadServiceTest {
               .email("lost" + i + "@example.com")
               .phone(i + "456")
               .company(company)
-              .status(LeadStatus.LOST)
+              .status(StatusEnum.LOST)
               .build();
       leadRepository.save(lead);
     }
@@ -75,23 +76,23 @@ class JpaLeadServiceTest {
 
     assertThat(updated).isEqualTo(3);
 
-    long contactedCount = leadRepository.countByStatus(LeadStatus.CONTACTED);
+    long contactedCount = leadRepository.countByStatus(StatusEnum.CONTACTED);
     assertThat(contactedCount).isEqualTo(3);
 
-    long newCount = leadRepository.countByStatus(LeadStatus.NEW);
+    long newCount = leadRepository.countByStatus(StatusEnum.NEW);
     assertThat(newCount).isZero();
   }
 
   @Test
   void archiveOldLeads_shouldDeleteLeadsByStatus() {
-    int deleted = leadService.archiveOldLeads(LeadStatus.LOST);
+    int deleted = leadService.archiveOldLeads(StatusEnum.LOST);
 
     assertThat(deleted).isEqualTo(2);
 
-    long lostCount = leadRepository.countByStatus(LeadStatus.LOST);
+    long lostCount = leadRepository.countByStatus(StatusEnum.LOST);
     assertThat(lostCount).isZero();
 
-    long newCount = leadRepository.countByStatus(LeadStatus.NEW);
+    long newCount = leadRepository.countByStatus(StatusEnum.NEW);
     assertThat(newCount).isEqualTo(3);
   }
 
@@ -106,7 +107,7 @@ class JpaLeadServiceTest {
             .email("new@example.com")
             .phone("123")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
 
     Lead saved = leadService.createLead(newLead);
@@ -127,7 +128,7 @@ class JpaLeadServiceTest {
             .email("lead1@example.com")
             .phone("123")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
 
     assertThatThrownBy(() -> leadService.createLead(duplicate))
@@ -156,7 +157,7 @@ class JpaLeadServiceTest {
     List<Lead> newLeads = leadService.findByStatus(LeadStatus.NEW);
 
     assertThat(newLeads).hasSize(3);
-    assertThat(newLeads.getFirst().getStatus()).isEqualTo(LeadStatus.NEW);
+    assertThat(newLeads.getFirst().getStatus()).isEqualTo(StatusEnum.NEW);
   }
 
   @Test
@@ -171,7 +172,7 @@ class JpaLeadServiceTest {
             .email("updated@example.com")
             .phone("999")
             .company(company)
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .build();
 
     leadService.update(id, updatedLead);
@@ -179,7 +180,7 @@ class JpaLeadServiceTest {
     Optional<Lead> result = leadService.findById(id);
     assertThat(result).isPresent();
     assertThat(result.get().getName()).isEqualTo("Updated Name");
-    assertThat(result.get().getStatus()).isEqualTo(LeadStatus.CONTACTED);
+    assertThat(result.get().getStatus()).isEqualTo(StatusEnum.CONTACTED);
   }
 
   @Test
@@ -193,7 +194,7 @@ class JpaLeadServiceTest {
 
   @Test
   void findLeads_shouldFilterBySearchAndStatus() {
-    List<Lead> results = leadService.findLeads("Lead1", LeadStatus.NEW);
+    List<Lead> results = leadService.findLeads("Lead1", StatusEnum.NEW);
 
     assertThat(results).hasSize(1);
     assertThat(results.getFirst().getEmail()).isEqualTo("lead1@example.com");
@@ -209,7 +210,7 @@ class JpaLeadServiceTest {
 
   @Test
   void findByStatuses_shouldReturnLeadsWithMultipleStatuses() {
-    List<Lead> leads = leadService.findByStatuses(LeadStatus.NEW, LeadStatus.LOST);
+    List<Lead> leads = leadService.findByStatuses(StatusEnum.NEW, StatusEnum.LOST);
 
     assertThat(leads).hasSize(5);
   }
@@ -242,13 +243,13 @@ class JpaLeadServiceTest {
             .findByName("Company 1")
             .orElseThrow(() -> new RuntimeException("Company 'Company 1' not found"));
 
-    long initialNewCount = leadRepository.countByStatus(LeadStatus.NEW);
+    long initialNewCount = leadRepository.countByStatus(StatusEnum.NEW);
     assertThat(initialNewCount).isGreaterThanOrEqualTo(1);
 
-    leadService.changeStatus(company, LeadStatus.CONTACTED);
+    leadService.changeStatus(company, StatusEnum.CONTACTED);
 
-    long newCount = leadRepository.countByStatus(LeadStatus.NEW);
-    long contactedCount = leadRepository.countByStatus(LeadStatus.CONTACTED);
+    long newCount = leadRepository.countByStatus(StatusEnum.NEW);
+    long contactedCount = leadRepository.countByStatus(StatusEnum.CONTACTED);
 
     assertThat(newCount).isEqualTo(initialNewCount - 1);
     assertThat(contactedCount).isEqualTo(1);
@@ -266,7 +267,7 @@ class JpaLeadServiceTest {
             .email(existingLead.getEmail())
             .phone("999")
             .company(existingLead.getCompany())
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .build();
 
     // When
@@ -275,7 +276,7 @@ class JpaLeadServiceTest {
     // Then
     assertThat(result).isPresent();
     assertThat(result.get().getName()).isEqualTo("New Name");
-    assertThat(result.get().getStatus()).isEqualTo(LeadStatus.CONTACTED);
+    assertThat(result.get().getStatus()).isEqualTo(StatusEnum.CONTACTED);
     assertThat(result.get().getEmail()).isEqualTo(existingLead.getEmail());
   }
 
@@ -291,7 +292,7 @@ class JpaLeadServiceTest {
             .email("unique-new@example.com")
             .phone("999")
             .company(existingLead.getCompany())
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .build();
 
     // When
@@ -315,7 +316,7 @@ class JpaLeadServiceTest {
             .email(secondLead.getEmail())
             .phone("999")
             .company(firstLead.getCompany())
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .build();
 
     // When/Then
@@ -374,7 +375,7 @@ class JpaLeadServiceTest {
             .email("qualified@example.com")
             .phone("123")
             .company(company)
-            .status(LeadStatus.QUALIFIED)
+            .status(StatusEnum.QUALIFIED)
             .build();
     leadRepository.save(qualifiedLead);
 
@@ -387,7 +388,7 @@ class JpaLeadServiceTest {
 
     // Then
     Lead updatedLead = leadService.findById(qualifiedLead.getId()).orElseThrow();
-    assertThat(updatedLead.getStatus()).isEqualTo(LeadStatus.CONVERTED);
+    assertThat(updatedLead.getStatus()).isEqualTo(StatusEnum.CONVERTED);
   }
 
   @Test
@@ -407,7 +408,7 @@ class JpaLeadServiceTest {
   @Test
   void convertLeadToDeal_shouldThrowException_whenLeadNotQualified() {
     // Given
-    Lead newLead = leadRepository.findByStatus(LeadStatus.NEW).getFirst();
+    Lead newLead = leadRepository.findByStatus(StatusEnum.NEW).getFirst();
     CreateDealRequest request = new CreateDealRequest();
     request.setTitle("Test Deal");
     request.setAmount(BigDecimal.valueOf(1000.0));
@@ -420,7 +421,7 @@ class JpaLeadServiceTest {
   @Test
   void changeStatus_shouldThrowException_whenParametersAreNull() {
     // When/Then
-    assertThatThrownBy(() -> leadService.changeStatus(null, LeadStatus.NEW))
+    assertThatThrownBy(() -> leadService.changeStatus(null, StatusEnum.NEW))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Company and LeadStatus must not be null");
 

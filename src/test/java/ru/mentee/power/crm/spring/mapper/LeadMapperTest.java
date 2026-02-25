@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 @SpringBootTest
 class LeadMapperTest {
@@ -54,7 +54,7 @@ class LeadMapperTest {
             .email("ivan@example.com")
             .phone("+79991234567")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .createdAt(now)
             .updatedAt(now)
             .version(1L)
@@ -63,13 +63,13 @@ class LeadMapperTest {
     LeadResponse response = leadMapper.toResponse(lead);
 
     assertThat(response).isNotNull();
-    assertThat(response.id()).isEqualTo(leadId);
-    assertThat(response.name()).isEqualTo("Иван Иванов");
-    assertThat(response.email()).isEqualTo("ivan@example.com");
-    assertThat(response.phone()).isEqualTo("+79991234567");
-    assertThat(response.companyId()).isEqualTo(companyId);
-    assertThat(response.status()).isEqualTo(LeadStatus.NEW);
-    assertThat(response.createdAt()).isEqualTo(now);
+    assertThat(response.getId()).isEqualTo(leadId);
+    assertThat(response.getName()).isEqualTo("Иван Иванов");
+    assertThat(response.getEmail()).isEqualTo("ivan@example.com");
+    assertThat(response.getPhone()).isEqualTo("+79991234567");
+    assertThat(response.getCompanyId()).isEqualTo(companyId);
+    assertThat(response.getStatus()).isEqualTo(StatusEnum.NEW);
+    assertThat(response.getCreatedAt()).isEqualTo(now);
   }
 
   @Test
@@ -84,7 +84,7 @@ class LeadMapperTest {
             .email("ivan@example.com")
             .phone("+79991234567")
             .company(null)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .createdAt(now)
             .updatedAt(now)
             .version(1L)
@@ -93,13 +93,13 @@ class LeadMapperTest {
     LeadResponse response = leadMapper.toResponse(lead);
 
     assertThat(response).isNotNull();
-    assertThat(response.id()).isEqualTo(leadId);
-    assertThat(response.name()).isEqualTo("Иван Иванов");
-    assertThat(response.email()).isEqualTo("ivan@example.com");
-    assertThat(response.phone()).isEqualTo("+79991234567");
-    assertThat(response.companyId()).isNull();
-    assertThat(response.status()).isEqualTo(LeadStatus.NEW);
-    assertThat(response.createdAt()).isEqualTo(now);
+    assertThat(response.getId()).isEqualTo(leadId);
+    assertThat(response.getName()).isEqualTo("Иван Иванов");
+    assertThat(response.getEmail()).isEqualTo("ivan@example.com");
+    assertThat(response.getPhone()).isEqualTo("+79991234567");
+    assertThat(response.getCompanyId()).isNull();
+    assertThat(response.getStatus()).isEqualTo(StatusEnum.NEW);
+    assertThat(response.getCreatedAt()).isEqualTo(now);
   }
 
   @Test

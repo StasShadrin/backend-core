@@ -3,7 +3,6 @@ package ru.mentee.power.crm.spring;
 import java.util.List;
 import java.util.UUID;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -16,14 +15,14 @@ public class MockLeadService extends LeadService {
     super(null, null);
     this.mockLeads =
         List.of(
-            LeadBuilder.builder()
+            Lead.builder()
                 .id(UUID.randomUUID())
                 .email("test1@example.com")
                 .phone("+1234567890")
                 .company("New Comp")
                 .status(LeadStatus.NEW)
                 .build(),
-            LeadBuilder.builder()
+            Lead.builder()
                 .id(UUID.randomUUID())
                 .email("test2@example.com")
                 .phone("+0987654321")

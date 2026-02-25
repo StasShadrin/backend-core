@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.InMemoryDealRepository;
 import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
@@ -27,7 +26,7 @@ class LeadServiceTest {
     service = new LeadService(repository, dealRepository);
 
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Bob")
             .email("bob1@example.com")
             .phone("+123")
@@ -35,7 +34,7 @@ class LeadServiceTest {
             .status(LeadStatus.NEW)
             .build());
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Bob")
             .email("bob2@example.com")
             .phone("+456")
@@ -43,7 +42,7 @@ class LeadServiceTest {
             .status(LeadStatus.NEW)
             .build());
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Alice")
             .email("alice@example.com")
             .phone("+789")
@@ -52,7 +51,7 @@ class LeadServiceTest {
             .build());
 
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("John")
             .email("john1@example.com")
             .phone("+111")
@@ -60,7 +59,7 @@ class LeadServiceTest {
             .status(LeadStatus.CONTACTED)
             .build());
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("John")
             .email("john2@example.com")
             .phone("+222")
@@ -68,7 +67,7 @@ class LeadServiceTest {
             .status(LeadStatus.CONTACTED)
             .build());
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Sara")
             .email("sara@example.com")
             .phone("+333")
@@ -76,7 +75,7 @@ class LeadServiceTest {
             .status(LeadStatus.CONTACTED)
             .build());
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Charlie")
             .email("charlie@example.com")
             .phone("+444")
@@ -84,7 +83,7 @@ class LeadServiceTest {
             .status(LeadStatus.CONTACTED)
             .build());
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Diana")
             .email("diana@example.com")
             .phone("+555")
@@ -93,7 +92,7 @@ class LeadServiceTest {
             .build());
 
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Satan")
             .email("satan@example.com")
             .phone("+666")
@@ -101,7 +100,7 @@ class LeadServiceTest {
             .status(LeadStatus.QUALIFIED)
             .build());
     service.addLead(
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Jim")
             .email("jim@example.com")
             .phone("+777")
@@ -118,7 +117,7 @@ class LeadServiceTest {
     // When
     Lead lead =
         service.addLead(
-            LeadBuilder.builder()
+            Lead.builder()
                 .name("Test")
                 .email(email)
                 .phone("+000")
@@ -137,7 +136,7 @@ class LeadServiceTest {
     assertThatThrownBy(
             () ->
                 service.addLead(
-                    LeadBuilder.builder()
+                    Lead.builder()
                         .name("Test")
                         .email("bob1@example.com")
                         .phone("+999")
@@ -233,7 +232,7 @@ class LeadServiceTest {
     UUID id = original.id();
 
     Lead updatedLead =
-        LeadBuilder.builder(original)
+        Lead.builder()
             .name("Updated Name")
             .email("updated@example.com")
             .phone("+999")
@@ -256,7 +255,7 @@ class LeadServiceTest {
   void shouldThrowExceptionWhenUpdatingNonexistentLead() {
     // Given
     Lead updatedLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .name("Test")
             .email("test@example.com")
             .phone("+000")
@@ -333,6 +332,6 @@ class LeadServiceTest {
     List<Lead> result = service.findLeads(null, null);
 
     // Then
-    assertThat(result).hasSize(10); // ← все лиды
+    assertThat(result).hasSize(10);
   }
 }

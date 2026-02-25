@@ -11,6 +11,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
@@ -22,7 +23,6 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.exception.BadRequestException;
 import ru.mentee.power.crm.spring.exception.DuplicateEmailException;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
@@ -59,7 +59,7 @@ class LeadServiceRetryTest {
             .name("Иван Иванов")
             .email("test@example.com")
             .phone("+79991234567")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .company(testCompany)
             .build();
   }
@@ -140,7 +140,7 @@ class LeadServiceRetryTest {
             .name("Иван Иванов")
             .email(invalidEmail)
             .phone("+79991234567")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .company(testCompany)
             .build();
 
@@ -160,7 +160,7 @@ class LeadServiceRetryTest {
             .name("Existing Lead")
             .email("test@example.com")
             .phone("+79991112233")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .company(testCompany)
             .build();
     leadRepository.save(existingLead);
@@ -231,7 +231,7 @@ class LeadServiceRetryTest {
             .name("Bad Lead")
             .email("bad@example.com")
             .phone("+79991112233")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .company(testCompany)
             .build();
 

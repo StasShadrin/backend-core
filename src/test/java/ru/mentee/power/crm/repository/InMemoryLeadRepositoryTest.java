@@ -9,7 +9,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
 
@@ -26,7 +25,7 @@ class InMemoryLeadRepositoryTest {
     // Given - создать Lead
     UUID id = UUID.randomUUID();
     Lead lead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(id)
             .email("test@example.com")
             .phone("+7123")
@@ -60,7 +59,7 @@ class InMemoryLeadRepositoryTest {
   void shouldReturnAllLeadsWhenMultipleLeadsSaved() {
     // Given - сохранить 3 лида
     Lead lead1 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("a@test.com")
             .phone("+1")
@@ -68,7 +67,7 @@ class InMemoryLeadRepositoryTest {
             .status(LeadStatus.NEW)
             .build();
     Lead lead2 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("b@test.com")
             .phone("+2")
@@ -76,7 +75,7 @@ class InMemoryLeadRepositoryTest {
             .status(LeadStatus.QUALIFIED)
             .build();
     Lead lead3 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("c@test.com")
             .phone("+3")
@@ -99,7 +98,7 @@ class InMemoryLeadRepositoryTest {
     // Given - сохранить лид
     UUID id = UUID.randomUUID();
     Lead lead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(id)
             .email("test@test.com")
             .phone("+7000")
@@ -121,7 +120,7 @@ class InMemoryLeadRepositoryTest {
     // Given - сохранить Lead с id="lead-1"
     UUID id = UUID.randomUUID();
     Lead lead1 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(id)
             .email("first@test.com")
             .phone("+1")
@@ -132,7 +131,7 @@ class InMemoryLeadRepositoryTest {
 
     // When - сохранить другой Lead с id="lead-1" но другим email
     Lead lead2 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(id)
             .email("second@test.com")
             .phone("+2")
@@ -154,7 +153,7 @@ class InMemoryLeadRepositoryTest {
     List<Lead> leadList = new ArrayList<>();
     for (int i = 0; i < 1000; i++) {
       Lead lead =
-          LeadBuilder.builder()
+          Lead.builder()
               .id(UUID.randomUUID())
               .email("test" + i + "@example.com")
               .phone("+7123" + i)
@@ -191,7 +190,7 @@ class InMemoryLeadRepositoryTest {
   void shouldSaveBothLeadsEvenWithSameEmailAndPhoneBecauseRepositoryDoesNotCheckBusinessRules() {
     // Given: два лида с разными ID, но одинаковыми контактами
     Lead originalLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("ivan@mail.ru")
             .phone("+79001234567")
@@ -199,7 +198,7 @@ class InMemoryLeadRepositoryTest {
             .status(LeadStatus.NEW)
             .build();
     Lead duplicateLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("ivan@mail.ru")
             .phone("+79001234567")

@@ -22,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -40,7 +39,7 @@ class LeadControllerTest {
   void setUp() {
     validId = UUID.randomUUID();
     existingLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(validId)
             .email("test@example.com")
             .phone("+79991234567")
@@ -116,7 +115,7 @@ class LeadControllerTest {
   void shouldCreateLeadAndRedirectToList() throws Exception {
     // Given
     Lead newLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("new@example.com")
             .phone("+79991234567")
@@ -126,7 +125,7 @@ class LeadControllerTest {
 
     // Мокируем addLead, чтобы он возвращал новый лид
     when(leadService.addLead(
-            LeadBuilder.builder()
+            Lead.builder()
                 .name("Test")
                 .email("new@example.com")
                 .phone("+79991234567")
@@ -150,7 +149,7 @@ class LeadControllerTest {
 
     verify(leadService)
         .addLead(
-            LeadBuilder.builder()
+            Lead.builder()
                 .name("Test")
                 .email("new@example.com")
                 .phone("+79991234567")
@@ -176,7 +175,7 @@ class LeadControllerTest {
     // Given
     String searchTerm = "test";
     Lead expectedLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("test@example.com")
             .phone("+79991234567")
@@ -200,7 +199,7 @@ class LeadControllerTest {
     // Given
     LeadStatus status = LeadStatus.NEW;
     Lead lead1 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("a@example.com")
             .phone("123")
@@ -208,7 +207,7 @@ class LeadControllerTest {
             .status(status)
             .build();
     Lead lead2 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("b@example.com")
             .phone("456")
@@ -232,7 +231,7 @@ class LeadControllerTest {
   void shouldReturnAllLeadsWhenNoParameters() throws Exception {
     // Given
     Lead lead1 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("a@example.com")
             .phone("123")
@@ -240,7 +239,7 @@ class LeadControllerTest {
             .status(LeadStatus.NEW)
             .build();
     Lead lead2 =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("b@example.com")
             .phone("456")
@@ -266,7 +265,7 @@ class LeadControllerTest {
     String searchTerm = "acme";
     LeadStatus status = LeadStatus.NEW;
     Lead expectedLead =
-        LeadBuilder.builder()
+        Lead.builder()
             .id(UUID.randomUUID())
             .email("contact@acme.com")
             .phone("+79990000000")

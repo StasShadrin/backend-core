@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.JpaCompanyService;
 import ru.mentee.power.crm.spring.service.JpaLeadService;
@@ -42,7 +42,7 @@ class JpaLeadControllerTest {
             .id(UUID.randomUUID())
             .name("Test")
             .email("test@example.com")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
 
     when(leadService.findLeads(null, null)).thenReturn(List.of(lead));
@@ -74,7 +74,7 @@ class JpaLeadControllerTest {
             .id(UUID.randomUUID())
             .name("Test")
             .email("test@example.com")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .company(Company.builder().id(companyId).build())
             .build();
 
@@ -98,7 +98,7 @@ class JpaLeadControllerTest {
     // Given
     UUID id = UUID.randomUUID();
     Lead lead =
-        Lead.builder().id(id).name("Test").email("test@example.com").status(LeadStatus.NEW).build();
+        Lead.builder().id(id).name("Test").email("test@example.com").status(StatusEnum.NEW).build();
 
     when(leadService.findById(id)).thenReturn(Optional.of(lead));
 
@@ -120,7 +120,7 @@ class JpaLeadControllerTest {
             .id(id)
             .name("Updated")
             .email("updated@example.com")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .company(Company.builder().id(companyId).build())
             .build();
 
