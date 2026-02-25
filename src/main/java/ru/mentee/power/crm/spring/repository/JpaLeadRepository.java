@@ -15,7 +15,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 /** Контракт на операции по сохранению лидов с использованием CRUD и поиска по email адресу. */
 public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
@@ -50,13 +50,13 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
   Optional<Lead> findByEmail(String email);
 
   /** Поиск лидов по статусу. SQL: SELECT * FROM leads WHERE status = ? */
-  List<Lead> findByStatus(LeadStatus status);
+  List<Lead> findByStatus(StatusEnum status);
 
   /** Поиск по компании. SQL: SELECT * FROM leads WHERE company = ? */
   List<Lead> findByCompany(Company company);
 
   /** Подсчёт лидов по статусу. SQL: SELECT COUNT(*) FROM leads WHERE status = ? */
-  long countByStatus(LeadStatus status);
+  long countByStatus(StatusEnum status);
 
   /** Проверка существования по email. SQL: SELECT COUNT(*) > 0 FROM leads WHERE email = ? */
   boolean existsByEmail(String email);
@@ -68,10 +68,10 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
   List<Lead> findByEmailContaining(String emailPart);
 
   /** Поиск по статусу И компании. SQL: SELECT * FROM leads WHERE status = ? AND company = ? */
-  List<Lead> findByStatusAndCompany(LeadStatus status, Company company);
+  List<Lead> findByStatusAndCompany(StatusEnum status, Company company);
 
   /** Поиск с сортировкой. SQL: SELECT * FROM leads WHERE status = ? ORDER BY created_at DESC */
-  List<Lead> findByStatusOrderByCreatedAtDesc(LeadStatus status);
+  List<Lead> findByStatusOrderByCreatedAtDesc(StatusEnum status);
 
   // JPQL запросы (объектный язык)
 
@@ -80,7 +80,7 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
    * SQL: SELECT * FROM leads WHERE status IN (?, ?, ...)
    */
   @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
-  List<Lead> findByStatusIn(@Param("statuses") List<LeadStatus> statuses);
+  List<Lead> findByStatusIn(@Param("statuses") List<StatusEnum> statuses);
 
   /**
    * Поиск лидов созданных после определённой даты JPQL: SELECT l FROM Lead l WHERE l.createdAt >
@@ -111,14 +111,14 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
   Page<Lead> findAll(@NonNull Pageable pageable);
 
   /** Поиск по статусу с пагинацией (derived method). */
-  Page<Lead> findByStatus(LeadStatus status, Pageable pageable);
+  Page<Lead> findByStatus(StatusEnum status, Pageable pageable);
 
   /** Поиск по компании с пагинацией. */
   Page<Lead> findByCompany(Company company, Pageable pageable);
 
   /** JPQL запрос с пагинацией. */
   @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
-  Page<Lead> findByStatusInPaged(@Param("statuses") List<LeadStatus> statuses, Pageable pageable);
+  Page<Lead> findByStatusInPaged(@Param("statuses") List<StatusEnum> statuses, Pageable pageable);
 
   // Bulk операции
 
@@ -130,12 +130,12 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
   @Modifying(clearAutomatically = true)
   @Query("UPDATE Lead l SET l.status = :newStatus WHERE l.status = :oldStatus")
   int updateStatusBulk(
-      @Param("oldStatus") LeadStatus oldStatus, @Param("newStatus") LeadStatus newStatus);
+      @Param("oldStatus") StatusEnum oldStatus, @Param("newStatus") StatusEnum newStatus);
 
   /** Массовое удаление по статусу */
   @Modifying
   @Query("DELETE FROM Lead l WHERE l.status = :status")
-  int deleteByStatusBulk(@Param("status") LeadStatus status);
+  int deleteByStatusBulk(@Param("status") StatusEnum status);
 
   /** Pessimistic lock для критических операций (конверсия Lead -> Deal) */
   @Lock(LockModeType.PESSIMISTIC_WRITE)
@@ -157,7 +157,7 @@ public interface JpaLeadRepository extends JpaRepository<Lead, UUID> {
                UPDATE Lead l SET l.status = :status
                WHERE l.company = :company AND l.status != 'CONVERTED' AND l.status != :status
             """)
-  void updateStatuses(@Param("company") Company company, @Param("status") LeadStatus status);
+  void updateStatuses(@Param("company") Company company, @Param("status") StatusEnum status);
 
   /** Загружает все лиды вместе с компанией (JOIN FETCH) */
   @Query("SELECT l FROM Lead l JOIN FETCH l.company")

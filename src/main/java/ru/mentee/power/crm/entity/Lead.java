@@ -23,7 +23,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 /** Сущность лида для работы с БД */
 @Entity
@@ -58,7 +58,7 @@ public class Lead {
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private LeadStatus status;
+  private StatusEnum status;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private OffsetDateTime createdAt;
