@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
-import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
+import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.mapper.LeadMapper;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
@@ -49,7 +49,7 @@ public class LeadRestServiceAdapter {
 
     Lead lead = leadMapper.toEntity(request);
     lead.setCompany(company);
-    lead.setStatus(LeadStatus.NEW);
+    lead.setStatus(StatusEnum.NEW);
 
     return leadMapper.toResponse(leadService.createLead(lead));
   }
@@ -64,17 +64,14 @@ public class LeadRestServiceAdapter {
 
     leadMapper.updateEntity(request, existingLead);
 
-    request
-        .getCompanyId()
-        .ifPresent(
-            companyId -> {
-              Company company =
-                  companyRepository
-                      .findById(companyId)
-                      .orElseThrow(
-                          () -> new EntityNotFoundException("Company", companyId.toString()));
-              existingLead.setCompany(company);
-            });
+    if (request.getCompanyId() != null) {
+      UUID companyId = request.getCompanyId();
+      Company company =
+          companyRepository
+              .findById(companyId)
+              .orElseThrow(() -> new EntityNotFoundException("Company", companyId.toString()));
+      existingLead.setCompany(company);
+    }
 
     Lead updatedLead =
         leadService

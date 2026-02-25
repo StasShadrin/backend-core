@@ -8,7 +8,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -27,7 +27,7 @@ public class LeadLockingService {
    * демонстрации @Lock(PESSIMISTIC_WRITE).
    */
   @Transactional
-  public Lead convertLeadToDealWithLock(UUID leadId, LeadStatus newStatus) {
+  public Lead convertLeadToDealWithLock(UUID leadId, StatusEnum newStatus) {
     // Блокируем Lead эксклюзивно до конца транзакции
     Lead lead =
         leadRepository
@@ -46,7 +46,7 @@ public class LeadLockingService {
 
   /** Обычное обновление с optimistic locking. Использует @Version для защиты от конфликтов. */
   @Transactional
-  public void updateLeadStatusOptimistic(UUID leadId, LeadStatus newStatus) {
+  public void updateLeadStatusOptimistic(UUID leadId, StatusEnum newStatus) {
     Lead lead =
         leadRepository
             .findById(leadId)
@@ -66,7 +66,7 @@ public class LeadLockingService {
       maxAttempts = 3,
       backoff = @Backoff(delay = 100))
   @Transactional
-  public Lead updateWithRetry(UUID leadId, LeadStatus newStatus) {
+  public Lead updateWithRetry(UUID leadId, StatusEnum newStatus) {
     Lead lead =
         leadRepository
             .findById(leadId)

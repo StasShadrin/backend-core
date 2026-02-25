@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 /**
@@ -36,7 +36,7 @@ public class LeadProcessor {
       throw new RuntimeException("Simulated failure for lead: " + id);
     }
 
-    lead.setStatus(LeadStatus.CONTACTED);
+    lead.setStatus(StatusEnum.CONTACTED);
     leadRepository.save(lead);
   }
 }

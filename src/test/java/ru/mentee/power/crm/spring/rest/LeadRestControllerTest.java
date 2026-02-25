@@ -15,11 +15,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +28,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
-import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 import ru.mentee.power.crm.spring.service.JpaLeadService;
@@ -65,7 +64,7 @@ class LeadRestControllerTest {
             "ivan@example.com",
             "+79991234567",
             companyId,
-            LeadStatus.NEW,
+            StatusEnum.NEW,
             now);
 
     LeadResponse responseSecond =
@@ -75,7 +74,7 @@ class LeadRestControllerTest {
             "petr@example.com",
             "+79992345678",
             companyId,
-            LeadStatus.CONTACTED,
+            StatusEnum.CONTACTED,
             now);
 
     when(leadRestServiceAdapter.findAllLeads()).thenReturn(List.of(responseFirst, responseSecond));
@@ -109,7 +108,7 @@ class LeadRestControllerTest {
             "ivan@example.com",
             "+79991234567",
             companyId,
-            LeadStatus.NEW,
+            StatusEnum.NEW,
             now);
 
     when(leadRestServiceAdapter.findLeadById(leadId)).thenReturn(response);
@@ -149,7 +148,7 @@ class LeadRestControllerTest {
             "ivan@example.com",
             "+79991234567",
             companyId,
-            LeadStatus.NEW,
+            StatusEnum.NEW,
             now);
 
     when(leadRestServiceAdapter.createLead(any(CreateLeadRequest.class))).thenReturn(response);
@@ -176,12 +175,12 @@ class LeadRestControllerTest {
     OffsetDateTime now = OffsetDateTime.now();
 
     UpdateLeadRequest request =
-        new UpdateLeadRequest(
-            Optional.of("Иван Петров"),
-            Optional.of("ivan.petrov@example.com"),
-            Optional.of("+79991112233"),
-            Optional.of(companyId),
-            Optional.of(LeadStatus.CONTACTED));
+        new UpdateLeadRequest()
+            .name("Иван Петров")
+            .email("ivan.petrov@example.com")
+            .phone("+79991112233")
+            .companyId(companyId)
+            .status(UpdateLeadRequest.StatusEnum.CONTACTED);
 
     LeadResponse response =
         new LeadResponse(
@@ -190,7 +189,7 @@ class LeadRestControllerTest {
             "ivan.petrov@example.com",
             "+79991112233",
             companyId,
-            LeadStatus.CONTACTED,
+            StatusEnum.CONTACTED,
             now);
 
     when(leadRestServiceAdapter.updateLead(any(UUID.class), any(UpdateLeadRequest.class)))

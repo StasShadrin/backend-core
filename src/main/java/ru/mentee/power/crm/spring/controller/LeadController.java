@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -57,7 +56,7 @@ public class LeadController {
   public String showCreateForm(Model model) {
     model.addAttribute(
         "lead",
-        LeadBuilder.builder()
+        Lead.builder()
             .id(null)
             .name("")
             .email("")

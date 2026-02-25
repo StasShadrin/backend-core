@@ -2,7 +2,7 @@ package ru.mentee.power.crm.util;
 
 import java.util.List;
 import java.util.Random;
-import ru.mentee.power.crm.model.LeadBuilder;
+import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -41,7 +41,7 @@ public class TestDataUtils {
       String phone = "+7" + String.format("%010d", 1000000L + i);
 
       leadService.addLead(
-          LeadBuilder.builder()
+          Lead.builder()
               .name(name)
               .email(email)
               .phone(phone)

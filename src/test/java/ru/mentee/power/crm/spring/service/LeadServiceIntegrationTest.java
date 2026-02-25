@@ -2,6 +2,7 @@ package ru.mentee.power.crm.spring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +14,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaDealRepository;
@@ -46,7 +46,7 @@ class LeadServiceIntegrationTest {
             .email("test@example.com")
             .phone("123456789")
             .company(company)
-            .status(LeadStatus.QUALIFIED)
+            .status(StatusEnum.QUALIFIED)
             .build();
     leadRepository.save(lead);
   }
@@ -67,7 +67,7 @@ class LeadServiceIntegrationTest {
         .isInstanceOf(DataIntegrityViolationException.class);
 
     Lead updatedLead = leadRepository.findById(leadId).orElseThrow();
-    assertThat(updatedLead.getStatus()).isEqualTo(LeadStatus.QUALIFIED);
+    assertThat(updatedLead.getStatus()).isEqualTo(StatusEnum.QUALIFIED);
 
     assertThat(dealRepository.findAll()).isEmpty();
   }
@@ -83,7 +83,7 @@ class LeadServiceIntegrationTest {
             .email(email)
             .phone("123")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     return leadRepository.save(lead);
   }
@@ -105,17 +105,17 @@ class LeadServiceIntegrationTest {
 
     // Проверяем результат:
     // lead1 и lead2 должны быть обновлены (обработка до ошибки)
-    assertLeadStatus(lead1.getId(), LeadStatus.CONTACTED);
-    assertLeadStatus(lead2.getId(), LeadStatus.CONTACTED);
+    assertLeadStatus(lead1.getId(), StatusEnum.CONTACTED);
+    assertLeadStatus(lead2.getId(), StatusEnum.CONTACTED);
 
     // failingLead должен остаться без изменений (ошибка в его транзакции)
-    assertLeadStatus(failingLead.getId(), LeadStatus.NEW);
+    assertLeadStatus(failingLead.getId(), StatusEnum.NEW);
 
     // lead3 не должен быть обработан (цикл прервался на ошибке)
-    assertLeadStatus(lead3.getId(), LeadStatus.NEW);
+    assertLeadStatus(lead3.getId(), StatusEnum.NEW);
   }
 
-  private void assertLeadStatus(UUID id, LeadStatus expectedStatus) {
+  private void assertLeadStatus(UUID id, StatusEnum expectedStatus) {
     Lead lead =
         leadRepository.findById(id).orElseThrow(() -> new AssertionError("Lead not found: " + id));
     assertThat(lead.getStatus()).isEqualTo(expectedStatus);

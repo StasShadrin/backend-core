@@ -16,7 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -28,7 +28,6 @@ class JpaLeadRepositoryTest {
   @Autowired private CompanyRepository companyRepository;
 
   private Lead leadFirst;
-  private Lead leadSecond;
   private Company companyFirst;
   private Company companySecond;
 
@@ -43,7 +42,7 @@ class JpaLeadRepositoryTest {
             .email("john@example.com")
             .phone("123")
             .company(companyFirst)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .createdAt(OffsetDateTime.now().minusDays(5))
             .build();
     leadRepository.save(leadFirst);
@@ -51,13 +50,13 @@ class JpaLeadRepositoryTest {
     companySecond = Company.builder().name("Tech Inc").build();
     companyRepository.save(companySecond);
 
-    leadSecond =
+    Lead leadSecond =
         Lead.builder()
             .name("Jane")
             .email("jane@example.com")
             .phone("456")
             .company(companySecond)
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .createdAt(OffsetDateTime.now().minusDays(2))
             .build();
     leadRepository.save(leadSecond);
@@ -75,7 +74,7 @@ class JpaLeadRepositoryTest {
             .email("test@example.com")
             .phone("123456789")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
 
     // When
@@ -85,7 +84,7 @@ class JpaLeadRepositoryTest {
     // Then
     assertThat(found).isPresent();
     assertThat(found.get().getEmail()).isEqualTo("test@example.com");
-    assertThat(found.get().getStatus()).isEqualTo(LeadStatus.NEW);
+    assertThat(found.get().getStatus()).isEqualTo(StatusEnum.NEW);
   }
 
   @Test
@@ -100,7 +99,7 @@ class JpaLeadRepositoryTest {
             .email("native@test.com")
             .phone("123456789")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     leadRepository.save(lead);
 
@@ -151,7 +150,7 @@ class JpaLeadRepositoryTest {
   @Test
   void findByStatus_shouldReturnFilteredLeads() {
     // When
-    List<Lead> newLeads = leadRepository.findByStatus(LeadStatus.NEW);
+    List<Lead> newLeads = leadRepository.findByStatus(StatusEnum.NEW);
 
     // Then
     assertThat(newLeads).hasSize(1);
@@ -161,7 +160,7 @@ class JpaLeadRepositoryTest {
   @Test
   void findByStatusIn_shouldReturnLeadsWithMultipleStatuses() {
     // Given
-    List<LeadStatus> statuses = List.of(LeadStatus.NEW, LeadStatus.CONTACTED);
+    List<StatusEnum> statuses = List.of(StatusEnum.NEW, StatusEnum.CONTACTED);
 
     // When
     List<Lead> found = leadRepository.findByStatusIn(statuses);
@@ -188,7 +187,7 @@ class JpaLeadRepositoryTest {
   @Test
   void countByStatus_shouldReturnCorrectCount() {
     // When
-    long count = leadRepository.countByStatus(LeadStatus.NEW);
+    long count = leadRepository.countByStatus(StatusEnum.NEW);
 
     // Then
     assertThat(count).isEqualTo(1);
@@ -215,7 +214,7 @@ class JpaLeadRepositoryTest {
   @Test
   void findByStatusAndCompany_shouldReturnMatchingLeads() {
     // When
-    List<Lead> leads = leadRepository.findByStatusAndCompany(LeadStatus.NEW, companyFirst);
+    List<Lead> leads = leadRepository.findByStatusAndCompany(StatusEnum.NEW, companyFirst);
 
     // Then
     assertThat(leads).hasSize(1);
@@ -225,7 +224,7 @@ class JpaLeadRepositoryTest {
   @Test
   void findByStatusOrderByCreatedAtDesc_shouldReturnSortedLeads() {
     // When
-    List<Lead> leads = leadRepository.findByStatusOrderByCreatedAtDesc(LeadStatus.CONTACTED);
+    List<Lead> leads = leadRepository.findByStatusOrderByCreatedAtDesc(StatusEnum.CONTACTED);
 
     // Then
     assertThat(leads).hasSize(1);
@@ -260,7 +259,7 @@ class JpaLeadRepositoryTest {
             .name("Test")
             .phone("+123")
             .email("Test@ex.com")
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .company(companyFirst)
             .build();
     leadRepository.save(lead);

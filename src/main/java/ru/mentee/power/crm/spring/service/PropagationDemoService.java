@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
 /**
@@ -25,7 +25,7 @@ public class PropagationDemoService {
    */
   @Transactional(propagation = Propagation.REQUIRED)
   public void methodWithRequired(UUID leadId) {
-    updateLeadStatus(leadId, LeadStatus.CONTACTED);
+    updateLeadStatus(leadId, StatusEnum.CONTACTED);
   }
 
   /**
@@ -35,7 +35,7 @@ public class PropagationDemoService {
    */
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void methodWithRequiresNew(UUID leadId) {
-    updateLeadStatus(leadId, LeadStatus.QUALIFIED);
+    updateLeadStatus(leadId, StatusEnum.QUALIFIED);
   }
 
   /**
@@ -45,10 +45,10 @@ public class PropagationDemoService {
    */
   @Transactional(propagation = Propagation.MANDATORY)
   public void methodWithMandatory(UUID leadId) {
-    updateLeadStatus(leadId, LeadStatus.LOST);
+    updateLeadStatus(leadId, StatusEnum.LOST);
   }
 
-  private void updateLeadStatus(UUID leadId, LeadStatus status) {
+  private void updateLeadStatus(UUID leadId, StatusEnum status) {
     Lead lead =
         leadRepository.findById(leadId).orElseThrow(() -> new RuntimeException("Lead not found"));
     lead.setStatus(status);

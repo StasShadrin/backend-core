@@ -1,17 +1,17 @@
 package ru.mentee.power.crm.model;
 
-import io.soabase.recordbuilder.core.RecordBuilder;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.UUID;
+import lombok.Builder;
 
 /**
  * Неизменяемый объект-лид в CRM-системе. Содержит контактные данные, компанию и статус. Все
  * обязательные поля защищены аннотациями Bean Validation.
  */
-@RecordBuilder
+@Builder
 public record Lead(
     UUID id,
     @NotBlank(message = "{lead.name.notblank}")

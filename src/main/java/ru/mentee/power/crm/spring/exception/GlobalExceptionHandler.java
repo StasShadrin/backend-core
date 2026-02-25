@@ -1,6 +1,6 @@
 package ru.mentee.power.crm.spring.exception;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.NonNull;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import ru.mentee.power.crm.spring.dto.generated.ErrorResponse;
 
 @RestControllerAdvice
 @Slf4j
@@ -32,12 +33,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     ErrorResponse errorResponse =
         new ErrorResponse(
-            LocalDateTime.now(),
+            OffsetDateTime.now(),
             status.value(),
             "Bad Request",
             "Validation failed",
-            request.getDescription(false).replace("uri=", ""),
-            errors);
+            request.getDescription(false).replace("uri=", ""));
+
+    if (!errors.isEmpty()) {
+      errorResponse.setErrors(errors);
+    }
 
     log.warn("Validation failed for request: {}", request.getDescription(false));
 
@@ -49,7 +53,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       EntityNotFoundException ex, WebRequest request) {
     ErrorResponse errorResponse =
         new ErrorResponse(
-            LocalDateTime.now(),
+            OffsetDateTime.now(),
             404,
             "Not Found",
             ex.getMessage(),
@@ -64,7 +68,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("Unexpected error", ex);
     ErrorResponse errorResponse =
         new ErrorResponse(
-            LocalDateTime.now(),
+            OffsetDateTime.now(),
             500,
             "Internal Server Error",
             "Internal server error occurred. Contact support.",
@@ -77,7 +81,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
       DuplicateEmailException ex, WebRequest request) {
     ErrorResponse errorResponse =
         new ErrorResponse(
-            LocalDateTime.now(),
+            OffsetDateTime.now(),
             HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT.getReasonPhrase(),
             ex.getMessage(),
@@ -94,7 +98,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     ErrorResponse errorResponse =
         new ErrorResponse(
-            LocalDateTime.now(),
+            OffsetDateTime.now(),
             HttpStatus.BAD_REQUEST.value(),
             HttpStatus.BAD_REQUEST.getReasonPhrase(),
             ex.getMessage(),

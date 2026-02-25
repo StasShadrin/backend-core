@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -23,10 +24,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
-import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.mapper.LeadMapper;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
@@ -66,7 +66,7 @@ class LeadRestServiceAdapterTest {
             .email("ivan@example.com")
             .phone("+79991234567")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .createdAt(now)
             .updatedAt(now)
             .version(1L)
@@ -79,7 +79,7 @@ class LeadRestServiceAdapterTest {
             "ivan@example.com",
             "+79991234567",
             companyId,
-            LeadStatus.NEW,
+            StatusEnum.NEW,
             now);
   }
 
@@ -166,11 +166,11 @@ class LeadRestServiceAdapterTest {
     assertThat(result).isEqualTo(leadResponse);
     verify(companyRepository).findById(companyId);
     verify(leadMapper).toEntity(request);
-    verify(leadService).createLead(leadCaptor.capture()); // Используем ArgumentCaptor
+    verify(leadService).createLead(leadCaptor.capture());
 
     Lead capturedLead = leadCaptor.getValue();
     assertThat(capturedLead.getCompany()).isEqualTo(company);
-    assertThat(capturedLead.getStatus()).isEqualTo(LeadStatus.NEW);
+    assertThat(capturedLead.getStatus()).isEqualTo(StatusEnum.NEW);
 
     verify(leadMapper).toResponse(lead);
   }
@@ -198,12 +198,12 @@ class LeadRestServiceAdapterTest {
   void shouldUpdateLead() {
     // Given
     UpdateLeadRequest request =
-        new UpdateLeadRequest(
-            Optional.of("Иван Петров"),
-            Optional.of("ivan.petrov@example.com"),
-            Optional.of("+79991112233"),
-            Optional.of(companyId),
-            Optional.of(LeadStatus.CONTACTED));
+        new UpdateLeadRequest()
+            .name("Иван Петров")
+            .email("ivan.petrov@example.com")
+            .phone("+79991112233")
+            .companyId(companyId)
+            .status(UpdateLeadRequest.StatusEnum.CONTACTED);
 
     Lead updatedLead =
         Lead.builder()
@@ -212,7 +212,7 @@ class LeadRestServiceAdapterTest {
             .email("ivan.petrov@example.com")
             .phone("+79991112233")
             .company(company)
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .createdAt(now)
             .updatedAt(now)
             .version(2L)
@@ -225,7 +225,7 @@ class LeadRestServiceAdapterTest {
             "ivan.petrov@example.com",
             "+79991112233",
             companyId,
-            LeadStatus.CONTACTED,
+            StatusEnum.CONTACTED,
             now);
 
     when(leadService.findById(leadId)).thenReturn(Optional.of(lead));
@@ -255,12 +255,11 @@ class LeadRestServiceAdapterTest {
   void shouldUpdateLeadWithoutCompany() {
     // Given
     UpdateLeadRequest request =
-        new UpdateLeadRequest(
-            Optional.of("Иван Петров"),
-            Optional.of("ivan.petrov@example.com"),
-            Optional.of("+79991112233"),
-            Optional.empty(),
-            Optional.of(LeadStatus.CONTACTED));
+        new UpdateLeadRequest()
+            .name("Иван Петров")
+            .email("ivan.petrov@example.com")
+            .phone("+79991112233")
+            .status(UpdateLeadRequest.StatusEnum.CONTACTED);
 
     Lead updatedLead =
         Lead.builder()
@@ -269,7 +268,7 @@ class LeadRestServiceAdapterTest {
             .email("ivan.petrov@example.com")
             .phone("+79991112233")
             .company(company)
-            .status(LeadStatus.CONTACTED)
+            .status(StatusEnum.CONTACTED)
             .createdAt(now)
             .updatedAt(now)
             .version(2L)
@@ -282,7 +281,7 @@ class LeadRestServiceAdapterTest {
             "ivan.petrov@example.com",
             "+79991112233",
             companyId,
-            LeadStatus.CONTACTED,
+            StatusEnum.CONTACTED,
             now);
 
     when(leadService.findById(leadId)).thenReturn(Optional.of(lead));
@@ -306,13 +305,7 @@ class LeadRestServiceAdapterTest {
   void shouldThrowExceptionWhenUpdatingNonExistentLead() {
     // Given
     UUID nonExistentId = UUID.randomUUID();
-    UpdateLeadRequest request =
-        new UpdateLeadRequest(
-            Optional.of("Иван Петров"),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    UpdateLeadRequest request = new UpdateLeadRequest().name("Иван Петров");
 
     when(leadService.findById(nonExistentId)).thenReturn(Optional.empty());
 
@@ -329,13 +322,7 @@ class LeadRestServiceAdapterTest {
   @DisplayName("Должен выбросить исключение при обновлении с несуществующей компанией")
   void shouldThrowExceptionWhenUpdatingWithNonExistentCompany() {
     // Given
-    UpdateLeadRequest request =
-        new UpdateLeadRequest(
-            Optional.of("Иван Петров"),
-            Optional.empty(),
-            Optional.empty(),
-            Optional.of(companyId),
-            Optional.empty());
+    UpdateLeadRequest request = new UpdateLeadRequest().name("Иван Петров").companyId(companyId);
 
     when(leadService.findById(leadId)).thenReturn(Optional.of(lead));
     when(companyRepository.findById(companyId)).thenReturn(Optional.empty());

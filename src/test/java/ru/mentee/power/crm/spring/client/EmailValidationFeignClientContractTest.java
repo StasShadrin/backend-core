@@ -12,7 +12,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ class EmailValidationFeignClientContractTest {
   }
 
   @Test
-  void shouldReturnValidResponse_whenEmailIsValid(WireMockRuntimeInfo wmRuntimeInfo) {
+  void shouldReturnValidResponse_whenEmailIsValid() {
     // Given: Contract - external API returns valid=true for valid email
     stubFor(
         get(urlPathEqualTo("/api/validate/email"))
@@ -61,7 +60,7 @@ class EmailValidationFeignClientContractTest {
   }
 
   @Test
-  void shouldReturnInvalidResponse_whenEmailIsInvalid(WireMockRuntimeInfo wmRuntimeInfo) {
+  void shouldReturnInvalidResponse_whenEmailIsInvalid() {
     // Given: Contract - external API returns valid=false
     stubFor(
         get(urlPathEqualTo("/api/validate/email"))

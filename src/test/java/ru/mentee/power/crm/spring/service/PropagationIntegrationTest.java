@@ -1,6 +1,7 @@
 package ru.mentee.power.crm.spring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -32,14 +32,14 @@ class PropagationIntegrationTest {
   void propagation_REQUIRED_shouldReuseTransaction() {
     Lead lead = createLead("test1@example.com");
     demoService.methodWithRequired(lead.getId());
-    assertLeadStatus(lead.getId(), LeadStatus.CONTACTED);
+    assertLeadStatus(lead.getId(), StatusEnum.CONTACTED);
   }
 
   @Test
   void propagation_REQUIRES_NEW_shouldCreateNewTransaction() {
     Lead lead = createLead("test2@example.com");
     demoService.methodWithRequiresNew(lead.getId());
-    assertLeadStatus(lead.getId(), LeadStatus.QUALIFIED);
+    assertLeadStatus(lead.getId(), StatusEnum.QUALIFIED);
   }
 
   @Test
@@ -47,7 +47,7 @@ class PropagationIntegrationTest {
   void propagation_MANDATORY_worksInExistingTransaction() {
     Lead lead = createLead("test3@example.com");
     demoService.methodWithMandatory(lead.getId());
-    assertLeadStatus(lead.getId(), LeadStatus.LOST);
+    assertLeadStatus(lead.getId(), StatusEnum.LOST);
   }
 
   private Lead createLead(String email) {
@@ -60,12 +60,12 @@ class PropagationIntegrationTest {
             .email(email)
             .phone("123")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     return leadRepository.save(lead);
   }
 
-  private void assertLeadStatus(UUID id, LeadStatus expected) {
+  private void assertLeadStatus(UUID id, StatusEnum expected) {
     Lead lead = leadRepository.findById(id).orElseThrow();
     assertThat(lead.getStatus()).isEqualTo(expected);
   }

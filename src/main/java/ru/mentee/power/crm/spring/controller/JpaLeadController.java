@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.JpaCompanyService;
 import ru.mentee.power.crm.spring.service.JpaLeadService;
@@ -44,9 +44,9 @@ public class JpaLeadController {
       @RequestParam(required = false) String status,
       Model model) {
 
-    LeadStatus statusEnum = null;
+    StatusEnum statusEnum = null;
     if (status != null && !status.isEmpty()) {
-      statusEnum = LeadStatus.valueOf(status);
+      statusEnum = StatusEnum.valueOf(status);
     }
 
     var leads = leadService.findLeads(search, statusEnum);
@@ -60,7 +60,7 @@ public class JpaLeadController {
   /** Показывает форму для создания нового лида */
   @GetMapping("/new")
   public String showCreateForm(Model model) {
-    Lead lead = Lead.builder().name("").email("").phone("").status(LeadStatus.NEW).build();
+    Lead lead = Lead.builder().name("").email("").phone("").status(StatusEnum.NEW).build();
 
     model.addAttribute("lead", lead);
     return LEADS_CREATE;
@@ -129,7 +129,7 @@ public class JpaLeadController {
 
   /** Обновление статуса лидов по переданной компании */
   @PostMapping("/status")
-  public String updateLeadStatus(@RequestParam UUID companyId, @RequestParam LeadStatus status) {
+  public String updateLeadStatus(@RequestParam UUID companyId, @RequestParam StatusEnum status) {
 
     Company company =
         companyRepository

@@ -25,6 +25,7 @@ import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 import ru.mentee.power.crm.spring.dto.CreateDealRequest;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 import ru.mentee.power.crm.spring.exception.BadRequestException;
 import ru.mentee.power.crm.spring.exception.DuplicateEmailException;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
@@ -127,7 +128,7 @@ public class JpaLeadService {
 
   /** Выполняет поиск и фильтрацию лидов по текстовому запросу и статусу. */
   @Transactional(readOnly = true)
-  public List<Lead> findLeads(String search, LeadStatus status) {
+  public List<Lead> findLeads(String search, StatusEnum status) {
     String statusStr = (status != null) ? status.name() : null;
     return leadRepository.findLeadsNative(search, statusStr);
   }
@@ -138,7 +139,7 @@ public class JpaLeadService {
   }
 
   /** Поиск лидов по списку статусов (JPQL). */
-  public List<Lead> findByStatuses(LeadStatus... statuses) {
+  public List<Lead> findByStatuses(StatusEnum... statuses) {
     return leadRepository.findByStatusIn(List.of(statuses));
   }
 
@@ -164,7 +165,7 @@ public class JpaLeadService {
    */
   @Transactional
   public int convertNewToContacted() {
-    int updated = leadRepository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
+    int updated = leadRepository.updateStatusBulk(StatusEnum.NEW, StatusEnum.CONTACTED);
     // Логируем для observability
     System.out.printf("Converted %d leads from NEW to CONTACTED%n", updated);
     return updated;
@@ -172,7 +173,7 @@ public class JpaLeadService {
 
   /***/
   @Transactional
-  public int archiveOldLeads(LeadStatus status) {
+  public int archiveOldLeads(StatusEnum status) {
     return leadRepository.deleteByStatusBulk(status);
   }
 
@@ -199,7 +200,7 @@ public class JpaLeadService {
             .findById(leadId)
             .orElseThrow(() -> new EntityNotFoundException("Lead", leadId.toString()));
 
-    if (lead.getStatus() != LeadStatus.QUALIFIED) {
+    if (lead.getStatus() != StatusEnum.QUALIFIED) {
       throw new IllegalLeadStateException(leadId, lead.getStatus().name());
     }
 
@@ -210,13 +211,13 @@ public class JpaLeadService {
     deal.setStatus(DealStatus.NEW);
     dealRepository.save(deal);
 
-    lead.setStatus(LeadStatus.CONVERTED);
+    lead.setStatus(StatusEnum.CONVERTED);
     leadRepository.save(lead);
   }
 
   /** Поиск всех лидов по компании и обновление статуса */
   @Transactional
-  public void changeStatus(Company company, LeadStatus status) {
+  public void changeStatus(Company company, StatusEnum status) {
     if (company == null || status == null) {
       throw new IllegalArgumentException("Company and LeadStatus must not be null");
     }

@@ -1,6 +1,7 @@
 package ru.mentee.power.crm.spring.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.mentee.power.crm.spring.dto.generated.LeadResponse.StatusEnum;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -15,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import ru.mentee.power.crm.entity.Company;
 import ru.mentee.power.crm.entity.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.JpaLeadRepository;
 
@@ -40,7 +40,7 @@ class LeadLockingServiceTest {
             .email("concurrent@test.com")
             .phone("123456789")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     lead = leadRepository.save(lead);
     UUID leadId = lead.getId();
@@ -51,22 +51,22 @@ class LeadLockingServiceTest {
     CountDownLatch startLatch = new CountDownLatch(1);
     CountDownLatch doneLatch = new CountDownLatch(2);
 
-    Future<LeadStatus> task1 =
+    Future<StatusEnum> task1 =
         executor.submit(
             () -> {
               startLatch.await();
               Lead updated =
-                  leadLockingService.convertLeadToDealWithLock(leadId, LeadStatus.CONVERTED);
+                  leadLockingService.convertLeadToDealWithLock(leadId, StatusEnum.CONVERTED);
               doneLatch.countDown();
               return updated.getStatus();
             });
 
-    Future<LeadStatus> task2 =
+    Future<StatusEnum> task2 =
         executor.submit(
             () -> {
               startLatch.await();
               Lead updated =
-                  leadLockingService.convertLeadToDealWithLock(leadId, LeadStatus.QUALIFIED);
+                  leadLockingService.convertLeadToDealWithLock(leadId, StatusEnum.QUALIFIED);
               doneLatch.countDown();
               return updated.getStatus();
             });
@@ -75,15 +75,15 @@ class LeadLockingServiceTest {
     doneLatch.await(10, TimeUnit.SECONDS);
 
     // Then: Оба обновления успешны, вторая транзакция ждала первую
-    LeadStatus status1 = task1.get();
-    LeadStatus status2 = task2.get();
+    StatusEnum status1 = task1.get();
+    StatusEnum status2 = task2.get();
 
-    assertThat(status1).isIn(LeadStatus.CONVERTED, LeadStatus.QUALIFIED);
-    assertThat(status2).isIn(LeadStatus.CONVERTED, LeadStatus.QUALIFIED);
+    assertThat(status1).isIn(StatusEnum.CONVERTED, StatusEnum.QUALIFIED);
+    assertThat(status2).isIn(StatusEnum.CONVERTED, StatusEnum.QUALIFIED);
     assertThat(status1).isNotEqualTo(status2);
 
     Lead finalLead = leadRepository.findById(leadId).orElseThrow();
-    assertThat(finalLead.getStatus()).isIn(LeadStatus.CONVERTED, LeadStatus.QUALIFIED);
+    assertThat(finalLead.getStatus()).isIn(StatusEnum.CONVERTED, StatusEnum.QUALIFIED);
 
     executor.shutdown();
   }
@@ -101,7 +101,7 @@ class LeadLockingServiceTest {
             .phone("123456789")
             .email("optimistic@test.com")
             .company(company)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     lead = leadRepository.save(lead);
     UUID leadId = lead.getId();
@@ -115,7 +115,7 @@ class LeadLockingServiceTest {
         executor.submit(
             () -> {
               startLatch.await();
-              leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.CONVERTED);
+              leadLockingService.updateLeadStatusOptimistic(leadId, StatusEnum.CONVERTED);
               return null;
             });
 
@@ -123,7 +123,7 @@ class LeadLockingServiceTest {
         executor.submit(
             () -> {
               startLatch.await();
-              leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.QUALIFIED);
+              leadLockingService.updateLeadStatusOptimistic(leadId, StatusEnum.QUALIFIED);
               return null;
             });
 
@@ -160,7 +160,7 @@ class LeadLockingServiceTest {
             .email("lead1@test.com")
             .phone("123")
             .company(company1)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
     Lead lead2 =
         Lead.builder()
@@ -168,7 +168,7 @@ class LeadLockingServiceTest {
             .email("lead2@test.com")
             .phone("456")
             .company(company2)
-            .status(LeadStatus.NEW)
+            .status(StatusEnum.NEW)
             .build();
 
     lead1 = leadRepository.save(lead1);

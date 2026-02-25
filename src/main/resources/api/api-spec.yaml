@@ -1,0 +1,299 @@
+openapi: 3.1.0
+info:
+  title: CRM Lead Management API
+  version: 1.0.0
+  description: REST API для управления лидами в CRM системе
+  contact:
+    name: Backend Team
+    email: backend@mentee.power
+servers:
+  - url: http://localhost:8081
+    description: Local development server
+
+paths:
+  /api/leads:
+    get:
+      operationId: getLeads
+      summary: Получить список всех лидов
+      tags:
+        - Lead Management
+      responses:
+        '200':
+          description: Успешное получение списка лидов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeadResponse'
+    post:
+      operationId: createLead
+      summary: Создать нового лида
+      tags:
+        - Lead Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLeadRequest'
+      responses:
+        '201':
+          description: Лид успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadResponse'
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI созданного лида
+        '400':
+          description: Ошибка валидации входных данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/leads/{id}:
+    get:
+      operationId: getLeadById
+      summary: Получить лида по ID
+      tags:
+        - Lead Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Лид найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadResponse'
+        '404':
+          description: Лид не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      operationId: updateLead
+      summary: Обновить существующего лида
+      tags:
+        - Lead Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLeadRequest'
+      responses:
+        '200':
+          description: Лид успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadResponse'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Лид не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteLead
+      summary: Удалить лида
+      tags:
+        - Lead Management
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Лид успешно удалён
+        '404':
+          description: Лид не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreateLeadRequest:
+      type: object
+      required:
+        - name
+        - email
+        - phone
+        - companyId
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Имя и Фамилия лида
+          example: Иван Петров
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 100
+          description: Email лида
+          example: ivan.petrov@example.com
+        phone:
+          type: string
+          minLength: 1
+          maxLength: 20
+          description: Номер телефона лида
+          example: +79999999999
+        companyId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор компании
+          example: fd19821c-babb-4f46-af43-226347d3c235
+
+    UpdateLeadRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+          description: Имя и Фамилия лида
+          example: Иван Петров
+        email:
+          type: string
+          format: email
+          maxLength: 100
+          description: Email лида
+          example: ivan.petrov@example.com
+        phone:
+          type: string
+          maxLength: 20
+          description: Номер телефона лида
+          example: +79999999999
+        status:
+          type: string
+          description: Новый статус лида
+          enum:
+            - NEW
+            - CONTACTED
+            - QUALIFIED
+            - LOST
+            - CONVERTED
+          example: QUALIFIED
+        companyId:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор компании
+          example: fd19821c-babb-4f46-af43-226347d3c235
+
+    LeadResponse:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - phone
+        - companyId
+        - status
+        - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор лида
+          example: 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          example: Иван Петров
+        email:
+          type: string
+          format: email
+          example: ivan.petrov@example.com
+        phone:
+          type: string
+          example: +79999999999
+        companyId:
+          type: string
+          format: uuid
+          nullable: true
+          example: fd19821c-babb-4f46-af43-226347d3c235
+        status:
+          type: string
+          description: Статус лида
+          enum:
+            - NEW
+            - CONTACTED
+            - QUALIFIED
+            - LOST
+            - CONVERTED
+          example: NEW
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата и время создания
+          example: 2026-01-01T10:30:00Z
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Время возникновения ошибки
+          example: 2026-02-25T15:30:00Z
+        status:
+          type: integer
+          description: HTTP статус код
+          example: 400
+        error:
+          type: string
+          description: Тип ошибки
+          example: Validation Failed
+        message:
+          type: string
+          description: Детальное описание
+          example: "Ошибка валидации входных данных"
+        path:
+          type: string
+          description: Путь запроса
+          example: /api/leads
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+          description: Ошибки по полям (для валидации)
+          example:
+            email: "must be a well-formed email address"
+            phone: "must not be blank"

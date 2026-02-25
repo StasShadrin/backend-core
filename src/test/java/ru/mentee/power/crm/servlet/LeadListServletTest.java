@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadBuilder;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -66,14 +65,14 @@ class LeadListServletTest {
   void shouldReturnHtmlTable_whenDoGetCalled() throws IOException {
     List<Lead> mockLeads =
         Arrays.asList(
-            LeadBuilder.builder()
+            Lead.builder()
                 .id(UUID.randomUUID())
                 .email("test1@example.com")
                 .phone("+123")
                 .company("Company A")
                 .status(LeadStatus.NEW)
                 .build(),
-            LeadBuilder.builder()
+            Lead.builder()
                 .id(UUID.randomUUID())
                 .email("test2@example.com")
                 .phone("+456")
@@ -143,7 +142,7 @@ class LeadListServletTest {
   void shouldSetContentTypeToHtml_whenDoGetCalled() throws IOException {
     List<Lead> mockLeads =
         List.of(
-            LeadBuilder.builder()
+            Lead.builder()
                 .id(UUID.randomUUID())
                 .email("test@example.com")
                 .phone("+123")
