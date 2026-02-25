@@ -279,7 +279,7 @@ tasks.withType(JavaCompile).configureEach {
 
 openApiGenerate {
     generatorName = "spring"
-    inputSpec = "C:/Projects/backend-core/src/main/resources/api/api-spec.yaml"
+    inputSpec = file("src/main/resources/api/api-spec.yaml").absolutePath.replace('\\', '/')
     outputDir = "${buildDir}/generated"
     apiPackage = "ru.mentee.power.crm.spring.rest.generated"
     modelPackage = "ru.mentee.power.crm.spring.dto.generated"
